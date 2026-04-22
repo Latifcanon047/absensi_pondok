@@ -1,0 +1,78 @@
+          generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum TipeAbsensi {
+  SHOLAT
+  KELAS
+}
+
+enum StatusAbsen {
+  HADIR
+  SAKIT
+  IZIN
+  ALPA
+  TELAT
+}
+
+model Admin {
+  id        Int      @id @default(autoincrement())
+  username  String   @unique
+  password  String
+  createdAt DateTime @default(now())
+}
+
+model Santri {
+  id          Int           @id @default(autoincrement())
+  nama        String
+  isArchived  Boolean       @default(false)
+  createdAt   DateTime      @default(now())
+  absenSholat AbsenSholat[]
+  absenKelas  AbsenKelas[]
+}
+
+model Absensi {
+  id             Int           @id @default(autoincrement())
+  tipe           TipeAbsensi
+  mingguKe       Int
+  bulan          Int
+  tahun          Int
+  tanggalMulai   DateTime
+  tanggalSelesai DateTime
+  createdAt      DateTime      @default(now())
+  absenSholat    AbsenSholat[]
+  absenKelas     AbsenKelas[]
+
+  @@unique([tipe, mingguKe, bulan, tahun])
+}
+
+model AbsenSholat {
+  id        Int         @id @default(autoincrement())
+  absensiId Int
+  santriId  Int
+  hari      String
+  waktu     String
+  status    StatusAbsen
+  absensi   Absensi     @relation(fields: [absensiId], references: [id], onDelete: Cascade)
+  santri    Santri      @relation(fields: [santriId], references: [id], onDelete: Restrict)
+
+  @@unique([absensiId, santriId, hari, waktu])
+}
+
+model AbsenKelas {
+  id        Int         @id @default(autoincrement())
+  absensiId Int
+  santriId  Int
+  hari      String
+  sesi      String
+  status    StatusAbsen
+  absensi   Absensi     @relation(fields: [absensiId], references: [id], onDelete: Cascade)
+  santri    Santri      @relation(fields: [santriId], references: [id], onDelete: Restrict)
+
+  @@unique([absensiId, santriId, hari, sesi])
+}
