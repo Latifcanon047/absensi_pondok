@@ -8,18 +8,18 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const bulan = parseInt(searchParams.get("bulan") || "0");
     const tahun = parseInt(searchParams.get("tahun") || "0");
-    const mingguKe = parseInt(searchParams.get("mingguKe") || "0");
+    // const mingguKe = parseInt(searchParams.get("mingguKe") || "0");
 
-    if (!bulan || !tahun || !mingguKe) {
+    if (!bulan || !tahun) {
       return NextResponse.json(
-        { error: "Bulan, tahun, dan minggu harus diisi" },
+        { error: "Bulan, dan tahun harus diisi" },
         { status: 400 },
       );
     }
 
     //cirian
     const absensi = await prisma.absensi.findMany({
-      where: { bulan, tahun, mingguKe },
+      where: { bulan, tahun },
     }); //kalo gak ada hasilnya akan jadi array kosong, bukan error. Jadi kita gak perlu cek lagi apakah hasilnya ada atau tidak, cukup langsung return aja
 
     return NextResponse.json(absensi);

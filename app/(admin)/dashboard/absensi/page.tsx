@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
 const BULAN = [
@@ -32,20 +32,23 @@ export default function ListAbsensiPage() {
   const router = useRouter();
   const [bulan, setBulan] = useState(new Date().getMonth() + 1);
   const [tahun, setTahun] = useState(new Date().getFullYear());
-  const [mingguKe, setMingguKe] = useState(1);
   const [hasil, setHasil] = useState<Absensi[]>([]);
   const [sudahCari, setSudahCari] = useState(false);
   const [loading, setLoading] = useState(false);
   const [showDialog, setShowDialog] = useState(false);
+
+  useEffect(() => {
+    setBulan(new Date().getMonth() + 1);
+    setTahun(new Date().getFullYear());
+    handleCari();
+  }, []);
 
   async function handleCari() {
     setLoading(true);
     setSudahCari(false);
 
     try {
-      const res = await fetch(
-        `/api/absensi?bulan=${bulan}&tahun=${tahun}&mingguKe=${mingguKe}`,
-      );
+      const res = await fetch(`/api/absensi?bulan=${bulan}&tahun=${tahun}`);
       const data = await res.json();
       setHasil(data);
       setSudahCari(true);
@@ -61,13 +64,11 @@ export default function ListAbsensiPage() {
   }
 
   function handleBuatAbsensi() {
-    router.push(
-      `/dashboard/absensi/buat?bulan=${bulan}&tahun=${tahun}&mingguKe=${mingguKe}`,
-    );
+    router.push(`/dashboard/absensi/buat?bulan=${bulan}&tahun=${tahun}`);
   }
 
-  const sholat = hasil.find((a) => a.tipe === "SHOLAT");
-  const kelas = hasil.find((a) => a.tipe === "KELAS");
+  const sholat = hasil.filter((a) => a.tipe === "SHOLAT");
+  const kelas = hasil.filter((a) => a.tipe === "KELAS");
 
   return (
     <div>
@@ -104,23 +105,6 @@ export default function ListAbsensiPage() {
               className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#1a6b3c]"
             />
           </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Minggu Ke-
-            </label>
-            <select
-              value={mingguKe}
-              onChange={(e) => setMingguKe(parseInt(e.target.value))}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#1a6b3c]"
-            >
-              {[1, 2, 3, 4, 5].map((m) => (
-                <option key={m} value={m}>
-                  Minggu ke-{m}
-                </option>
-              ))}
-            </select>
-          </div>
         </div>
 
         <button
@@ -135,38 +119,37 @@ export default function ListAbsensiPage() {
       {/* Hasil */}
       {sudahCari && hasil.length > 0 && (
         <div className="bg-white rounded-xl shadow-sm p-6">
-          <h2 className="font-semibold text-gray-700 mb-4">
-            Absensi Minggu ke-{mingguKe} {BULAN[bulan - 1]} {tahun}
-          </h2>
           <div className="flex flex-col md:flex-row gap-4">
-            {sholat && (
-              <button
-                onClick={() =>
-                  router.push(`/dashboard/absensi/${sholat.id}/sholat`)
-                }
-                className="flex-1 bg-green-50 border border-green-200 rounded-lg p-4 text-left hover:bg-green-100 transition"
-              >
-                <p className="font-medium text-green-700">📿 Absen Sholat</p>
-                <p className="text-xs text-gray-500 mt-1">
-                  {new Date(sholat.tanggalMulai).toLocaleDateString("id-ID")} —{" "}
-                  {new Date(sholat.tanggalSelesai).toLocaleDateString("id-ID")}
-                </p>
-              </button>
-            )}
-            {kelas && (
-              <button
-                onClick={() =>
-                  router.push(`/dashboard/absensi/${kelas.id}/kelas`)
-                }
-                className="flex-1 bg-blue-50 border border-blue-200 rounded-lg p-4 text-left hover:bg-blue-100 transition"
-              >
-                <p className="font-medium text-blue-700">📚 Absen Kelas</p>
-                <p className="text-xs text-gray-500 mt-1">
-                  {new Date(kelas.tanggalMulai).toLocaleDateString("id-ID")} —{" "}
-                  {new Date(kelas.tanggalSelesai).toLocaleDateString("id-ID")}
-                </p>
-              </button>
-            )}
+            {sholat &&
+              sholat.map((s) => (
+                <button
+                  onClick={() =>
+                    router.push(`/dashboard/absensi/${s.id}/sholat`)
+                  }
+                  className="flex-1 bg-green-50 border border-green-200 rounded-lg p-4 text-left hover:bg-green-100 transition"
+                >
+                  <p className="font-medium text-green-700">📿 Absen Sholat</p>
+                  <p className="text-xs text-gray-500 mt-1">
+                    {new Date(s.tanggalMulai).toLocaleDateString("id-ID")} —{" "}
+                    {new Date(s.tanggalSelesai).toLocaleDateString("id-ID")}
+                  </p>
+                </button>
+              ))}
+            {kelas &&
+              kelas.map((k) => (
+                <button
+                  onClick={() =>
+                    router.push(`/dashboard/absensi/${k.id}/kelas`)
+                  }
+                  className="flex-1 bg-blue-50 border border-blue-200 rounded-lg p-4 text-left hover:bg-blue-100 transition"
+                >
+                  <p className="font-medium text-blue-700">📚 Absen Kelas</p>
+                  <p className="text-xs text-gray-500 mt-1">
+                    {new Date(k.tanggalMulai).toLocaleDateString("id-ID")} —{" "}
+                    {new Date(k.tanggalSelesai).toLocaleDateString("id-ID")}
+                  </p>
+                </button>
+              ))}
           </div>
         </div>
       )}
@@ -177,8 +160,8 @@ export default function ListAbsensiPage() {
           <div className="bg-white rounded-xl p-6 w-full max-w-md mx-4">
             <h2 className="text-lg font-bold mb-2">Absensi Belum Dibuat</h2>
             <p className="text-gray-600 text-sm mb-6">
-              Absensi minggu ke-{mingguKe} {BULAN[bulan - 1]} {tahun} belum
-              dibuat. Mau buat sekarang?
+              Absensi {BULAN[bulan - 1]} {tahun} belum dibuat. Mau buat
+              sekarang?
             </p>
             <div className="flex gap-3 justify-end">
               <button
