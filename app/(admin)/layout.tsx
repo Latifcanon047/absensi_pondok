@@ -51,6 +51,12 @@ export default function AdminLayout({
           >
             👤 Data Santri
           </Link>
+          <Link
+            href="/dashboard/settings"
+            className="block px-4 py-2 rounded-lg hover:bg-[#164d2f] transition text-sm"
+          >
+            ⚙️ Pengaturan
+          </Link>
         </nav>
 
         <div className="p-4 border-t border-green-700">

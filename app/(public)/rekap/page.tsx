@@ -61,6 +61,93 @@ export default function RekapPage() {
     }
   }
 
+  async function handleExportExcel() {
+    const XLSX = await import("xlsx");
+
+    const dataExport = hasil.map((santri, index) => ({
+      No: index + 1,
+      Nama: santri.nama,
+      Hadir: santri.hadir,
+      Telat: santri.telat,
+      Sakit: santri.sakit,
+      Izin: santri.izin,
+      Alpa: santri.alpa,
+      "Kedisiplinan (%)": santri.skor,
+    }));
+
+    const ws = XLSX.utils.json_to_sheet(dataExport);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Rekap Absen");
+
+    const periode =
+      mode === "bulan"
+        ? `${BULAN[bulan - 1]} ${tahun}`
+        : `Minggu ke-${mingguKe} ${BULAN[bulan - 1]} ${tahun}`;
+
+    XLSX.writeFile(wb, `Rekap Absen ${periode}.xlsx`);
+  }
+
+  async function handleExportPDF() {
+    const { default: jsPDF } = await import("jspdf");
+    const { default: autoTable } = await import("jspdf-autotable");
+
+    const doc = new jsPDF();
+
+    const periode =
+      mode === "bulan"
+        ? `${BULAN[bulan - 1]} ${tahun}`
+        : `Minggu ke-${mingguKe} ${BULAN[bulan - 1]} ${tahun}`;
+
+    // Header
+    doc.setFontSize(16);
+    doc.setTextColor(26, 107, 60);
+    doc.text("Rekap Absen Pesantren", 14, 20);
+
+    doc.setFontSize(11);
+    doc.setTextColor(100, 100, 100);
+    doc.text(`Periode: ${periode}`, 14, 30);
+
+    // Tabel
+    autoTable(doc, {
+      startY: 38,
+      head: [
+        [
+          "No",
+          "Nama",
+          "Hadir",
+          "Telat",
+          "Sakit",
+          "Izin",
+          "Alpa",
+          "Kedisiplinan (%)",
+        ],
+      ],
+      body: hasil.map((santri, index) => [
+        index + 1,
+        santri.nama,
+        santri.hadir,
+        santri.telat,
+        santri.sakit,
+        santri.izin,
+        santri.alpa,
+        `${santri.skor}%`,
+      ]),
+      headStyles: {
+        fillColor: [26, 107, 60],
+        textColor: 255,
+        fontStyle: "bold",
+      },
+      alternateRowStyles: {
+        fillColor: [240, 250, 244],
+      },
+      styles: {
+        fontSize: 10,
+      },
+    });
+
+    doc.save(`Rekap Absen ${periode}.pdf`);
+  }
+
   return (
     <div>
       <h1 className="text-2xl font-bold text-gray-800 mb-6">Rekap Absen</h1>
@@ -233,6 +320,22 @@ export default function RekapPage() {
                   ))}
                 </tbody>
               </table>
+            </div>
+          )}
+          {sudahCari && hasil.length > 0 && (
+            <div className="mt-4 flex gap-3">
+              <button
+                onClick={handleExportExcel}
+                className="bg-green-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-green-700 transition"
+              >
+                📥 Export Excel
+              </button>
+              <button
+                onClick={handleExportPDF}
+                className="bg-red-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-red-700 transition"
+              >
+                📄 Export PDF
+              </button>
             </div>
           )}
         </div>
