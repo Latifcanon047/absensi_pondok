@@ -21,6 +21,7 @@ export default function StatusBadge({ status }: Props) {
     SAKIT: { bg: "bg-yellow-100", text: "text-yellow-700", label: "S Sakit" },
     IZIN: { bg: "bg-blue-100", text: "text-blue-700", label: "I Izin" },
     ALPA: { bg: "bg-red-100", text: "text-red-700", label: "A Alpa" },
+    KOSONG: { bg: "bg-gray-100", text: "text-gray-400", label: "-" },
   };
 
   const { bg, text, label } = config[status]; //kalo statusnya HADIR, maka bg = "bg-green-100", text = "text-green-700", label = "✅ Hadir"

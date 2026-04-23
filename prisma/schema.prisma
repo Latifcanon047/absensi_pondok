@@ -18,6 +18,7 @@ enum StatusAbsen {
   IZIN
   ALPA
   TELAT
+  KOSONG
 }
 
 model Admin {

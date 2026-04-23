@@ -6,7 +6,7 @@ import StatusBadge from "./StatusBadge";
 
 type Props = {
   currentStatus: StatusAbsen | null;
-  onChange: (status: StatusAbsen) => void;//void itu artinya fungsi ini gak ngembaliin apa-apa, cuma ngejalanin sesuatu aja. Jadi kalo kita panggil onChange("HADIR"), maka dia bakal ngejalanin fungsi yang kita kasih dari parent component, tapi gak ngembaliin nilai apapun ke tempat kita manggil onChange itu
+  onChange: (status: StatusAbsen) => void; //void itu artinya fungsi ini gak ngembaliin apa-apa, cuma ngejalanin sesuatu aja. Jadi kalo kita panggil onChange("HADIR"), maka dia bakal ngejalanin fungsi yang kita kasih dari parent component, tapi gak ngembaliin nilai apapun ke tempat kita manggil onChange itu
   disabled?: boolean;
 };
 
@@ -16,6 +16,7 @@ const OPTIONS: { value: StatusAbsen; label: string }[] = [
   { value: "SAKIT", label: "S Sakit" },
   { value: "IZIN", label: "I Izin" },
   { value: "ALPA", label: "A Alpa" },
+  { value: "KOSONG", label: "⬜ Kosong" },
 ];
 
 export default function StatusPicker({
@@ -24,7 +25,7 @@ export default function StatusPicker({
   disabled,
 }: Props) {
   const [open, setOpen] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);//ref ini buat ngeakses elemen div yang kita render nanti, supaya kita bisa ngecek apakah user klik di luar elemen itu atau enggak
+  const ref = useRef<HTMLDivElement>(null); //ref ini buat ngeakses elemen div yang kita render nanti, supaya kita bisa ngecek apakah user klik di luar elemen itu atau enggak
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
