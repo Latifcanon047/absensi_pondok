@@ -3,6 +3,9 @@ import { prisma } from "@/lib/prisma";
 import { hitungSkor } from "@/lib/utils";
 
 export async function GET(request: NextRequest) {
+  function toUTCDateString(date: Date) {
+    return date.toISOString().split("T")[0];
+  }
   try {
     const { searchParams } = new URL(request.url);
     const dariTanggal = searchParams.get("dariTanggal");
@@ -17,12 +20,19 @@ export async function GET(request: NextRequest) {
 
     const dari = new Date(dariTanggal);
     const sampai = new Date(sampaiTanggal);
-    sampai.setHours(23, 59, 59);
 
-    // Ambil semua absensi dalam range
+    const dariUTC = new Date(
+      Date.UTC(dari.getFullYear(), dari.getMonth(), dari.getDate()),
+    );
+
+    const sampaiUTC = new Date(
+      Date.UTC(sampai.getFullYear(), sampai.getMonth(), sampai.getDate() + 1),
+    );
+
     const absensiList = await prisma.absensi.findMany({
-      where: { tanggal: { gte: dari, lte: sampai } },
-      orderBy: { tanggal: "asc" },
+      where: {
+        tanggal: { gte: dariUTC, lt: sampaiUTC },
+      },
     });
 
     const absensiIds = absensiList.map((a) => a.id);
@@ -49,7 +59,7 @@ export async function GET(request: NextRequest) {
       .filter(
         (a, i, arr) =>
           arr.findIndex(
-            (b) => b.tanggal.toDateString() === a.tanggal.toDateString(),
+            (b) => toUTCDateString(b.tanggal) === toUTCDateString(a.tanggal),
           ) === i,
       )
       .map((absensi) => {
@@ -58,13 +68,11 @@ export async function GET(request: NextRequest) {
 
         const sholatHari = semuaSholat.filter(
           (s) =>
-            new Date(s.absensi.tanggal).toDateString() ===
-            tanggal.toDateString(),
+            toUTCDateString(s.absensi.tanggal) === toUTCDateString(tanggal),
         );
         const kelasHari = semuaKelas.filter(
           (k) =>
-            new Date(k.absensi.tanggal).toDateString() ===
-            tanggal.toDateString(),
+            toUTCDateString(k.absensi.tanggal) === toUTCDateString(tanggal),
         );
         const semua = [...sholatHari, ...kelasHari];
 

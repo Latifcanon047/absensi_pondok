@@ -15,14 +15,14 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const awalBulan = new Date(tahun, bulan - 1, 1);
-    const akhirBulan = new Date(tahun, bulan, 0, 23, 59, 59);
+    const awalBulan = new Date(Date.UTC(tahun, bulan - 1, 1));
+    const akhirBulan = new Date(Date.UTC(tahun, bulan, 1));
 
     const absensi = await prisma.absensi.findMany({
       where: {
         tanggal: {
           gte: awalBulan,
-          lte: akhirBulan,
+          lt: akhirBulan,
         },
       },
       orderBy: { tanggal: "asc" },
@@ -56,7 +56,7 @@ export async function POST(request: NextRequest) {
     const results = await Promise.allSettled(
       Array.from({ length: jumlahHari }, (_, i) => {
         //mengulang dari 0 hingga jumlahHari-1
-        const tanggal = new Date(tahun, bulan - 1, i + 1);
+        const tanggal = new Date(Date.UTC(tahun, bulan - 1, i + 1));
         return prisma.absensi.create({
           data: {
             tipe: tipe as TipeAbsensi,

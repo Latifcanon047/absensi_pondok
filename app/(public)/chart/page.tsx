@@ -46,24 +46,33 @@ type Summary = {
 };
 
 export default function ChartPage() {
-  const [mode, setMode] = useState<"bulan" | "minggu">("bulan");
-  const [bulan, setBulan] = useState(new Date().getMonth() + 1);
-  const [tahun, setTahun] = useState(new Date().getFullYear());
-  const [mingguKe, setMingguKe] = useState(1);
+  const [dariTanggal, setDariTanggal] = useState(
+    formatDateLocal(
+      new Date(new Date().getFullYear(), new Date().getMonth(), 1),
+    ),
+  );
+  const [sampaiTanggal, setSampaiTanggal] = useState(
+    formatDateLocal(new Date()),
+  );
   const [chartData, setChartData] = useState<ChartData[]>([]);
   const [summary, setSummary] = useState<Summary | null>(null);
   const [loading, setLoading] = useState(false);
   const [sudahCari, setSudahCari] = useState(false);
+
+  function formatDateLocal(date: Date) {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  }
 
   async function handleLihat() {
     setLoading(true);
     setSudahCari(false);
 
     const params = new URLSearchParams({
-      mode,
-      bulan: String(bulan),
-      tahun: String(tahun),
-      mingguKe: String(mingguKe),
+      dariTanggal,
+      sampaiTanggal,
     });
 
     try {
@@ -87,77 +96,29 @@ export default function ChartPage() {
 
       {/* Filter */}
       <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
-        <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Filter
-          </label>
-          <div className="flex gap-2">
-            <button
-              onClick={() => setMode("bulan")}
-              className={`px-4 py-2 rounded-lg text-sm font-medium border transition ${
-                mode === "bulan"
-                  ? "bg-[#1a6b3c] text-white border-[#1a6b3c]"
-                  : "bg-white text-gray-600 border-gray-300 hover:bg-gray-50"
-              }`}
-            >
-              Per Bulan
-            </button>
-            <button
-              onClick={() => setMode("minggu")}
-              className={`px-4 py-2 rounded-lg text-sm font-medium border transition ${
-                mode === "minggu"
-                  ? "bg-[#1a6b3c] text-white border-[#1a6b3c]"
-                  : "bg-white text-gray-600 border-gray-300 hover:bg-gray-50"
-              }`}
-            >
-              Per Minggu
-            </button>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-          {mode === "minggu" && (
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Minggu Ke-
-              </label>
-              <select
-                value={mingguKe}
-                onChange={(e) => setMingguKe(parseInt(e.target.value))}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#1a6b3c]"
-              >
-                {[1, 2, 3, 4, 5].map((m) => (
-                  <option key={m} value={m}>
-                    Minggu ke-{m}
-                  </option>
-                ))}
-              </select>
-            </div>
-          )}
+        <p className="text-sm font-medium text-gray-700 mb-4">
+          Pilih Range Tanggal
+        </p>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Bulan
-            </label>
-            <select
-              value={bulan}
-              onChange={(e) => setBulan(parseInt(e.target.value))}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#1a6b3c]"
-            >
-              {BULAN.map((b, i) => (
-                <option key={i} value={i + 1}>
-                  {b}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Tahun
+            <label className="block text-xs text-gray-600 mb-1">
+              Dari Tanggal
             </label>
             <input
-              type="number"
-              value={tahun}
-              onChange={(e) => setTahun(parseInt(e.target.value))}
+              type="date"
+              value={dariTanggal}
+              onChange={(e) => setDariTanggal(e.target.value)}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#1a6b3c]"
+            />
+          </div>
+          <div>
+            <label className="block text-xs text-gray-600 mb-1">
+              Sampai Tanggal
+            </label>
+            <input
+              type="date"
+              value={sampaiTanggal}
+              onChange={(e) => setSampaiTanggal(e.target.value)}
               className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#1a6b3c]"
             />
           </div>
@@ -168,10 +129,9 @@ export default function ChartPage() {
           disabled={loading}
           className="bg-[#1a6b3c] text-white px-6 py-2 rounded-lg text-sm hover:bg-[#164d2f] transition disabled:opacity-50"
         >
-          {loading ? "Memuat..." : "Lihat Chart"}
+          {loading ? "Memuat..." : "Lihat Rekap"}
         </button>
       </div>
-
       {sudahCari && (
         <>
           {/* Line Chart */}
