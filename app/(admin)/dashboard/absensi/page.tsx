@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 
 const BULAN = [
@@ -18,14 +18,12 @@ const BULAN = [
   "Desember",
 ];
 
+const HARI = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
+
 type Absensi = {
   id: number;
   tipe: "SHOLAT" | "KELAS";
-  mingguKe: number;
-  bulan: number;
-  tahun: number;
-  tanggalMulai: string;
-  tanggalSelesai: string;
+  tanggal: string;
 };
 
 export default function ListAbsensiPage() {
@@ -36,12 +34,7 @@ export default function ListAbsensiPage() {
   const [sudahCari, setSudahCari] = useState(false);
   const [loading, setLoading] = useState(false);
   const [showDialog, setShowDialog] = useState(false);
-
-  useEffect(() => {
-    setBulan(new Date().getMonth() + 1);
-    setTahun(new Date().getFullYear());
-    handleCari();
-  }, []);
+  const [activeTab, setActiveTab] = useState<"SHOLAT" | "KELAS">("SHOLAT");
 
   async function handleCari() {
     setLoading(true);
@@ -52,10 +45,7 @@ export default function ListAbsensiPage() {
       const data = await res.json();
       setHasil(data);
       setSudahCari(true);
-
-      if (data.length === 0) {
-        setShowDialog(true);
-      }
+      if (data.length === 0) setShowDialog(true);
     } catch {
       console.error("Gagal fetch absensi");
     } finally {
@@ -63,12 +53,9 @@ export default function ListAbsensiPage() {
     }
   }
 
-  function handleBuatAbsensi() {
-    router.push(`/dashboard/absensi/buat?bulan=${bulan}&tahun=${tahun}`);
-  }
-
-  const sholat = hasil.filter((a) => a.tipe === "SHOLAT");
-  const kelas = hasil.filter((a) => a.tipe === "KELAS");
+  const sholatList = hasil.filter((a) => a.tipe === "SHOLAT");
+  const kelasList = hasil.filter((a) => a.tipe === "KELAS");
+  const activeList = activeTab === "SHOLAT" ? sholatList : kelasList;
 
   return (
     <div>
@@ -76,7 +63,7 @@ export default function ListAbsensiPage() {
 
       {/* Filter */}
       <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Bulan
@@ -93,7 +80,6 @@ export default function ListAbsensiPage() {
               ))}
             </select>
           </div>
-
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Tahun
@@ -106,10 +92,9 @@ export default function ListAbsensiPage() {
             />
           </div>
         </div>
-
         <button
           onClick={handleCari}
-          disabled={loading} //biar gak bisa klik tombol cari berkali-kali pas lagi loading
+          disabled={loading}
           className="mt-4 bg-[#1a6b3c] text-white px-6 py-2 rounded-lg text-sm hover:bg-[#164d2f] transition disabled:opacity-50"
         >
           {loading ? "Mencari..." : "Cari"}
@@ -119,37 +104,55 @@ export default function ListAbsensiPage() {
       {/* Hasil */}
       {sudahCari && hasil.length > 0 && (
         <div className="bg-white rounded-xl shadow-sm p-6">
-          <div className="flex flex-col md:flex-row gap-4">
-            {sholat &&
-              sholat.map((s) => (
+          {/* Tab */}
+          <div className="flex gap-2 mb-4">
+            <button
+              onClick={() => setActiveTab("SHOLAT")}
+              className={`px-4 py-2 rounded-lg text-sm font-medium border transition ${
+                activeTab === "SHOLAT"
+                  ? "bg-[#1a6b3c] text-white border-[#1a6b3c]"
+                  : "bg-white text-gray-600 border-gray-300 hover:bg-gray-50"
+              }`}
+            >
+              📿 Sholat ({sholatList.length})
+            </button>
+            <button
+              onClick={() => setActiveTab("KELAS")}
+              className={`px-4 py-2 rounded-lg text-sm font-medium border transition ${
+                activeTab === "KELAS"
+                  ? "bg-[#1a6b3c] text-white border-[#1a6b3c]"
+                  : "bg-white text-gray-600 border-gray-300 hover:bg-gray-50"
+              }`}
+            >
+              📚 Kelas ({kelasList.length})
+            </button>
+          </div>
+
+          {/* List Tanggal */}
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-2">
+            {activeList.map((a) => {
+              const tanggal = new Date(a.tanggal);
+              const namaHari = HARI[tanggal.getDay()];
+              return (
                 <button
+                  key={a.id}
                   onClick={() =>
-                    router.push(`/dashboard/absensi/${s.id}/sholat`)
+                    router.push(
+                      `/dashboard/absensi/${a.id}/${a.tipe === "SHOLAT" ? "sholat" : "kelas"}`,
+                    )
                   }
-                  className="flex-1 bg-green-50 border border-green-200 rounded-lg p-4 text-left hover:bg-green-100 transition"
+                  className="bg-gray-50 border border-gray-200 rounded-lg p-3 text-center hover:bg-green-50 hover:border-green-300 transition"
                 >
-                  <p className="font-medium text-green-700">📿 Absen Sholat</p>
-                  <p className="text-xs text-gray-500 mt-1">
-                    {new Date(s.tanggalMulai).toLocaleDateString("id-ID")} —{" "}
-                    {new Date(s.tanggalSelesai).toLocaleDateString("id-ID")}
+                  <p className="text-xs text-gray-500">{namaHari}</p>
+                  <p className="text-lg font-bold text-gray-800">
+                    {tanggal.getDate()}
+                  </p>
+                  <p className="text-xs text-gray-500">
+                    {BULAN[tanggal.getMonth()]}
                   </p>
                 </button>
-              ))}
-            {kelas &&
-              kelas.map((k) => (
-                <button
-                  onClick={() =>
-                    router.push(`/dashboard/absensi/${k.id}/kelas`)
-                  }
-                  className="flex-1 bg-blue-50 border border-blue-200 rounded-lg p-4 text-left hover:bg-blue-100 transition"
-                >
-                  <p className="font-medium text-blue-700">📚 Absen Kelas</p>
-                  <p className="text-xs text-gray-500 mt-1">
-                    {new Date(k.tanggalMulai).toLocaleDateString("id-ID")} —{" "}
-                    {new Date(k.tanggalSelesai).toLocaleDateString("id-ID")}
-                  </p>
-                </button>
-              ))}
+              );
+            })}
           </div>
         </div>
       )}
@@ -171,7 +174,11 @@ export default function ListAbsensiPage() {
                 Tidak
               </button>
               <button
-                onClick={handleBuatAbsensi}
+                onClick={() =>
+                  router.push(
+                    `/dashboard/absensi/buat?bulan=${bulan}&tahun=${tahun}`,
+                  )
+                }
                 className="px-4 py-2 text-sm bg-[#1a6b3c] text-white rounded-lg hover:bg-[#164d2f]"
               >
                 Ya, Buat Sekarang

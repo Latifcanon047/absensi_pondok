@@ -1,4 +1,4 @@
-          generator client {
+generator client {
   provider = "prisma-client-js"
 }
 
@@ -29,51 +29,45 @@ model Admin {
 }
 
 model Santri {
-  id          Int           @id @default(autoincrement())
+  id          Int          @id @default(autoincrement())
   nama        String
-  isArchived  Boolean       @default(false)
-  createdAt   DateTime      @default(now())
+  isArchived  Boolean      @default(false)
+  createdAt   DateTime     @default(now())
   absenSholat AbsenSholat[]
   absenKelas  AbsenKelas[]
 }
 
 model Absensi {
-  id             Int           @id @default(autoincrement())
-  tipe           TipeAbsensi
-  mingguKe       Int
-  bulan          Int
-  tahun          Int
-  tanggalMulai   DateTime
-  tanggalSelesai DateTime
-  createdAt      DateTime      @default(now())
-  absenSholat    AbsenSholat[]
-  absenKelas     AbsenKelas[]
+  id          Int           @id @default(autoincrement())
+  tipe        TipeAbsensi
+  tanggal     DateTime
+  createdAt   DateTime      @default(now())
+  absenSholat AbsenSholat[]
+  absenKelas  AbsenKelas[]
 
-  @@unique([tipe, mingguKe, bulan, tahun])
+  @@unique([tipe, tanggal])
 }
 
 model AbsenSholat {
   id        Int         @id @default(autoincrement())
   absensiId Int
   santriId  Int
-  hari      String
   waktu     String
-  status    StatusAbsen
+  status    StatusAbsen @default(KOSONG)
   absensi   Absensi     @relation(fields: [absensiId], references: [id], onDelete: Cascade)
   santri    Santri      @relation(fields: [santriId], references: [id], onDelete: Restrict)
 
-  @@unique([absensiId, santriId, hari, waktu])
+  @@unique([absensiId, santriId, waktu])
 }
 
 model AbsenKelas {
   id        Int         @id @default(autoincrement())
   absensiId Int
   santriId  Int
-  hari      String
   sesi      String
-  status    StatusAbsen
+  status    StatusAbsen @default(KOSONG)
   absensi   Absensi     @relation(fields: [absensiId], references: [id], onDelete: Cascade)
   santri    Santri      @relation(fields: [santriId], references: [id], onDelete: Restrict)
 
-  @@unique([absensiId, santriId, hari, sesi])
+  @@unique([absensiId, santriId, sesi])
 }

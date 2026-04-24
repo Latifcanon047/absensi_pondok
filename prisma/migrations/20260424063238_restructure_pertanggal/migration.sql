@@ -23,14 +23,10 @@ CREATE TABLE `Santri` (
 CREATE TABLE `Absensi` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `tipe` ENUM('SHOLAT', 'KELAS') NOT NULL,
-    `mingguKe` INTEGER NOT NULL,
-    `bulan` INTEGER NOT NULL,
-    `tahun` INTEGER NOT NULL,
-    `tanggalMulai` DATETIME(3) NOT NULL,
-    `tanggalSelesai` DATETIME(3) NOT NULL,
+    `tanggal` DATETIME(3) NOT NULL,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
 
-    UNIQUE INDEX `Absensi_tipe_mingguKe_bulan_tahun_key`(`tipe`, `mingguKe`, `bulan`, `tahun`),
+    UNIQUE INDEX `Absensi_tipe_tanggal_key`(`tipe`, `tanggal`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
@@ -40,7 +36,7 @@ CREATE TABLE `AbsenSholat` (
     `absensiId` INTEGER NOT NULL,
     `santriId` INTEGER NOT NULL,
     `waktu` VARCHAR(191) NOT NULL,
-    `status` ENUM('HADIR', 'SAKIT', 'IZIN', 'ALPA', 'TELAT') NOT NULL,
+    `status` ENUM('HADIR', 'SAKIT', 'IZIN', 'ALPA', 'TELAT', 'KOSONG') NOT NULL DEFAULT 'KOSONG',
 
     UNIQUE INDEX `AbsenSholat_absensiId_santriId_waktu_key`(`absensiId`, `santriId`, `waktu`),
     PRIMARY KEY (`id`)
@@ -52,7 +48,7 @@ CREATE TABLE `AbsenKelas` (
     `absensiId` INTEGER NOT NULL,
     `santriId` INTEGER NOT NULL,
     `sesi` VARCHAR(191) NOT NULL,
-    `status` ENUM('HADIR', 'SAKIT', 'IZIN', 'ALPA', 'TELAT') NOT NULL,
+    `status` ENUM('HADIR', 'SAKIT', 'IZIN', 'ALPA', 'TELAT', 'KOSONG') NOT NULL DEFAULT 'KOSONG',
 
     UNIQUE INDEX `AbsenKelas_absensiId_santriId_sesi_key`(`absensiId`, `santriId`, `sesi`),
     PRIMARY KEY (`id`)

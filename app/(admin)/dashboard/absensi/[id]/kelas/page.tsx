@@ -4,10 +4,9 @@ import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { StatusAbsen } from "@prisma/client";
 import StatusPicker from "@/components/absen/StatusPicker";
-import { formatTanggal } from "@/lib/utils";
 
 const SESI_KELAS = ["Sesi 1", "Sesi 2", "Sesi 3", "Sesi 4", "Sesi 5", "Sesi 6"];
-const HARI = ["Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu", "Minggu"];
+const HARI = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
 const BULAN = [
   "Januari",
   "Februari",
@@ -24,14 +23,7 @@ const BULAN = [
 ];
 
 type Santri = { id: number; nama: string };
-type Absensi = {
-  id: number;
-  mingguKe: number;
-  bulan: number;
-  tahun: number;
-  tanggalMulai: string;
-  tanggalSelesai: string;
-};
+type Absensi = { id: number; tanggal: string };
 
 export default function AbsenKelasPage() {
   const { id } = useParams();
@@ -39,7 +31,6 @@ export default function AbsenKelasPage() {
 
   const [absensi, setAbsensi] = useState<Absensi | null>(null);
   const [santriList, setSantriList] = useState<Santri[]>([]);
-  const [activeHari, setActiveHari] = useState(0);
   const [cellStates, setCellStates] = useState<
     Record<string, StatusAbsen | null>
   >({});
@@ -65,14 +56,8 @@ export default function AbsenKelasPage() {
 
         const initialStates: Record<string, StatusAbsen | null> = {};
         absenKelasData.forEach(
-          (item: {
-            santriId: number;
-            hari: string;
-            sesi: string;
-            status: StatusAbsen;
-          }) => {
-            initialStates[`${item.santriId}-${item.hari}-${item.sesi}`] =
-              item.status;
+          (item: { santriId: number; sesi: string; status: StatusAbsen }) => {
+            initialStates[`${item.santriId}-${item.sesi}`] = item.status;
           },
         );
         setCellStates(initialStates);
@@ -82,27 +67,18 @@ export default function AbsenKelasPage() {
         setLoading(false);
       }
     }
-
     fetchData();
   }, [id]);
 
   function handleStatusChange(
     santriId: number,
-    hari: string,
     sesi: string,
     status: StatusAbsen,
   ) {
     setCellStates((prev) => ({
       ...prev,
-      [`${santriId}-${hari}-${sesi}`]: status,
+      [`${santriId}-${sesi}`]: status,
     }));
-  }
-
-  function getTanggalHari(hariIndex: number) {
-    if (!absensi) return "";
-    const tanggal = new Date(absensi.tanggalMulai);
-    tanggal.setDate(tanggal.getDate() + hariIndex);
-    return tanggal.getDate();
   }
 
   async function handleSubmit() {
@@ -110,14 +86,11 @@ export default function AbsenKelasPage() {
 
     try {
       const data = santriList.flatMap((santri) =>
-        HARI.flatMap((hari) =>
-          SESI_KELAS.map((sesi) => ({
-            santriId: santri.id,
-            hari,
-            sesi,
-            status: cellStates[`${santri.id}-${hari}-${sesi}`] || "HADIR",
-          })),
-        ),
+        SESI_KELAS.map((sesi) => ({
+          santriId: santri.id,
+          sesi,
+          status: cellStates[`${santri.id}-${sesi}`] || "KOSONG",
+        })),
       );
 
       const res = await fetch("/api/absen-kelas", {
@@ -141,39 +114,21 @@ export default function AbsenKelasPage() {
     }
   }
 
-  if (loading) {
-    return <div className="p-6 text-gray-500">Memuat data...</div>;
-  }
+  if (loading) return <div className="p-6 text-gray-500">Memuat data...</div>;
+
+  const tanggal = absensi ? new Date(absensi.tanggal) : null;
 
   return (
     <div>
       {/* Header */}
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-gray-800">Absen Kelas</h1>
-        {absensi && (
+        {tanggal && (
           <p className="text-gray-500 text-sm mt-1">
-            Minggu ke-{absensi.mingguKe}, {BULAN[absensi.bulan - 1]}{" "}
-            {absensi.tahun} • {formatTanggal(new Date(absensi.tanggalMulai))} –{" "}
-            {formatTanggal(new Date(absensi.tanggalSelesai))}
+            {HARI[tanggal.getDay()]}, {tanggal.getDate()}{" "}
+            {BULAN[tanggal.getMonth()]} {tanggal.getFullYear()}
           </p>
         )}
-      </div>
-
-      {/* Tab Hari */}
-      <div className="flex gap-1 mb-4 overflow-x-auto pb-1">
-        {HARI.map((hari, index) => (
-          <button
-            key={hari}
-            onClick={() => setActiveHari(index)}
-            className={`px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition ${
-              activeHari === index
-                ? "bg-[#1a6b3c] text-white"
-                : "bg-white text-gray-600 border border-gray-300 hover:bg-gray-50"
-            }`}
-          >
-            {hari} {getTanggalHari(index)}
-          </button>
-        ))}
       </div>
 
       {/* Tabel */}
@@ -206,18 +161,9 @@ export default function AbsenKelasPage() {
                 {SESI_KELAS.map((sesi) => (
                   <td key={sesi} className="px-4 py-3 text-center border-b">
                     <StatusPicker
-                      currentStatus={
-                        cellStates[
-                          `${santri.id}-${HARI[activeHari]}-${sesi}`
-                        ] ?? null
-                      }
+                      currentStatus={cellStates[`${santri.id}-${sesi}`] ?? null}
                       onChange={(status) =>
-                        handleStatusChange(
-                          santri.id,
-                          HARI[activeHari],
-                          sesi,
-                          status,
-                        )
+                        handleStatusChange(santri.id, sesi, status)
                       }
                       disabled={submitting}
                     />
@@ -246,8 +192,7 @@ export default function AbsenKelasPage() {
           <div className="bg-white rounded-xl p-6 w-full max-w-md mx-4">
             <h2 className="text-lg font-bold mb-2">Konfirmasi Submit</h2>
             <p className="text-gray-600 text-sm mb-6">
-              Yakin ingin submit? Semua data absensi seminggu akan disinkronkan
-              ke database.
+              Yakin ingin submit absensi hari ini?
             </p>
             <div className="flex gap-3 justify-end">
               <button

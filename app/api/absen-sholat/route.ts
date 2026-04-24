@@ -38,18 +38,12 @@ export async function POST(request: NextRequest) {
 
     await prisma.$transaction(
       data.map(
-        (item: {
-          santriId: number;
-          hari: string;
-          waktu: string;
-          status: StatusAbsen;
-        }) =>
+        (item: { santriId: number; waktu: string; status: StatusAbsen }) =>
           prisma.absenSholat.upsert({
             where: {
-              absensiId_santriId_hari_waktu: {
+              absensiId_santriId_waktu: {
                 absensiId,
                 santriId: item.santriId,
-                hari: item.hari,
                 waktu: item.waktu,
               },
             },
@@ -57,7 +51,6 @@ export async function POST(request: NextRequest) {
             create: {
               absensiId,
               santriId: item.santriId,
-              hari: item.hari,
               waktu: item.waktu,
               status: item.status,
             },

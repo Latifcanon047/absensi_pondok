@@ -5,17 +5,25 @@ import { hitungSkor } from "@/lib/utils";
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    const mode = searchParams.get("mode") || "bulan";
-    const bulan = parseInt(
-      searchParams.get("bulan") || String(new Date().getMonth() + 1),
-    );
-    const tahun = parseInt(
-      searchParams.get("tahun") || String(new Date().getFullYear()),
-    );
-    const mingguKe = parseInt(searchParams.get("mingguKe") || "1");
+    const dariTanggal = searchParams.get("dariTanggal");
+    const sampaiTanggal = searchParams.get("sampaiTanggal");
 
-    const absensiWhere =
-      mode === "bulan" ? { bulan, tahun } : { bulan, tahun, mingguKe };
+    if (!dariTanggal || !sampaiTanggal) {
+      return NextResponse.json(
+        { error: "dariTanggal dan sampaiTanggal harus diisi" },
+        { status: 400 },
+      );
+    }
+
+    const dari = new Date(dariTanggal);
+    const sampai = new Date(sampaiTanggal);
+    sampai.setHours(23, 59, 59);
+
+    const absensiList = await prisma.absensi.findMany({
+      where: { tanggal: { gte: dari, lte: sampai } },
+    });
+
+    const absensiIds = absensiList.map((a) => a.id);
 
     const santriList = await prisma.santri.findMany({
       orderBy: { nama: "asc" },
@@ -25,10 +33,18 @@ export async function GET(request: NextRequest) {
       santriList.map(async (santri) => {
         const [sholat, kelas] = await Promise.all([
           prisma.absenSholat.findMany({
-            where: { santriId: santri.id, absensi: absensiWhere },
+            where: {
+              santriId: santri.id,
+              absensiId: { in: absensiIds },
+              status: { not: "KOSONG" },
+            },
           }),
           prisma.absenKelas.findMany({
-            where: { santriId: santri.id, absensi: absensiWhere },
+            where: {
+              santriId: santri.id,
+              absensiId: { in: absensiIds },
+              status: { not: "KOSONG" },
+            },
           }),
         ]);
 
@@ -48,9 +64,7 @@ export async function GET(request: NextRequest) {
       }),
     );
 
-    // Urutkan skor tertinggi ke terendah
     const sorted = hasil.sort((a, b) => b.skor - a.skor);
-
     return NextResponse.json(sorted);
   } catch (error) {
     console.error("GET leaderboard error:", error);

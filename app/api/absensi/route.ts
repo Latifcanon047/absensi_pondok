@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getMingguRange } from "@/lib/utils";
 import { TipeAbsensi } from "@prisma/client";
 
 export async function GET(request: NextRequest) {
@@ -8,19 +7,26 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const bulan = parseInt(searchParams.get("bulan") || "0");
     const tahun = parseInt(searchParams.get("tahun") || "0");
-    // const mingguKe = parseInt(searchParams.get("mingguKe") || "0");
 
     if (!bulan || !tahun) {
       return NextResponse.json(
-        { error: "Bulan, dan tahun harus diisi" },
+        { error: "Bulan dan tahun harus diisi" },
         { status: 400 },
       );
     }
 
-    //cirian
+    const awalBulan = new Date(tahun, bulan - 1, 1);
+    const akhirBulan = new Date(tahun, bulan, 0, 23, 59, 59);
+
     const absensi = await prisma.absensi.findMany({
-      where: { bulan, tahun },
-    }); //kalo gak ada hasilnya akan jadi array kosong, bukan error. Jadi kita gak perlu cek lagi apakah hasilnya ada atau tidak, cukup langsung return aja
+      where: {
+        tanggal: {
+          gte: awalBulan,
+          lte: akhirBulan,
+        },
+      },
+      orderBy: { tanggal: "asc" },
+    });
 
     return NextResponse.json(absensi);
   } catch (error) {
@@ -34,52 +40,47 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const { tipe, mingguKe, bulan, tahun } = await request.json();
+    const { tipe, bulan, tahun } = await request.json();
 
-    if (!tipe || !mingguKe || !bulan || !tahun) {
+    if (!tipe || !bulan || !tahun) {
       return NextResponse.json(
         { error: "Semua field harus diisi" },
         { status: 400 },
       );
     }
 
-    // Cek duplikat
-    const existing = await prisma.absensi.findUnique({
-      where: {
-        tipe_mingguKe_bulan_tahun: {
-          tipe: tipe as TipeAbsensi,
-          mingguKe,
-          bulan,
-          tahun,
-        },
-      },
-    });
+    // Hitung jumlah hari di bulan tersebut
+    const jumlahHari = new Date(tahun, bulan, 0).getDate();
 
-    if (existing) {
+    // Buat absensi untuk setiap hari
+    const results = await Promise.allSettled(
+      Array.from({ length: jumlahHari }, (_, i) => {
+        //mengulang dari 0 hingga jumlahHari-1
+        const tanggal = new Date(tahun, bulan - 1, i + 1);
+        return prisma.absensi.create({
+          data: {
+            tipe: tipe as TipeAbsensi,
+            tanggal,
+          },
+        });
+      }),
+    );
+
+    const berhasil = results.filter((r) => r.status === "fulfilled").length;
+    const duplikat = results.filter((r) => r.status === "rejected").length;
+
+    if (berhasil === 0) {
       return NextResponse.json(
-        { error: "Absensi untuk periode ini sudah ada" },
+        { error: "Absensi bulan ini sudah dibuat sebelumnya!" },
         { status: 409 },
       );
     }
 
-    const { tanggalMulai, tanggalSelesai } = getMingguRange(
-      mingguKe,
-      bulan,
-      tahun,
-    );
-
-    const absensi = await prisma.absensi.create({
-      data: {
-        tipe: tipe as TipeAbsensi,
-        mingguKe,
-        bulan,
-        tahun,
-        tanggalMulai,
-        tanggalSelesai,
-      },
+    return NextResponse.json({
+      success: true,
+      berhasil,
+      duplikat,
     });
-
-    return NextResponse.json(absensi, { status: 201 });
   } catch (error) {
     console.error("POST absensi error:", error);
     return NextResponse.json(

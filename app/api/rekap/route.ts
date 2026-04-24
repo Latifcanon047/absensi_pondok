@@ -5,20 +5,30 @@ import { hitungSkor } from "@/lib/utils";
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    const mode = searchParams.get("mode") || "bulan";
-    const bulan = parseInt(
-      searchParams.get("bulan") || String(new Date().getMonth() + 1),
-    );
-    const tahun = parseInt(
-      searchParams.get("tahun") || String(new Date().getFullYear()),
-    );
-    const mingguKe = parseInt(searchParams.get("mingguKe") || "1");
+    const dariTanggal = searchParams.get("dariTanggal");
+    const sampaiTanggal = searchParams.get("sampaiTanggal");
 
-    // Filter absensi
-    const absensiWhere =
-      mode === "bulan" ? { bulan, tahun } : { bulan, tahun, mingguKe };
+    if (!dariTanggal || !sampaiTanggal) {
+      return NextResponse.json(
+        { error: "dariTanggal dan sampaiTanggal harus diisi" },
+        { status: 400 },
+      );
+    }
 
-    // Ambil semua santri (termasuk archived untuk data historis)
+    const dari = new Date(dariTanggal);
+    const sampai = new Date(sampaiTanggal);
+    sampai.setHours(23, 59, 59);
+
+    // Ambil absensi dalam range tanggal
+    const absensiList = await prisma.absensi.findMany({
+      where: {
+        tanggal: { gte: dari, lte: sampai },
+      },
+    });
+
+    const absensiIds = absensiList.map((a) => a.id);
+
+    // Ambil semua santri
     const santriList = await prisma.santri.findMany({
       orderBy: { nama: "asc" },
     });
@@ -28,29 +38,38 @@ export async function GET(request: NextRequest) {
       santriList.map(async (santri) => {
         const [sholat, kelas] = await Promise.all([
           prisma.absenSholat.findMany({
-            where: { santriId: santri.id, absensi: absensiWhere },
+            where: {
+              santriId: santri.id,
+              absensiId: { in: absensiIds },
+              status: { not: "KOSONG" },
+            },
           }),
           prisma.absenKelas.findMany({
-            where: { santriId: santri.id, absensi: absensiWhere },
+            where: {
+              santriId: santri.id,
+              absensiId: { in: absensiIds },
+              status: { not: "KOSONG" },
+            },
           }),
         ]);
 
         const semua = [...sholat, ...kelas];
+        const hadir = semua.filter((a) => a.status === "HADIR").length;
+        const telat = semua.filter((a) => a.status === "TELAT").length;
+        const sakit = semua.filter((a) => a.status === "SAKIT").length;
+        const izin = semua.filter((a) => a.status === "IZIN").length;
+        const alpa = semua.filter((a) => a.status === "ALPA").length;
 
         return {
           id: santri.id,
           nama: santri.nama,
           isArchived: santri.isArchived,
-          hadir: semua.filter((a) => a.status === "HADIR").length,
-          telat: semua.filter((a) => a.status === "TELAT").length,
-          sakit: semua.filter((a) => a.status === "SAKIT").length,
-          izin: semua.filter((a) => a.status === "IZIN").length,
-          alpa: semua.filter((a) => a.status === "ALPA").length,
-          skor: hitungSkor(
-            semua.filter((a) => a.status === "HADIR").length,
-            semua.filter((a) => a.status === "TELAT").length,
-            semua.filter((a) => a.status === "ALPA").length,
-          ),
+          hadir,
+          telat,
+          sakit,
+          izin,
+          alpa,
+          skor: hitungSkor(hadir, telat, alpa),
         };
       }),
     );

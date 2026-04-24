@@ -16,7 +16,7 @@ export function getMingguRange(mingguKe: number, bulan: number, tahun: number) {
   const tanggalSelesai = new Date(tanggalMulai);
   tanggalSelesai.setDate(tanggalMulai.getDate() + 6);
 
-  return { tanggalMulai, tanggalSelesai };// Contoh: getMingguRange(2, 9, 2024) => { tanggalMulai: 2024-09-09, tanggalSelesai: 2024-09-15 }
+  return { tanggalMulai, tanggalSelesai }; // Contoh: getMingguRange(2, 9, 2024) => { tanggalMulai: 2024-09-09, tanggalSelesai: 2024-09-15 }
 }
 
 export function formatTanggal(date: Date): string {
@@ -35,12 +35,12 @@ export function formatTanggal(date: Date): string {
     "November",
     "Desember",
   ];
-  return `${hari[date.getDay()]}, ${date.getDate()} ${bulan[date.getMonth()]} ${date.getFullYear()}`;// Contoh: "Senin, 5 September 2024"
+  return `${hari[date.getDay()]}, ${date.getDate()} ${bulan[date.getMonth()]} ${date.getFullYear()}`; // Contoh: "Senin, 5 September 2024"
 }
 
 export function hitungSkor(hadir: number, telat: number, alpa: number): number {
   const total = hadir + telat + alpa;
   if (total === 0) return 0;
   const skor = ((hadir * 1 + telat * 0.5) / total) * 100;
-  return Math.round(skor * 10) / 10;//untuk membulatkan skor ke 1 desimal, misal 85.6666 => 85.7
+  return Math.round(skor * 10) / 10; //untuk membulatkan skor ke 1 desimal, misal 85.6666 => 85.7
 }

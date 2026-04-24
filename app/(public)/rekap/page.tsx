@@ -30,10 +30,16 @@ type RekapSantri = {
 };
 
 export default function RekapPage() {
-  const [mode, setMode] = useState<"bulan" | "minggu">("bulan");
-  const [bulan, setBulan] = useState(new Date().getMonth() + 1);
-  const [tahun, setTahun] = useState(new Date().getFullYear());
-  const [mingguKe, setMingguKe] = useState(1);
+  const [dariTanggal, setDariTanggal] = useState(
+    new Date(new Date().getFullYear(), new Date().getMonth(), 1)
+      .toISOString()
+      .split("T")[0],
+  );
+  const [sampaiTanggal, setSampaiTanggal] = useState(
+    new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0)
+      .toISOString()
+      .split("T")[0],
+  );
   const [hasil, setHasil] = useState<RekapSantri[]>([]);
   const [loading, setLoading] = useState(false);
   const [sudahCari, setSudahCari] = useState(false);
@@ -43,10 +49,8 @@ export default function RekapPage() {
     setSudahCari(false);
 
     const params = new URLSearchParams({
-      mode,
-      bulan: String(bulan),
-      tahun: String(tahun),
-      mingguKe: String(mingguKe),
+      dariTanggal,
+      sampaiTanggal,
     });
 
     try {
@@ -63,7 +67,6 @@ export default function RekapPage() {
 
   async function handleExportExcel() {
     const XLSX = await import("xlsx");
-
     const dataExport = hasil.map((santri, index) => ({
       No: index + 1,
       Nama: santri.nama,
@@ -74,40 +77,24 @@ export default function RekapPage() {
       Alpa: santri.alpa,
       "Kedisiplinan (%)": santri.skor,
     }));
-
     const ws = XLSX.utils.json_to_sheet(dataExport);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Rekap Absen");
-
-    const periode =
-      mode === "bulan"
-        ? `${BULAN[bulan - 1]} ${tahun}`
-        : `Minggu ke-${mingguKe} ${BULAN[bulan - 1]} ${tahun}`;
-
-    XLSX.writeFile(wb, `Rekap Absen ${periode}.xlsx`);
+    XLSX.writeFile(wb, `Rekap Absen ${dariTanggal} sd ${sampaiTanggal}.xlsx`);
   }
 
   async function handleExportPDF() {
     const { default: jsPDF } = await import("jspdf");
     const { default: autoTable } = await import("jspdf-autotable");
-
     const doc = new jsPDF();
 
-    const periode =
-      mode === "bulan"
-        ? `${BULAN[bulan - 1]} ${tahun}`
-        : `Minggu ke-${mingguKe} ${BULAN[bulan - 1]} ${tahun}`;
-
-    // Header
     doc.setFontSize(16);
     doc.setTextColor(26, 107, 60);
     doc.text("Rekap Absen Pesantren", 14, 20);
-
     doc.setFontSize(11);
     doc.setTextColor(100, 100, 100);
-    doc.text(`Periode: ${periode}`, 14, 30);
+    doc.text(`Periode: ${dariTanggal} s/d ${sampaiTanggal}`, 14, 30);
 
-    // Tabel
     autoTable(doc, {
       startY: 38,
       head: [
@@ -137,15 +124,11 @@ export default function RekapPage() {
         textColor: 255,
         fontStyle: "bold",
       },
-      alternateRowStyles: {
-        fillColor: [240, 250, 244],
-      },
-      styles: {
-        fontSize: 10,
-      },
+      alternateRowStyles: { fillColor: [240, 250, 244] },
+      styles: { fontSize: 10 },
     });
 
-    doc.save(`Rekap Absen ${periode}.pdf`);
+    doc.save(`Rekap Absen ${dariTanggal} sd ${sampaiTanggal}.pdf`);
   }
 
   return (
@@ -154,83 +137,29 @@ export default function RekapPage() {
 
       {/* Filter */}
       <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
-        {/* Toggle Mode */}
-        <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Filter
-          </label>
-          <div className="flex gap-2">
-            <button
-              onClick={() => setMode("bulan")}
-              className={`px-4 py-2 rounded-lg text-sm font-medium border transition ${
-                mode === "bulan"
-                  ? "bg-[#1a6b3c] text-white border-[#1a6b3c]"
-                  : "bg-white text-gray-600 border-gray-300 hover:bg-gray-50"
-              }`}
-            >
-              Per Bulan
-            </button>
-            <button
-              onClick={() => setMode("minggu")}
-              className={`px-4 py-2 rounded-lg text-sm font-medium border transition ${
-                mode === "minggu"
-                  ? "bg-[#1a6b3c] text-white border-[#1a6b3c]"
-                  : "bg-white text-gray-600 border-gray-300 hover:bg-gray-50"
-              }`}
-            >
-              Per Minggu
-            </button>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-          {/* Minggu (hanya muncul kalau mode minggu) */}
-          {mode === "minggu" && (
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Minggu Ke-
-              </label>
-              <select
-                value={mingguKe}
-                onChange={(e) => setMingguKe(parseInt(e.target.value))}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#1a6b3c]"
-              >
-                {[1, 2, 3, 4, 5].map((m) => (
-                  <option key={m} value={m}>
-                    Minggu ke-{m}
-                  </option>
-                ))}
-              </select>
-            </div>
-          )}
-
-          {/* Bulan */}
+        <p className="text-sm font-medium text-gray-700 mb-4">
+          Pilih Range Tanggal
+        </p>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Bulan
-            </label>
-            <select
-              value={bulan}
-              onChange={(e) => setBulan(parseInt(e.target.value))}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#1a6b3c]"
-            >
-              {BULAN.map((b, i) => (
-                <option key={i} value={i + 1}>
-                  {b}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* Tahun */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Tahun
+            <label className="block text-xs text-gray-600 mb-1">
+              Dari Tanggal
             </label>
             <input
-              type="number"
-              value={tahun}
-              onChange={(e) => setTahun(parseInt(e.target.value))}
+              type="date"
+              value={dariTanggal}
+              onChange={(e) => setDariTanggal(e.target.value)}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#1a6b3c]"
+            />
+          </div>
+          <div>
+            <label className="block text-xs text-gray-600 mb-1">
+              Sampai Tanggal
+            </label>
+            <input
+              type="date"
+              value={sampaiTanggal}
+              onChange={(e) => setSampaiTanggal(e.target.value)}
               className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#1a6b3c]"
             />
           </div>
@@ -250,16 +179,12 @@ export default function RekapPage() {
         <div className="bg-white rounded-xl shadow-sm overflow-hidden">
           <div className="px-6 py-4 border-b">
             <h2 className="font-semibold text-gray-700">
-              Rekap{" "}
-              {mode === "bulan"
-                ? BULAN[bulan - 1]
-                : `Minggu ke-${mingguKe} ${BULAN[bulan - 1]}`}{" "}
-              {tahun}
+              Rekap {dariTanggal} s/d {sampaiTanggal}
             </h2>
           </div>
           {hasil.length === 0 ? (
             <div className="text-center text-gray-500 py-12">
-              Belum ada data absensi untuk periode ini
+              Belum ada data untuk periode ini
             </div>
           ) : (
             <div className="overflow-x-auto">
@@ -281,7 +206,7 @@ export default function RekapPage() {
                       Izin
                     </th>
                     <th className="text-center px-4 py-3 text-red-600">Alpa</th>
-                    <th className="text-center px-4 py-3 text-gray-600">
+                    <th className="text-center px-4 py-3 text-[#1a6b3c]">
                       Kedisiplinan
                     </th>
                   </tr>
@@ -322,8 +247,9 @@ export default function RekapPage() {
               </table>
             </div>
           )}
-          {sudahCari && hasil.length > 0 && (
-            <div className="mt-4 flex gap-3">
+
+          {hasil.length > 0 && (
+            <div className="px-6 py-4 border-t flex gap-3">
               <button
                 onClick={handleExportExcel}
                 className="bg-green-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-green-700 transition"

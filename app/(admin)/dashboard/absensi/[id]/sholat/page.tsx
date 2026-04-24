@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { StatusAbsen } from "@prisma/client";
 import StatusPicker from "@/components/absen/StatusPicker";
-import { formatTanggal } from "@/lib/utils";
 
 const WAKTU_SHOLAT = [
   "Subuh",
@@ -14,7 +13,7 @@ const WAKTU_SHOLAT = [
   "Isya",
   "Tahajjud",
 ];
-const HARI = ["Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu", "Minggu"];
+const HARI = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
 const BULAN = [
   "Januari",
   "Februari",
@@ -31,14 +30,7 @@ const BULAN = [
 ];
 
 type Santri = { id: number; nama: string };
-type Absensi = {
-  id: number;
-  mingguKe: number;
-  bulan: number;
-  tahun: number;
-  tanggalMulai: string;
-  tanggalSelesai: string;
-};
+type Absensi = { id: number; tanggal: string };
 
 export default function AbsenSholatPage() {
   const { id } = useParams();
@@ -46,7 +38,6 @@ export default function AbsenSholatPage() {
 
   const [absensi, setAbsensi] = useState<Absensi | null>(null);
   const [santriList, setSantriList] = useState<Santri[]>([]);
-  const [activeHari, setActiveHari] = useState(0);
   const [cellStates, setCellStates] = useState<
     Record<string, StatusAbsen | null>
   >({});
@@ -72,18 +63,9 @@ export default function AbsenSholatPage() {
 
         const initialStates: Record<string, StatusAbsen | null> = {};
         absenSholatData.forEach(
-          (item: {
-            santriId: number;
-            hari: string;
-            waktu: string;
-            status: StatusAbsen;
-          }) => {
-            initialStates[`${item.santriId}-${item.hari}-${item.waktu}`] =
-              item.status;
+          (item: { santriId: number; waktu: string; status: StatusAbsen }) => {
+            initialStates[`${item.santriId}-${item.waktu}`] = item.status;
           },
-          // (item: { santriId: number; waktu: string; status: StatusAbsen }) => {
-          //   initialStates[`${item.santriId}-${item.waktu}`] = item.status;
-          // },
         );
         setCellStates(initialStates);
       } catch {
@@ -92,28 +74,18 @@ export default function AbsenSholatPage() {
         setLoading(false);
       }
     }
-
     fetchData();
   }, [id]);
 
   function handleStatusChange(
     santriId: number,
-    hari: string,
     waktu: string,
     status: StatusAbsen,
   ) {
     setCellStates((prev) => ({
       ...prev,
-      [`${santriId}-${hari}-${waktu}`]: status,
+      [`${santriId}-${waktu}`]: status,
     }));
-  }
-
-  // Hitung tanggal per hari
-  function getTanggalHari(hariIndex: number) {
-    if (!absensi) return "";
-    const tanggal = new Date(absensi.tanggalMulai);
-    tanggal.setDate(tanggal.getDate() + hariIndex);
-    return tanggal.getDate();
   }
 
   async function handleSubmit() {
@@ -121,14 +93,11 @@ export default function AbsenSholatPage() {
 
     try {
       const data = santriList.flatMap((santri) =>
-        HARI.flatMap((hari) =>
-          WAKTU_SHOLAT.map((waktu) => ({
-            santriId: santri.id,
-            hari,
-            waktu,
-            status: cellStates[`${santri.id}-${hari}-${waktu}`] || "HADIR",
-          })),
-        ),
+        WAKTU_SHOLAT.map((waktu) => ({
+          santriId: santri.id,
+          waktu,
+          status: cellStates[`${santri.id}-${waktu}`] || "KOSONG",
+        })),
       );
 
       const res = await fetch("/api/absen-sholat", {
@@ -152,39 +121,21 @@ export default function AbsenSholatPage() {
     }
   }
 
-  if (loading) {
-    return <div className="p-6 text-gray-500">Memuat data...</div>;
-  }
+  if (loading) return <div className="p-6 text-gray-500">Memuat data...</div>;
+
+  const tanggal = absensi ? new Date(absensi.tanggal) : null;
 
   return (
     <div>
       {/* Header */}
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-gray-800">Absen Sholat</h1>
-        {absensi && (
+        {tanggal && (
           <p className="text-gray-500 text-sm mt-1">
-            Minggu ke-{absensi.mingguKe}, {BULAN[absensi.bulan - 1]}{" "}
-            {absensi.tahun} • {formatTanggal(new Date(absensi.tanggalMulai))} –{" "}
-            {formatTanggal(new Date(absensi.tanggalSelesai))}
+            {HARI[tanggal.getDay()]}, {tanggal.getDate()}{" "}
+            {BULAN[tanggal.getMonth()]} {tanggal.getFullYear()}
           </p>
         )}
-      </div>
-
-      {/* Tab Hari */}
-      <div className="flex gap-1 mb-4 overflow-x-auto pb-1">
-        {HARI.map((hari, index) => (
-          <button
-            key={hari}
-            onClick={() => setActiveHari(index)}
-            className={`px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition ${
-              activeHari === index
-                ? "bg-[#1a6b3c] text-white"
-                : "bg-white text-gray-600 border border-gray-300 hover:bg-gray-50"
-            }`}
-          >
-            {hari} {getTanggalHari(index)}
-          </button>
-        ))}
       </div>
 
       {/* Tabel */}
@@ -218,17 +169,10 @@ export default function AbsenSholatPage() {
                   <td key={waktu} className="px-4 py-3 text-center border-b">
                     <StatusPicker
                       currentStatus={
-                        cellStates[
-                          `${santri.id}-${HARI[activeHari]}-${waktu}`
-                        ] ?? null
+                        cellStates[`${santri.id}-${waktu}`] ?? null
                       }
                       onChange={(status) =>
-                        handleStatusChange(
-                          santri.id,
-                          HARI[activeHari],
-                          waktu,
-                          status,
-                        )
+                        handleStatusChange(santri.id, waktu, status)
                       }
                       disabled={submitting}
                     />
@@ -257,8 +201,7 @@ export default function AbsenSholatPage() {
           <div className="bg-white rounded-xl p-6 w-full max-w-md mx-4">
             <h2 className="text-lg font-bold mb-2">Konfirmasi Submit</h2>
             <p className="text-gray-600 text-sm mb-6">
-              Yakin ingin submit? Semua data absensi seminggu akan disinkronkan
-              ke database.
+              Yakin ingin submit absensi hari ini?
             </p>
             <div className="flex gap-3 justify-end">
               <button
