@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 type LeaderboardItem = {
   id: number;
@@ -13,18 +13,31 @@ type LeaderboardItem = {
 
 export default function LeaderboardPage() {
   const [dariTanggal, setDariTanggal] = useState(
-    new Date(new Date().getFullYear(), new Date().getMonth(), 1)
-      .toISOString()
-      .split("T")[0],
+    formatDateLocal(
+      new Date(new Date().getFullYear(), new Date().getMonth(), 1),
+    ),
   );
+
   const [sampaiTanggal, setSampaiTanggal] = useState(
-    new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0)
-      .toISOString()
-      .split("T")[0],
+    formatDateLocal(
+      new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0),
+    ),
   );
+
   const [hasil, setHasil] = useState<LeaderboardItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [sudahCari, setSudahCari] = useState(false);
+
+  function formatDateLocal(date: Date) {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  }
+
+  useEffect(() => {
+    handleLihat();
+  }, []);
 
   async function handleLihat() {
     setLoading(true);

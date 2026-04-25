@@ -15,16 +15,16 @@ export default function PublicLayout({
           </Link>
           <div className="flex gap-6 text-sm">
             <Link href="/rekap" className="hover:text-green-200 transition">
-              📊 Rekap
+              Kedisiplinan
             </Link>
             <Link
               href="/leaderboard"
               className="hover:text-green-200 transition"
             >
-              🏆 Leaderboard
+              Leaderboard
             </Link>
             <Link href="/chart" className="hover:text-green-200 transition">
-              📈 Chart
+              Chart
             </Link>
           </div>
         </div>

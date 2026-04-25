@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+
 import {
   BarChart,
   Bar,
@@ -81,6 +82,10 @@ export default function RekapPage() {
     const day = String(date.getDate()).padStart(2, "0");
     return `${year}-${month}-${day}`;
   }
+
+  useEffect(() => {
+    handleLihatRekap();
+  }, []);
 
   async function handleLihatRekap() {
     setLoading(true);

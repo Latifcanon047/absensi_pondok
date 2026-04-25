@@ -17,10 +17,18 @@ export async function GET(request: NextRequest) {
 
     const dari = new Date(dariTanggal);
     const sampai = new Date(sampaiTanggal);
-    sampai.setHours(23, 59, 59);
+    const dariUTC = new Date(
+      Date.UTC(dari.getFullYear(), dari.getMonth(), dari.getDate()),
+    );
+
+    const sampaiUTC = new Date(
+      Date.UTC(sampai.getFullYear(), sampai.getMonth(), sampai.getDate() + 1),
+    );
 
     const absensiList = await prisma.absensi.findMany({
-      where: { tanggal: { gte: dari, lte: sampai } },
+      where: {
+        tanggal: { gte: dariUTC, lt: sampaiUTC },
+      },
     });
 
     const absensiIds = absensiList.map((a) => a.id);
