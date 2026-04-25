@@ -278,7 +278,7 @@ export default function RekapPage() {
       doc.setFontSize(14);
       doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
       doc.setFont("helvetica", "bold");
-      doc.text("RINGKASAN STATISTIK", pageWidth / 2, finalY, {
+      doc.text("RINGKASAN KEDISIPLINAN KESELURUHAN", pageWidth / 2, finalY, {
         align: "center",
       });
 
@@ -299,57 +299,75 @@ export default function RekapPage() {
 
       // Data statistik dalam format baris yang rapi
       const statsData = [
-        { label: "Hadir", value: summaryChart.hadir, color: [22, 163, 74] },
-        { label: "Telat", value: summaryChart.telat, color: [234, 88, 12] },
-        { label: "Sakit", value: summaryChart.sakit, color: [217, 119, 6] },
-        { label: "Izin", value: summaryChart.izin, color: [37, 99, 235] },
-        { label: "Alpa", value: summaryChart.alpa, color: [220, 38, 38] },
-        { label: "Skor", value: `${summaryChart.skor}%`, color: primaryColor },
+        {
+          label: "Hadir",
+          value: summaryChart.hadir,
+          bg: [240, 253, 244],
+          color: [22, 163, 74],
+        },
+        {
+          label: "Telat",
+          value: summaryChart.telat,
+          bg: [255, 247, 237],
+          color: [234, 88, 12],
+        },
+        {
+          label: "Sakit",
+          value: summaryChart.sakit,
+          bg: [255, 251, 235],
+          color: [217, 119, 6],
+        },
+        {
+          label: "Izin",
+          value: summaryChart.izin,
+          bg: [239, 246, 255],
+          color: [37, 99, 235],
+        },
+        {
+          label: "Alpa",
+          value: summaryChart.alpa,
+          bg: [254, 242, 242],
+          color: [220, 38, 38],
+        },
+        {
+          label: "Skor",
+          value: `${summaryChart.skor}%`,
+          bg: [240, 250, 244],
+          color: primaryColor,
+        },
       ];
 
       // Tampilkan dalam 2 baris, masing-masing 3 kolom
-      const itemsPerRow = 3;
-      const cardWidth = (contentWidth - 16) / 3; // 16 adalah jarak antar card
-      const cardHeight = 45;
+      const cardW = contentWidth / 6 - 3; // 16 adalah jarak antar card
       const startX = marginLeft;
 
-      for (let i = 0; i < statsData.length; i++) {
-        const row = Math.floor(i / itemsPerRow);
-        const col = i % itemsPerRow;
-        const xPos = startX + col * (cardWidth + 8);
-        const yPos = finalY + row * (cardHeight + 10);
+      statsData.forEach((stat, i) => {
+        const xPos = startX + i * (cardW + 3.6);
+        const yPos = finalY + 8;
 
-        const stat = statsData[i];
+        // Background berwarna
+        doc.setFillColor(stat.bg[0], stat.bg[1], stat.bg[2]);
+        doc.roundedRect(xPos, yPos, cardW, 28, 3, 3, "F");
 
-        // Background card
-        doc.setFillColor(250, 250, 250);
-        doc.roundedRect(xPos, yPos, cardWidth, cardHeight, 4, 4, "F");
-
-        // Border card
+        // Border tipis
         doc.setDrawColor(220, 220, 220);
-        doc.setLineWidth(0.3);
-        doc.roundedRect(xPos, yPos, cardWidth, cardHeight, 4, 4, "S");
+        doc.setLineWidth(0.2);
+        doc.roundedRect(xPos, yPos, cardW, 28, 3, 3, "S");
 
         // Label
-        doc.setFontSize(9);
+        doc.setFontSize(7);
         doc.setTextColor(100, 100, 100);
-        doc.setFont("helvetica", "bold");
-        doc.text(stat.label, xPos + cardWidth / 2, yPos + 15, {
-          align: "center",
-        });
-
-        // Garis pemisah
-        doc.setDrawColor(230, 230, 230);
-        doc.line(xPos + 10, yPos + 20, xPos + cardWidth - 10, yPos + 20);
+        doc.setFont("helvetica", "normal");
+        doc.text(stat.label, xPos + cardW / 2, yPos + 9, { align: "center" });
 
         // Value
-        doc.setFontSize(18);
+        doc.setFontSize(13);
         doc.setTextColor(stat.color[0], stat.color[1], stat.color[2]);
         doc.setFont("helvetica", "bold");
-        doc.text(String(stat.value), xPos + cardWidth / 2, yPos + 38, {
+        doc.text(String(stat.value), xPos + cardW / 2, yPos + 22, {
           align: "center",
         });
-      }
+      });
     }
 
     // ========== FOOTER ==========
