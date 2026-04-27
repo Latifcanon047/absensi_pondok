@@ -92,7 +92,7 @@ export default function RekapPiketPage() {
     try {
       const [res, resChart] = await Promise.all([
         fetch(`/api/rekap-piket?${params}`),
-        fetch(`/api/chart?${params}`),
+        fetch(`/api/chart-piket?${params}`),
       ]);
 
       const [data, dataChart] = await Promise.all([

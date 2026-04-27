@@ -95,6 +95,15 @@ export async function GET(request: NextRequest) {
         const izin = semua.filter((a) => a.status === "IZIN").length;
         const alpa = semua.filter((a) => a.status === "ALPA").length;
 
+        const summary = {
+          hadir,
+          telat,
+          sakit,
+          izin,
+          alpa,
+          hadirSkor: hitungSkor(hadir, telat, alpa),
+        };
+
         return {
           id: santri.id,
           nama: santri.nama,
@@ -124,6 +133,7 @@ export async function GET(request: NextRequest) {
             ...gabungan,
             skor: hitungSkor(gabungan.hadir, gabungan.telat, gabungan.alpa),
           },
+          summary,
         };
       }),
     );
