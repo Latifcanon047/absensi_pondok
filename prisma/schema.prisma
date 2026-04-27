@@ -10,6 +10,8 @@ datasource db {
 enum TipeAbsensi {
   SHOLAT
   KELAS
+  MAKAN
+  ASRAMA
 }
 
 enum StatusAbsen {
@@ -35,6 +37,8 @@ model Santri {
   createdAt   DateTime     @default(now())
   absenSholat AbsenSholat[]
   absenKelas  AbsenKelas[]
+  absenMakan  AbsenMakan[]
+  absenAsrama AbsenAsrama[]
 }
 
 model Absensi {
@@ -44,6 +48,8 @@ model Absensi {
   createdAt   DateTime      @default(now())
   absenSholat AbsenSholat[]
   absenKelas  AbsenKelas[]
+  absenMakan  AbsenMakan[]
+  absenAsrama AbsenAsrama[]
 
   @@unique([tipe, tanggal])
 }
@@ -70,4 +76,27 @@ model AbsenKelas {
   santri    Santri      @relation(fields: [santriId], references: [id], onDelete: Restrict)
 
   @@unique([absensiId, santriId, sesi])
+}
+
+model AbsenMakan {
+  id        Int         @id @default(autoincrement())
+  absensiId Int
+  santriId  Int
+  sesi      String      // "Pagi" | "Siang" | "Sore"
+  status    StatusAbsen @default(KOSONG)
+  absensi   Absensi     @relation(fields: [absensiId], references: [id], onDelete: Cascade)
+  santri    Santri      @relation(fields: [santriId], references: [id], onDelete: Restrict)
+
+  @@unique([absensiId, santriId, sesi])
+}
+
+model AbsenAsrama {
+  id        Int         @id @default(autoincrement())
+  absensiId Int
+  santriId  Int
+  status    StatusAbsen @default(KOSONG)
+  absensi   Absensi     @relation(fields: [absensiId], references: [id], onDelete: Cascade)
+  santri    Santri      @relation(fields: [santriId], references: [id], onDelete: Restrict)
+
+  @@unique([absensiId, santriId])
 }

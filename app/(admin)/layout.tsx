@@ -52,6 +52,12 @@ export default function AdminLayout({
             👤 Data Santri
           </Link>
           <Link
+            href="/rekap"
+            className="block px-4 py-2 rounded-lg hover:bg-[#164d2f] transition text-sm"
+          >
+            Rekap Absensi
+          </Link>
+          <Link
             href="/dashboard/settings"
             className="block px-4 py-2 rounded-lg hover:bg-[#164d2f] transition text-sm"
           >
@@ -118,6 +124,13 @@ export default function AdminLayout({
                 className="block px-4 py-2 rounded-lg hover:bg-[#164d2f] transition text-sm"
               >
                 👤 Data Santri
+              </Link>
+              <Link
+                href="/rekap"
+                onClick={() => setMenuOpen(false)}
+                className="block px-4 py-2 rounded-lg hover:bg-[#164d2f] transition text-sm"
+              >
+                Rekap Absensi
               </Link>
               <Link
                 href="/dashboard/settings"

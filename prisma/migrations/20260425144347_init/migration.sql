@@ -22,7 +22,7 @@ CREATE TABLE `Santri` (
 -- CreateTable
 CREATE TABLE `Absensi` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
-    `tipe` ENUM('SHOLAT', 'KELAS') NOT NULL,
+    `tipe` ENUM('SHOLAT', 'KELAS', 'MAKAN', 'ASRAMA') NOT NULL,
     `tanggal` DATETIME(3) NOT NULL,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
 
@@ -54,6 +54,29 @@ CREATE TABLE `AbsenKelas` (
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
+-- CreateTable
+CREATE TABLE `AbsenMakan` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `absensiId` INTEGER NOT NULL,
+    `santriId` INTEGER NOT NULL,
+    `sesi` VARCHAR(191) NOT NULL,
+    `status` ENUM('HADIR', 'SAKIT', 'IZIN', 'ALPA', 'TELAT', 'KOSONG') NOT NULL DEFAULT 'KOSONG',
+
+    UNIQUE INDEX `AbsenMakan_absensiId_santriId_sesi_key`(`absensiId`, `santriId`, `sesi`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `AbsenAsrama` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `absensiId` INTEGER NOT NULL,
+    `santriId` INTEGER NOT NULL,
+    `status` ENUM('HADIR', 'SAKIT', 'IZIN', 'ALPA', 'TELAT', 'KOSONG') NOT NULL DEFAULT 'KOSONG',
+
+    UNIQUE INDEX `AbsenAsrama_absensiId_santriId_key`(`absensiId`, `santriId`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
 -- AddForeignKey
 ALTER TABLE `AbsenSholat` ADD CONSTRAINT `AbsenSholat_absensiId_fkey` FOREIGN KEY (`absensiId`) REFERENCES `Absensi`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
@@ -65,3 +88,15 @@ ALTER TABLE `AbsenKelas` ADD CONSTRAINT `AbsenKelas_absensiId_fkey` FOREIGN KEY 
 
 -- AddForeignKey
 ALTER TABLE `AbsenKelas` ADD CONSTRAINT `AbsenKelas_santriId_fkey` FOREIGN KEY (`santriId`) REFERENCES `Santri`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `AbsenMakan` ADD CONSTRAINT `AbsenMakan_absensiId_fkey` FOREIGN KEY (`absensiId`) REFERENCES `Absensi`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `AbsenMakan` ADD CONSTRAINT `AbsenMakan_santriId_fkey` FOREIGN KEY (`santriId`) REFERENCES `Santri`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `AbsenAsrama` ADD CONSTRAINT `AbsenAsrama_absensiId_fkey` FOREIGN KEY (`absensiId`) REFERENCES `Absensi`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `AbsenAsrama` ADD CONSTRAINT `AbsenAsrama_santriId_fkey` FOREIGN KEY (`santriId`) REFERENCES `Santri`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;

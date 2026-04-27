@@ -5,8 +5,6 @@ import Link from "next/link";
 
 type Stats = {
   totalSantri: number;
-  totalAbsensiSholat: number;
-  totalAbsensiKelas: number;
 };
 
 export default function DashboardPage() {
@@ -36,30 +34,18 @@ export default function DashboardPage() {
       </p>
 
       {/* Statistik */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+      <div className="grid grid-cols-1 gap-4 mb-8">
         <div className="bg-white rounded-xl shadow-sm p-6">
           <p className="text-sm text-gray-500 mb-1">Total Santri Aktif</p>
           <p className="text-3xl font-bold text-[#1a6b3c]">
             {loading ? "..." : stats?.totalSantri || 0}
           </p>
-        </div>
-        <div className="bg-white rounded-xl shadow-sm p-6">
-          <p className="text-sm text-gray-500 mb-1">Absensi Sholat</p>
-          <p className="text-3xl font-bold text-[#1a6b3c]">
-            {loading ? "..." : stats?.totalAbsensiSholat || 0}
-          </p>
-        </div>
-        <div className="bg-white rounded-xl shadow-sm p-6">
-          <p className="text-sm text-gray-500 mb-1">Absensi Kelas</p>
-          <p className="text-3xl font-bold text-[#1a6b3c]">
-            {loading ? "..." : stats?.totalAbsensiKelas || 0}
-          </p>
-        </div>
+        </div>{" "}
       </div>
 
       {/* Link Cepat */}
       <h2 className="font-semibold text-gray-700 mb-4">Akses Cepat</h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
         <Link
           href="/dashboard/absensi/buat"
           className="bg-white rounded-xl shadow-sm p-6 hover:shadow-md transition border border-transparent hover:border-[#1a6b3c]"

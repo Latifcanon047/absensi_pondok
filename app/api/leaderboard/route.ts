@@ -17,6 +17,7 @@ export async function GET(request: NextRequest) {
 
     const dari = new Date(dariTanggal);
     const sampai = new Date(sampaiTanggal);
+
     const dariUTC = new Date(
       Date.UTC(dari.getFullYear(), dari.getMonth(), dari.getDate()),
     );
@@ -25,13 +26,27 @@ export async function GET(request: NextRequest) {
       Date.UTC(sampai.getFullYear(), sampai.getMonth(), sampai.getDate() + 1),
     );
 
-    const absensiList = await prisma.absensi.findMany({
-      where: {
-        tanggal: { gte: dariUTC, lt: sampaiUTC },
-      },
-    });
+    // Ambil semua absensi dalam range
+    const [absensiSholat, absensiKelas, absensiMakan, absensiAsrama] =
+      await Promise.all([
+        prisma.absensi.findMany({
+          where: { tipe: "SHOLAT", tanggal: { gte: dariUTC, lte: sampaiUTC } },
+        }),
+        prisma.absensi.findMany({
+          where: { tipe: "KELAS", tanggal: { gte: dariUTC, lte: sampaiUTC } },
+        }),
+        prisma.absensi.findMany({
+          where: { tipe: "MAKAN", tanggal: { gte: dariUTC, lte: sampaiUTC } },
+        }),
+        prisma.absensi.findMany({
+          where: { tipe: "ASRAMA", tanggal: { gte: dariUTC, lte: sampaiUTC } },
+        }),
+      ]);
 
-    const absensiIds = absensiList.map((a) => a.id);
+    const idsSholat = absensiSholat.map((a) => a.id);
+    const idsKelas = absensiKelas.map((a) => a.id);
+    const idsMakan = absensiMakan.map((a) => a.id);
+    const idsAsrama = absensiAsrama.map((a) => a.id);
 
     const santriList = await prisma.santri.findMany({
       orderBy: { nama: "asc" },
@@ -39,40 +54,75 @@ export async function GET(request: NextRequest) {
 
     const hasil = await Promise.all(
       santriList.map(async (santri) => {
-        const [sholat, kelas] = await Promise.all([
+        const [sholat, kelas, makan, asrama] = await Promise.all([
           prisma.absenSholat.findMany({
             where: {
               santriId: santri.id,
-              absensiId: { in: absensiIds },
+              absensiId: { in: idsSholat },
               status: { not: "KOSONG" },
             },
           }),
           prisma.absenKelas.findMany({
             where: {
               santriId: santri.id,
-              absensiId: { in: absensiIds },
+              absensiId: { in: idsKelas },
+              status: { not: "KOSONG" },
+            },
+          }),
+          prisma.absenMakan.findMany({
+            where: {
+              santriId: santri.id,
+              absensiId: { in: idsMakan },
+              status: { not: "KOSONG" },
+            },
+          }),
+          prisma.absenAsrama.findMany({
+            where: {
+              santriId: santri.id,
+              absensiId: { in: idsAsrama },
               status: { not: "KOSONG" },
             },
           }),
         ]);
 
-        const semua = [...sholat, ...kelas];
-        const hadir = semua.filter((a) => a.status === "HADIR").length;
-        const telat = semua.filter((a) => a.status === "TELAT").length;
-        const alpa = semua.filter((a) => a.status === "ALPA").length;
+        // Gabungan sholat + kelas
+        const semuaAbsen = [...sholat, ...kelas];
+        const hadirAbsen = semuaAbsen.filter(
+          (a) => a.status === "HADIR",
+        ).length;
+        const telatAbsen = semuaAbsen.filter(
+          (a) => a.status === "TELAT",
+        ).length;
+        const alpaAbsen = semuaAbsen.filter((a) => a.status === "ALPA").length;
+        const skorKedisiplinan = hitungSkor(hadirAbsen, telatAbsen, alpaAbsen);
+
+        // Gabungan makan + asrama
+        const semuaPiket = [...makan, ...asrama];
+        const hadirPiket = semuaPiket.filter(
+          (a) => a.status === "HADIR",
+        ).length;
+        const telatPiket = semuaPiket.filter(
+          (a) => a.status === "TELAT",
+        ).length;
+        const alpaPiket = semuaPiket.filter((a) => a.status === "ALPA").length;
+        const skorTanggungJawab = hitungSkor(hadirPiket, telatPiket, alpaPiket);
+
+        // Skor final = rata-rata keduanya
+        const skorFinal =
+          Math.round(((skorKedisiplinan + skorTanggungJawab) / 2) * 10) / 10;
 
         return {
           id: santri.id,
           nama: santri.nama,
-          hadir,
-          telat,
-          alpa,
-          skor: hitungSkor(hadir, telat, alpa),
+          skorKedisiplinan,
+          skorTanggungJawab,
+          skorFinal,
         };
       }),
     );
 
-    const sorted = hasil.sort((a, b) => b.skor - a.skor);
+    // Urutkan skor final tertinggi
+    const sorted = hasil.sort((a, b) => b.skorFinal - a.skorFinal);
     return NextResponse.json(sorted);
   } catch (error) {
     console.error("GET leaderboard error:", error);

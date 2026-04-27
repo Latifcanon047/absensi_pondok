@@ -18,10 +18,10 @@ const BULAN = [
   "Desember",
 ];
 
+const SEMUA_TIPE = ["SHOLAT", "KELAS", "MAKAN", "ASRAMA"];
+
 export default function BuatAbsensiPage() {
   const router = useRouter();
-
-  const [tipe, setTipe] = useState<"SHOLAT" | "KELAS">("SHOLAT");
   const [bulan, setBulan] = useState(new Date().getMonth() + 1);
   const [tahun, setTahun] = useState(new Date().getFullYear());
   const [loading, setLoading] = useState(false);
@@ -35,21 +35,29 @@ export default function BuatAbsensiPage() {
     setError("");
 
     try {
-      const res = await fetch("/api/absensi", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ tipe, bulan, tahun }),
-      });
+      const results = await Promise.all(
+        SEMUA_TIPE.flatMap((tipe) =>
+          Array.from({ length: jumlahHari }, (_, i) => {
+            const tanggal = new Date(tahun, bulan - 1, i + 1).toISOString();
+            return fetch("/api/absensi", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ tipe, bulan, tahun, tanggal }),
+            });
+          }),
+        ),
+      );
 
-      const data = await res.json();
+      const adaDuplikat = results.some((r) => r.status === 409);
+      const adaGagal = results.some((r) => !r.ok && r.status !== 409);
 
-      if (res.status === 409) {
-        setError("Absensi bulan ini sudah dibuat sebelumnya!");
+      if (adaGagal) {
+        setError("Terjadi kesalahan saat membuat absensi");
         return;
       }
 
-      if (!res.ok) {
-        setError(data.error || "Terjadi kesalahan");
+      if (adaDuplikat) {
+        setError("Sebagian absensi bulan ini sudah dibuat sebelumnya!");
         return;
       }
 
@@ -67,37 +75,6 @@ export default function BuatAbsensiPage() {
 
       <div className="bg-white rounded-xl shadow-sm p-6 max-w-lg">
         <form onSubmit={handleSubmit} className="space-y-5">
-          {/* Pilih Jenis */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Jenis Absensi
-            </label>
-            <div className="flex gap-3">
-              <button
-                type="button"
-                onClick={() => setTipe("SHOLAT")}
-                className={`flex-1 py-2 rounded-lg text-sm font-medium border transition ${
-                  tipe === "SHOLAT"
-                    ? "bg-[#1a6b3c] text-white border-[#1a6b3c]"
-                    : "bg-white text-gray-600 border-gray-300 hover:bg-gray-50"
-                }`}
-              >
-                📿 Absen Sholat
-              </button>
-              <button
-                type="button"
-                onClick={() => setTipe("KELAS")}
-                className={`flex-1 py-2 rounded-lg text-sm font-medium border transition ${
-                  tipe === "KELAS"
-                    ? "bg-[#1a6b3c] text-white border-[#1a6b3c]"
-                    : "bg-white text-gray-600 border-gray-300 hover:bg-gray-50"
-                }`}
-              >
-                📚 Absen Kelas
-              </button>
-            </div>
-          </div>
-
           {/* Bulan */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -133,8 +110,11 @@ export default function BuatAbsensiPage() {
           <div className="bg-green-50 border border-green-200 rounded-lg px-4 py-3">
             <p className="text-xs text-green-700 font-medium">Info:</p>
             <p className="text-sm text-green-800">
-              Akan dibuat <strong>{jumlahHari} hari</strong> absensi untuk{" "}
-              {BULAN[bulan - 1]} {tahun}
+              Akan dibuat <strong>{jumlahHari} hari</strong> ×{" "}
+              <strong>4 jenis</strong> absensi untuk {BULAN[bulan - 1]} {tahun}
+            </p>
+            <p className="text-xs text-green-600 mt-1">
+              📿 Sholat &nbsp;📚 Kelas &nbsp;🍽️ Makan &nbsp;🏠 Asrama
             </p>
           </div>
 

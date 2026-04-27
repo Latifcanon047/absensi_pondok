@@ -1,14 +1,13 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 type LeaderboardItem = {
   id: number;
   nama: string;
-  hadir: number;
-  telat: number;
-  alpa: number;
-  skor: number;
+  skorKedisiplinan: number;
+  skorTanggungJawab: number;
+  skorFinal: number;
 };
 
 export default function LeaderboardPage() {
@@ -23,7 +22,6 @@ export default function LeaderboardPage() {
       new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0),
     ),
   );
-
   const [hasil, setHasil] = useState<LeaderboardItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [sudahCari, setSudahCari] = useState(false);
@@ -34,10 +32,6 @@ export default function LeaderboardPage() {
     const day = String(date.getDate()).padStart(2, "0");
     return `${year}-${month}-${day}`;
   }
-
-  useEffect(() => {
-    handleLihat();
-  }, []);
 
   async function handleLihat() {
     setLoading(true);
@@ -71,11 +65,15 @@ export default function LeaderboardPage() {
     return "border-gray-200 bg-white";
   }
 
+  function getSkorColor(skor: number) {
+    if (skor >= 80) return "text-green-600";
+    if (skor >= 60) return "text-yellow-600";
+    return "text-red-600";
+  }
+
   return (
     <div>
-      <h1 className="text-2xl font-bold text-gray-800 mb-6">
-        🏆 Leaderboard Kedisiplinan
-      </h1>
+      <h1 className="text-2xl font-bold text-gray-800 mb-6">🏆 Leaderboard</h1>
 
       {/* Filter */}
       <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
@@ -128,23 +126,73 @@ export default function LeaderboardPage() {
                 key={santri.id}
                 className={`border-2 rounded-xl p-5 ${getCardStyle(index)}`}
               >
+                {/* Header kartu */}
                 <div className="flex justify-between items-start mb-3">
                   <span className="text-2xl">{getMedal(index)}</span>
-                  <span className="text-2xl font-bold text-[#1a6b3c]">
-                    {santri.skor}%
+                  <span
+                    className={`text-3xl font-bold ${getSkorColor(santri.skorFinal)}`}
+                  >
+                    {santri.skorFinal}%
                   </span>
                 </div>
-                <p className="font-semibold text-gray-800 text-lg mb-3">
+
+                {/* Nama */}
+                <p className="font-semibold text-gray-800 text-lg mb-4">
                   {santri.nama}
                 </p>
-                <div className="flex gap-3 text-xs text-gray-600">
-                  <span className="text-green-600">
-                    ✅ {santri.hadir} hadir
-                  </span>
-                  <span className="text-orange-600">
-                    🕐 {santri.telat} telat
-                  </span>
-                  <span className="text-red-600">❌ {santri.alpa} alpa</span>
+
+                {/* Detail skor */}
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs text-gray-500">
+                      ⭐ Kedisiplinan
+                    </span>
+                    <div className="flex items-center gap-2">
+                      <div className="w-24 bg-gray-200 rounded-full h-1.5">
+                        <div
+                          className="bg-[#1a6b3c] h-1.5 rounded-full"
+                          style={{ width: `${santri.skorKedisiplinan}%` }}
+                        />
+                      </div>
+                      <span
+                        className={`text-xs font-medium ${getSkorColor(santri.skorKedisiplinan)}`}
+                      >
+                        {santri.skorKedisiplinan}%
+                      </span>
+                    </div>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs text-gray-500">
+                      🏠 Tanggung Jawab
+                    </span>
+                    <div className="flex items-center gap-2">
+                      <div className="w-24 bg-gray-200 rounded-full h-1.5">
+                        <div
+                          className="bg-blue-500 h-1.5 rounded-full"
+                          style={{ width: `${santri.skorTanggungJawab}%` }}
+                        />
+                      </div>
+                      <span
+                        className={`text-xs font-medium ${getSkorColor(santri.skorTanggungJawab)}`}
+                      >
+                        {santri.skorTanggungJawab}%
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Garis pemisah */}
+                <div className="border-t border-gray-200 mt-4 pt-3">
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs text-gray-500 font-medium">
+                      Skor Final
+                    </span>
+                    <span
+                      className={`text-sm font-bold ${getSkorColor(santri.skorFinal)}`}
+                    >
+                      = {santri.skorFinal}%
+                    </span>
+                  </div>
                 </div>
               </div>
             ))}

@@ -65,6 +65,25 @@ export async function GET(request: NextRequest) {
         const sakit = semua.filter((a) => a.status === "SAKIT").length;
         const izin = semua.filter((a) => a.status === "IZIN").length;
         const alpa = semua.filter((a) => a.status === "ALPA").length;
+        const rekapSholat = {
+          hadir: sholat.filter((a) => a.status === "HADIR").length,
+          telat: sholat.filter((a) => a.status === "TELAT").length,
+          alpa: sholat.filter((a) => a.status === "ALPA").length,
+        };
+
+        // Rekap asrama
+        const rekapKelas = {
+          hadir: kelas.filter((a) => a.status === "HADIR").length,
+          telat: kelas.filter((a) => a.status === "TELAT").length,
+          alpa: kelas.filter((a) => a.status === "ALPA").length,
+        };
+
+        // Rekap gabungan
+        const gabungan = {
+          hadir: rekapSholat.hadir + rekapKelas.hadir,
+          telat: rekapSholat.telat + rekapKelas.telat,
+          alpa: rekapSholat.alpa + rekapKelas.alpa,
+        };
 
         return {
           id: santri.id,
@@ -75,7 +94,26 @@ export async function GET(request: NextRequest) {
           sakit,
           izin,
           alpa,
-          skor: hitungSkor(hadir, telat, alpa),
+          sholat: {
+            ...rekapSholat,
+            skor: hitungSkor(
+              rekapSholat.hadir,
+              rekapSholat.telat,
+              rekapSholat.alpa,
+            ),
+          },
+          kelas: {
+            ...rekapKelas,
+            skor: hitungSkor(
+              rekapKelas.hadir,
+              rekapKelas.telat,
+              rekapKelas.alpa,
+            ),
+          },
+          gabungan: {
+            ...gabungan,
+            skor: hitungSkor(gabungan.hadir, gabungan.telat, gabungan.alpa),
+          },
         };
       }),
     );

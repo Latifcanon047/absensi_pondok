@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-
 import {
   BarChart,
   Bar,
@@ -12,39 +11,6 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
-
-const BULAN = [
-  "Januari",
-  "Februari",
-  "Maret",
-  "April",
-  "Mei",
-  "Juni",
-  "Juli",
-  "Agustus",
-  "September",
-  "Oktober",
-  "November",
-  "Desember",
-];
-
-type ChartData = {
-  hari: string;
-  hadir: number;
-  telat: number;
-  sakit: number;
-  izin: number;
-  alpa: number;
-};
-
-type Summary = {
-  hadir: number;
-  telat: number;
-  sakit: number;
-  izin: number;
-  alpa: number;
-  skor: number;
-};
 
 type RekapItem = {
   hadir: number;
@@ -65,12 +31,30 @@ type RekapSantri = {
   izin: number;
   alpa: number;
   skor: number;
-  sholat: RekapItem;
-  kelas: RekapItem;
+  makan: RekapItem;
+  asrama: RekapItem;
   gabungan: RekapItem;
 };
 
-export default function RekapPage() {
+type ChartData = {
+  hari: string;
+  hadir: number;
+  telat: number;
+  sakit: number;
+  izin: number;
+  alpa: number;
+};
+
+type Summary = {
+  hadir: number;
+  telat: number;
+  sakit: number;
+  izin: number;
+  alpa: number;
+  skor: number;
+};
+
+export default function RekapPiketPage() {
   const [dariTanggal, setDariTanggal] = useState(
     formatDateLocal(
       new Date(new Date().getFullYear(), new Date().getMonth(), 1),
@@ -82,7 +66,7 @@ export default function RekapPage() {
       new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0),
     ),
   );
-  const [hasil, setHasil] = useState<RekapSantri[]>([]);
+  const [santri, setSantri] = useState<RekapSantri[]>([]);
   const [loading, setLoading] = useState(false);
   const [sudahCari, setSudahCari] = useState(false);
   const [chartData, setChartData] = useState<ChartData[]>([]);
@@ -96,21 +80,18 @@ export default function RekapPage() {
   }
 
   useEffect(() => {
-    handleLihatRekap();
+    handleLihat();
   }, []);
 
-  async function handleLihatRekap() {
+  async function handleLihat() {
     setLoading(true);
     setSudahCari(false);
 
-    const params = new URLSearchParams({
-      dariTanggal,
-      sampaiTanggal,
-    });
+    const params = new URLSearchParams({ dariTanggal, sampaiTanggal });
 
     try {
       const [res, resChart] = await Promise.all([
-        fetch(`/api/rekap?${params}`),
+        fetch(`/api/rekap-piket?${params}`),
         fetch(`/api/chart?${params}`),
       ]);
 
@@ -118,17 +99,16 @@ export default function RekapPage() {
         res.json(),
         resChart.json(),
       ]);
-      setHasil(data);
+      setSantri(data.santri);
       setChartData(dataChart);
       setSummaryChart(dataChart.summary);
       setSudahCari(true);
     } catch {
-      console.error("Gagal fetch rekap");
+      console.error("Gagal fetch rekap piket");
     } finally {
       setLoading(false);
     }
   }
-
   async function handleExportPDF() {
     const { default: jsPDF } = await import("jspdf");
     const { default: autoTable } = await import("jspdf-autotable");
@@ -210,7 +190,7 @@ export default function RekapPage() {
           },
         ],
       ],
-      body: hasil.map((santri, index) => [
+      body: santri.map((santri, index) => [
         { content: index + 1, styles: { halign: "center" as const } },
         {
           content: santri.nama + (santri.isArchived ? " (Nonaktif)" : ""),
@@ -420,10 +400,10 @@ export default function RekapPage() {
 
   function TabelRekap({ data, judul }: { data: RekapSantri[]; judul: string }) {
     const key =
-      judul === "Absen Sholat"
-        ? "sholat"
-        : judul === "Absen kelas"
-          ? "kelas"
+      judul === "Piket Makan"
+        ? "makan"
+        : judul === "Piket Asrama"
+          ? "asrama"
           : "gabungan";
     return (
       <div className="bg-white rounded-xl shadow-sm overflow-hidden mb-6">
@@ -477,7 +457,7 @@ export default function RekapPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-gray-800 mb-6">Rekap Absen</h1>
+      <h1 className="text-2xl font-bold text-gray-800 mb-6">Rekap Piket</h1>
 
       {/* Filter */}
       <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
@@ -508,9 +488,8 @@ export default function RekapPage() {
             />
           </div>
         </div>
-
         <button
-          onClick={handleLihatRekap}
+          onClick={handleLihat}
           disabled={loading}
           className="bg-[#1a6b3c] text-white px-6 py-2 rounded-lg text-sm hover:bg-[#164d2f] transition disabled:opacity-50"
         >
@@ -518,8 +497,8 @@ export default function RekapPage() {
         </button>
       </div>
 
-      {/* Tabel Hasil */}
-      {sudahCari && (
+      {/* Hasil */}
+      {sudahCari && santri.length > 0 && (
         <>
           <div className="w-fit bg-white rounded-xl shadow-sm overflow-hidden my-6">
             <div className="px-6 py-4 border-b">
@@ -529,9 +508,9 @@ export default function RekapPage() {
             </div>
           </div>
 
-          <TabelRekap data={hasil} judul="Absen Sholat" />
-          <TabelRekap data={hasil} judul="Absen kelas" />
-          <TabelRekap data={hasil} judul="Rekap Gabungan" />
+          <TabelRekap data={santri} judul="Piket Makan" />
+          <TabelRekap data={santri} judul="Piket Asrama" />
+          <TabelRekap data={santri} judul="Rekap Gabungan" />
 
           <div className="my-6">
             <h1 className="text-2xl font-bold text-gray-800 mb-6">
@@ -596,7 +575,7 @@ export default function RekapPage() {
                 {summaryChart && (
                   <div className="bg-white rounded-xl shadow-sm p-6">
                     <h2 className="font-semibold text-gray-700 mb-4">
-                      Ringkasan Kedisiplinan Keseluruhan
+                      Ringkasan Tanggung Jawab Keseluruhan
                     </h2>
                     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-6">
                       <div className="bg-green-50 rounded-lg p-4 text-center">
@@ -641,12 +620,12 @@ export default function RekapPage() {
               </>
             )}
           </div>
-
+          {/* Export */}
           <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-            {hasil.length > 0 && (
+            {santri.length > 0 && (
               <div className="px-6 py-4 border-t flex gap-3">
                 <button
-                  onClick={handleExportPDF}
+                  // onClick={handleExportPDF}
                   className="bg-red-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-red-700 transition"
                 >
                   📄 Export PDF
@@ -655,6 +634,12 @@ export default function RekapPage() {
             )}
           </div>
         </>
+      )}
+
+      {sudahCari && santri.length === 0 && (
+        <div className="text-center text-gray-500 py-12">
+          Belum ada data untuk periode ini
+        </div>
       )}
     </div>
   );

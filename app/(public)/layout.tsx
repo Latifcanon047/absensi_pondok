@@ -18,13 +18,22 @@ export default function PublicLayout({
               Kedisiplinan
             </Link>
             <Link
+              href="/rekap-piket"
+              className="hover:text-green-200 transition"
+            >
+              Tanggung Jawab
+            </Link>
+            <Link
               href="/leaderboard"
               className="hover:text-green-200 transition"
             >
               Leaderboard
             </Link>
-            <Link href="/chart" className="hover:text-green-200 transition">
-              Chart
+            <Link
+              href="dashboard/absensi"
+              className="hover:text-green-200 transition"
+            >
+              Absensi
             </Link>
           </div>
         </div>

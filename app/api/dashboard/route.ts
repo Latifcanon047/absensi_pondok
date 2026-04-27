@@ -3,17 +3,12 @@ import { prisma } from "@/lib/prisma";
 
 export async function GET() {
   try {
-    const [totalSantri, totalAbsensiSholat, totalAbsensiKelas] =
-      await Promise.all([
-        prisma.santri.count({ where: { isArchived: false } }),
-        prisma.absensi.count({ where: { tipe: "SHOLAT" } }),
-        prisma.absensi.count({ where: { tipe: "KELAS" } }),
-      ]);
+    const [totalSantri] = await Promise.all([
+      prisma.santri.count({ where: { isArchived: false } }),
+    ]);
 
     return NextResponse.json({
       totalSantri,
-      totalAbsensiSholat,
-      totalAbsensiKelas,
     });
   } catch (error) {
     console.error("GET dashboard error:", error);

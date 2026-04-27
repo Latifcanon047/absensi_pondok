@@ -40,47 +40,42 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const { tipe, bulan, tahun } = await request.json();
+    const { tipe, tanggal } = await request.json();
 
-    if (!tipe || !bulan || !tahun) {
+    if (!tipe || !tanggal) {
       return NextResponse.json(
         { error: "Semua field harus diisi" },
         { status: 400 },
       );
     }
 
-    // Hitung jumlah hari di bulan tersebut
-    const jumlahHari = new Date(tahun, bulan, 0).getDate();
+    const date = new Date(tanggal);
 
-    // Buat absensi untuk setiap hari
-    const results = await Promise.allSettled(
-      Array.from({ length: jumlahHari }, (_, i) => {
-        //mengulang dari 0 hingga jumlahHari-1
-        const tanggal = new Date(Date.UTC(tahun, bulan - 1, i + 1));
-        return prisma.absensi.create({
-          data: {
-            tipe: tipe as TipeAbsensi,
-            tanggal,
-          },
-        });
-      }),
+    const tanggalUTC = new Date(
+      Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()),
     );
+    // Cek duplikat
+    const existing = await prisma.absensi.findUnique({
+      where: {
+        tipe_tanggal: {
+          tipe: tipe as TipeAbsensi,
+          tanggal: tanggalUTC,
+        },
+      },
+    });
 
-    const berhasil = results.filter((r) => r.status === "fulfilled").length;
-    const duplikat = results.filter((r) => r.status === "rejected").length;
-
-    if (berhasil === 0) {
-      return NextResponse.json(
-        { error: "Absensi bulan ini sudah dibuat sebelumnya!" },
-        { status: 409 },
-      );
+    if (existing) {
+      return NextResponse.json({ error: "Absensi sudah ada" }, { status: 409 });
     }
 
-    return NextResponse.json({
-      success: true,
-      berhasil,
-      duplikat,
+    const absensi = await prisma.absensi.create({
+      data: {
+        tipe: tipe as TipeAbsensi,
+        tanggal: tanggalUTC,
+      },
     });
+
+    return NextResponse.json(absensi, { status: 201 });
   } catch (error) {
     console.error("POST absensi error:", error);
     return NextResponse.json(
