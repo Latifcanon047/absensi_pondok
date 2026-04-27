@@ -68,6 +68,8 @@ export async function GET(request: NextRequest) {
           hadir: makan.filter((a) => a.status === "HADIR").length,
           telat: makan.filter((a) => a.status === "TELAT").length,
           alpa: makan.filter((a) => a.status === "ALPA").length,
+          sakit: makan.filter((a) => a.status === "SAKIT").length,
+          izin: makan.filter((a) => a.status === "IZIN").length,
         };
 
         // Rekap asrama
@@ -75,6 +77,8 @@ export async function GET(request: NextRequest) {
           hadir: asrama.filter((a) => a.status === "HADIR").length,
           telat: asrama.filter((a) => a.status === "TELAT").length,
           alpa: asrama.filter((a) => a.status === "ALPA").length,
+          sakit: asrama.filter((a) => a.status === "SAKIT").length,
+          izin: asrama.filter((a) => a.status === "IZIN").length,
         };
 
         // Rekap gabungan
@@ -82,6 +86,8 @@ export async function GET(request: NextRequest) {
           hadir: rekapMakan.hadir + rekapAsrama.hadir,
           telat: rekapMakan.telat + rekapAsrama.telat,
           alpa: rekapMakan.alpa + rekapAsrama.alpa,
+          sakit: rekapMakan.sakit + rekapAsrama.sakit,
+          izin: rekapMakan.izin + rekapAsrama.izin,
         };
         const hadir = semua.filter((a) => a.status === "HADIR").length;
         const telat = semua.filter((a) => a.status === "TELAT").length;

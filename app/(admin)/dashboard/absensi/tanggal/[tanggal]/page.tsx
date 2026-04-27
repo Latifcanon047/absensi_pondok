@@ -43,9 +43,11 @@ const STATUS_PIKET_CONFIG = {
   HADIR: { bg: "bg-green-100", text: "text-green-700", label: "Piket" },
   ALPA: { bg: "bg-red-100", text: "text-red-700", label: "A Alpa" },
   KOSONG: { bg: "bg-gray-100", text: "text-gray-400", label: "-" },
+  SAKIT: { bg: "bg-yellow-100", text: "text-yellow-700", label: "S Sakit" },
+  IZIN: { bg: "bg-blue-100", text: "text-blue-700", label: "I Izin" },
 };
 
-type StatusPiket = "HADIR" | "ALPA" | "KOSONG";
+type StatusPiket = "HADIR" | "ALPA" | "KOSONG" | "SAKIT" | "IZIN";
 
 function StatusPickerPiket({
   currentStatus,
@@ -71,21 +73,23 @@ function StatusPickerPiket({
       </button>
       {open && (
         <div className="absolute z-50 top-full left-1/2 -translate-x-1/2 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg p-1 min-w-24">
-          {(["HADIR", "ALPA", "KOSONG"] as StatusPiket[]).map((s) => (
-            <button
-              key={s}
-              type="button"
-              onClick={() => {
-                onChange(s);
-                setOpen(false);
-              }}
-              className="w-full text-left px-3 py-1.5 text-xs rounded hover:bg-gray-50"
-            >
-              <span className={STATUS_PIKET_CONFIG[s].text}>
-                {STATUS_PIKET_CONFIG[s].label}
-              </span>
-            </button>
-          ))}
+          {(["HADIR", "ALPA", "SAKIT", "IZIN", "KOSONG"] as StatusPiket[]).map(
+            (s) => (
+              <button
+                key={s}
+                type="button"
+                onClick={() => {
+                  onChange(s);
+                  setOpen(false);
+                }}
+                className="w-full text-left px-3 py-1.5 text-xs rounded hover:bg-gray-50"
+              >
+                <span className={STATUS_PIKET_CONFIG[s].text}>
+                  {STATUS_PIKET_CONFIG[s].label}
+                </span>
+              </button>
+            ),
+          )}
         </div>
       )}
     </div>

@@ -69,6 +69,8 @@ export async function GET(request: NextRequest) {
           hadir: sholat.filter((a) => a.status === "HADIR").length,
           telat: sholat.filter((a) => a.status === "TELAT").length,
           alpa: sholat.filter((a) => a.status === "ALPA").length,
+          sakit: sholat.filter((a) => a.status === "SAKIT").length,
+          izin: sholat.filter((a) => a.status === "IZIN").length,
         };
 
         // Rekap asrama
@@ -76,6 +78,8 @@ export async function GET(request: NextRequest) {
           hadir: kelas.filter((a) => a.status === "HADIR").length,
           telat: kelas.filter((a) => a.status === "TELAT").length,
           alpa: kelas.filter((a) => a.status === "ALPA").length,
+          sakit: kelas.filter((a) => a.status === "SAKIT").length,
+          izin: kelas.filter((a) => a.status === "IZIN").length,
         };
 
         // Rekap gabungan
@@ -83,6 +87,8 @@ export async function GET(request: NextRequest) {
           hadir: rekapSholat.hadir + rekapKelas.hadir,
           telat: rekapSholat.telat + rekapKelas.telat,
           alpa: rekapSholat.alpa + rekapKelas.alpa,
+          sakit: rekapSholat.sakit + rekapKelas.sakit,
+          izin: rekapSholat.izin + rekapKelas.izin,
         };
 
         return {

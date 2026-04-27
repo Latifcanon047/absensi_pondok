@@ -438,6 +438,8 @@ export default function RekapPage() {
                 <th className="text-left px-4 py-3 text-gray-600">Nama</th>
                 <th className="text-center px-4 py-3 text-green-600">Piket</th>
                 <th className="text-center px-4 py-3 text-orange-600">Telat</th>
+                <th className="text-center px-4 py-3 text-blue-600">Sakit</th>
+                <th className="text-center px-4 py-3 text-yellow-600">Izin</th>
                 <th className="text-center px-4 py-3 text-red-600">Alpa</th>
                 <th className="text-center px-4 py-3 text-[#1a6b3c]">Skor</th>
               </tr>
@@ -446,6 +448,7 @@ export default function RekapPage() {
               {data.map((s, index) => (
                 <tr key={s.id} className="border-t hover:bg-gray-50">
                   <td className="px-4 py-3 text-gray-500">{index + 1}</td>
+
                   <td className="px-4 py-3 font-medium">
                     {s.nama}
                     {s.isArchived && (
@@ -454,15 +457,27 @@ export default function RekapPage() {
                       </span>
                     )}
                   </td>
+
                   <td className="px-4 py-3 text-center text-green-600">
                     {s[key].hadir}
                   </td>
+
                   <td className="px-4 py-3 text-center text-orange-600">
                     {s[key].telat}
                   </td>
+
+                  <td className="px-4 py-3 text-center text-blue-600">
+                    {s[key].sakit}
+                  </td>
+
+                  <td className="px-4 py-3 text-center text-yellow-600">
+                    {s[key].izin}
+                  </td>
+
                   <td className="px-4 py-3 text-center text-red-600">
                     {s[key].alpa}
                   </td>
+
                   <td className="px-4 py-3 text-center font-medium text-[#1a6b3c]">
                     {s[key].skor}%
                   </td>
