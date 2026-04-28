@@ -342,6 +342,75 @@ export default function AbsenTanggalPage() {
     setTimeout(() => setSukses({}), 3000);
   }
 
+  function handleTandaiSemua(
+    checked: boolean,
+    tipe: "SHOLAT" | "KELAS" | "MAKAN" | "ASRAMA",
+  ) {
+    if (tipe === "SHOLAT") {
+      setSholatStates((prev) => {
+        const newStates = { ...prev };
+        santriList.forEach((santri) => {
+          WAKTU_SHOLAT.forEach((waktu) => {
+            const key = `${santri.id}-${waktu}`;
+            if (checked) {
+              if (!newStates[key] || newStates[key] === "KOSONG")
+                newStates[key] = "HADIR";
+            } else {
+              if (newStates[key] === "HADIR") newStates[key] = null;
+            }
+          });
+        });
+        return newStates;
+      });
+    } else if (tipe === "KELAS") {
+      setKelasStates((prev) => {
+        const newStates = { ...prev };
+        santriList.forEach((santri) => {
+          SESI_KELAS.forEach((sesi) => {
+            const key = `${santri.id}-${sesi}`;
+            if (checked) {
+              if (!newStates[key] || newStates[key] === "KOSONG")
+                newStates[key] = "HADIR";
+            } else {
+              if (newStates[key] === "HADIR") newStates[key] = null;
+            }
+          });
+        });
+        return newStates;
+      });
+    } else if (tipe === "MAKAN") {
+      setMakanStates((prev) => {
+        const newStates = { ...prev };
+        santriList.forEach((santri) => {
+          SESI_MAKAN.forEach((sesi) => {
+            const key = `${santri.id}-${sesi}`;
+            if (checked) {
+              if (!newStates[key] || newStates[key] === "KOSONG")
+                newStates[key] = "HADIR";
+            } else {
+              if (newStates[key] === "HADIR") newStates[key] = "KOSONG";
+            }
+          });
+        });
+        return newStates;
+      });
+    } else if (tipe === "ASRAMA") {
+      setAsramaStates((prev) => {
+        const newStates = { ...prev };
+        santriList.forEach((santri) => {
+          const key = `${santri.id}`;
+          if (checked) {
+            if (!newStates[key] || newStates[key] === "KOSONG")
+              newStates[key] = "HADIR";
+          } else {
+            if (newStates[key] === "HADIR") newStates[key] = "KOSONG";
+          }
+        });
+        return newStates;
+      });
+    }
+  }
+
   if (loading) return <div className="p-6 text-gray-500">Memuat data...</div>;
 
   return (
@@ -384,8 +453,20 @@ export default function AbsenTanggalPage() {
       {absensiIds.SHOLAT ? (
         <div className="bg-white rounded-xl shadow-sm mb-6">
           <div className="px-6 py-4 border-b flex justify-between items-center">
-            <h2 className="font-semibold text-gray-700">📿 Absen Sholat</h2>
+            <h2 className="font-semibold text-gray-700">📿 Absen Sholat</h2>{" "}
             <div className="flex items-center gap-3">
+              <label className="flex items-center gap-2 me-5 cursor-pointer">
+                <input
+                  type="checkbox"
+                  onChange={(e) =>
+                    handleTandaiSemua(e.target.checked, "SHOLAT")
+                  }
+                  className="w-4 h-4 accent-[#1a6b3c] cursor-pointer"
+                />
+                <span className="text-xs text-gray-500">
+                  Tandai Semua Hadir
+                </span>
+              </label>
               {sukses.SHOLAT && (
                 <span className="text-green-600 text-sm">✅ Tersimpan!</span>
               )}
@@ -446,6 +527,7 @@ export default function AbsenTanggalPage() {
                   </tr>
                 ))}
               </tbody>
+              <div className="h-37" />
             </table>
           </div>
         </div>
@@ -458,9 +540,22 @@ export default function AbsenTanggalPage() {
       {/* Section Kelas */}
       {absensiIds.KELAS ? (
         <div className="bg-white rounded-xl shadow-sm mb-6">
+          ``
           <div className="px-6 py-4 border-b flex justify-between items-center">
             <h2 className="font-semibold text-gray-700">📚 Absen Kelas</h2>
+
             <div className="flex items-center gap-3">
+              <label className="flex items-center gap-2 me-5 cursor-pointer">
+                <input
+                  type="checkbox"
+                  onChange={(e) => handleTandaiSemua(e.target.checked, "KELAS")}
+                  className="w-4 h-4 accent-[#1a6b3c] cursor-pointer"
+                />
+                <span className="text-xs text-gray-500">
+                  Tandai Semua Hadir
+                </span>
+              </label>
+
               {sukses.KELAS && (
                 <span className="text-green-600 text-sm">✅ Tersimpan!</span>
               )}
@@ -518,6 +613,7 @@ export default function AbsenTanggalPage() {
                   </tr>
                 ))}
               </tbody>
+              <div className="h-37" />
             </table>
           </div>
         </div>
@@ -533,6 +629,17 @@ export default function AbsenTanggalPage() {
           <div className="px-6 py-4 border-b flex justify-between items-center">
             <h2 className="font-semibold text-gray-700">🍽️ Piket Makan</h2>
             <div className="flex items-center gap-3">
+              <label className="flex items-center gap-2 me-5 cursor-pointer">
+                <input
+                  type="checkbox"
+                  onChange={(e) => handleTandaiSemua(e.target.checked, "MAKAN")}
+                  className="w-4 h-4 accent-[#1a6b3c] cursor-pointer"
+                />
+                <span className="text-xs text-gray-500">
+                  Tandai Semua Hadir
+                </span>
+              </label>
+
               {sukses.MAKAN && (
                 <span className="text-green-600 text-sm">✅ Tersimpan!</span>
               )}
@@ -590,6 +697,7 @@ export default function AbsenTanggalPage() {
                   </tr>
                 ))}
               </tbody>
+              <div className="h-37" />
             </table>
           </div>
         </div>
@@ -605,6 +713,19 @@ export default function AbsenTanggalPage() {
           <div className="px-6 py-4 border-b flex justify-between items-center">
             <h2 className="font-semibold text-gray-700">🏠 Piket Asrama</h2>
             <div className="flex items-center gap-3">
+              <label className="flex items-center gap-2 me-5 cursor-pointer">
+                <input
+                  type="checkbox"
+                  onChange={(e) =>
+                    handleTandaiSemua(e.target.checked, "ASRAMA")
+                  }
+                  className="w-4 h-4 accent-[#1a6b3c] cursor-pointer"
+                />
+                <span className="text-xs text-gray-500">
+                  Tandai Semua Hadir
+                </span>
+              </label>
+
               {sukses.ASRAMA && (
                 <span className="text-green-600 text-sm">✅ Tersimpan!</span>
               )}
@@ -653,6 +774,7 @@ export default function AbsenTanggalPage() {
                   </tr>
                 ))}
               </tbody>
+              <div className="h-37" />
             </table>
           </div>
         </div>

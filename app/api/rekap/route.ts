@@ -17,114 +17,122 @@ export async function GET(request: NextRequest) {
 
     const dari = new Date(dariTanggal);
     const sampai = new Date(sampaiTanggal);
-
     const dariUTC = new Date(
       Date.UTC(dari.getFullYear(), dari.getMonth(), dari.getDate()),
     );
-
     const sampaiUTC = new Date(
       Date.UTC(sampai.getFullYear(), sampai.getMonth(), sampai.getDate() + 1),
     );
 
-    const absensiList = await prisma.absensi.findMany({
-      where: {
-        tanggal: { gte: dariUTC, lt: sampaiUTC },
-      },
-    });
-
-    const absensiIds = absensiList.map((a) => a.id);
-
-    // Ambil semua santri
-    const santriList = await prisma.santri.findMany({
-      orderBy: { nama: "asc" },
-    });
-
-    // Hitung per santri
-    const hasil = await Promise.all(
-      santriList.map(async (santri) => {
-        const [sholat, kelas] = await Promise.all([
-          prisma.absenSholat.findMany({
-            where: {
-              santriId: santri.id,
-              absensiId: { in: absensiIds },
-              status: { not: "KOSONG" },
-            },
-          }),
-          prisma.absenKelas.findMany({
-            where: {
-              santriId: santri.id,
-              absensiId: { in: absensiIds },
-              status: { not: "KOSONG" },
-            },
-          }),
-        ]);
-
-        const semua = [...sholat, ...kelas];
-        const hadir = semua.filter((a) => a.status === "HADIR").length;
-        const telat = semua.filter((a) => a.status === "TELAT").length;
-        const sakit = semua.filter((a) => a.status === "SAKIT").length;
-        const izin = semua.filter((a) => a.status === "IZIN").length;
-        const alpa = semua.filter((a) => a.status === "ALPA").length;
-        const rekapSholat = {
-          hadir: sholat.filter((a) => a.status === "HADIR").length,
-          telat: sholat.filter((a) => a.status === "TELAT").length,
-          alpa: sholat.filter((a) => a.status === "ALPA").length,
-          sakit: sholat.filter((a) => a.status === "SAKIT").length,
-          izin: sholat.filter((a) => a.status === "IZIN").length,
-        };
-
-        // Rekap asrama
-        const rekapKelas = {
-          hadir: kelas.filter((a) => a.status === "HADIR").length,
-          telat: kelas.filter((a) => a.status === "TELAT").length,
-          alpa: kelas.filter((a) => a.status === "ALPA").length,
-          sakit: kelas.filter((a) => a.status === "SAKIT").length,
-          izin: kelas.filter((a) => a.status === "IZIN").length,
-        };
-
-        // Rekap gabungan
-        const gabungan = {
-          hadir: rekapSholat.hadir + rekapKelas.hadir,
-          telat: rekapSholat.telat + rekapKelas.telat,
-          alpa: rekapSholat.alpa + rekapKelas.alpa,
-          sakit: rekapSholat.sakit + rekapKelas.sakit,
-          izin: rekapSholat.izin + rekapKelas.izin,
-        };
-
-        return {
-          id: santri.id,
-          nama: santri.nama,
-          isArchived: santri.isArchived,
-          hadir,
-          telat,
-          sakit,
-          izin,
-          alpa,
-          sholat: {
-            ...rekapSholat,
-            skor: hitungSkor(
-              rekapSholat.hadir,
-              rekapSholat.telat,
-              rekapSholat.alpa,
-            ),
-          },
-          kelas: {
-            ...rekapKelas,
-            skor: hitungSkor(
-              rekapKelas.hadir,
-              rekapKelas.telat,
-              rekapKelas.alpa,
-            ),
-          },
-          gabungan: {
-            ...gabungan,
-            skor: hitungSkor(gabungan.hadir, gabungan.telat, gabungan.alpa),
-          },
-        };
+    // Ambil semua data sekaligus — SATU query per tipe
+    const [absensiSholat, absensiKelas, santriList] = await Promise.all([
+      prisma.absensi.findMany({
+        where: { tipe: "SHOLAT", tanggal: { gte: dariUTC, lt: sampaiUTC } },
       }),
-    );
+      prisma.absensi.findMany({
+        where: { tipe: "KELAS", tanggal: { gte: dariUTC, lt: sampaiUTC } },
+      }),
+      prisma.santri.findMany({ orderBy: { nama: "asc" } }),
+    ]);
 
-    return NextResponse.json(hasil);
+    const idsSholat = absensiSholat.map((a) => a.id);
+    const idsKelas = absensiKelas.map((a) => a.id);
+
+    // Ambil semua absen sekaligus — bukan per santri
+    const [semuaSholat, semuaKelas] = await Promise.all([
+      prisma.absenSholat.findMany({
+        where: {
+          absensiId: { in: idsSholat },
+          status: { not: "KOSONG" },
+        },
+      }),
+      prisma.absenKelas.findMany({
+        where: {
+          absensiId: { in: idsKelas },
+          status: { not: "KOSONG" },
+        },
+      }),
+    ]);
+
+    // Hitung per santri di memory — tidak perlu query lagi
+    const hasil = santriList.map((santri) => {
+      const sholat = semuaSholat.filter((a) => a.santriId === santri.id);
+      const kelas = semuaKelas.filter((a) => a.santriId === santri.id);
+
+      const rekapSholat = {
+        hadir: sholat.filter((a) => a.status === "HADIR").length,
+        telat: sholat.filter((a) => a.status === "TELAT").length,
+        alpa: sholat.filter((a) => a.status === "ALPA").length,
+        izin: sholat.filter((a) => a.status === "IZIN").length,
+        sakit: sholat.filter((a) => a.status === "SAKIT").length,
+      };
+
+      const rekapKelas = {
+        hadir: kelas.filter((a) => a.status === "HADIR").length,
+        telat: kelas.filter((a) => a.status === "TELAT").length,
+        alpa: kelas.filter((a) => a.status === "ALPA").length,
+        izin: kelas.filter((a) => a.status === "IZIN").length,
+        sakit: kelas.filter((a) => a.status === "SAKIT").length,
+      };
+
+      const gabungan = {
+        hadir: rekapSholat.hadir + rekapKelas.hadir,
+        telat: rekapSholat.telat + rekapKelas.telat,
+        alpa: rekapSholat.alpa + rekapKelas.alpa,
+        izin: rekapSholat.izin + rekapKelas.izin,
+        sakit: rekapSholat.sakit + rekapKelas.sakit,
+      };
+
+      return {
+        id: santri.id,
+        nama: santri.nama,
+        isArchived: santri.isArchived,
+        sholat: {
+          ...rekapSholat,
+          skor: hitungSkor(
+            rekapSholat.hadir,
+            rekapSholat.telat,
+            rekapSholat.alpa,
+          ),
+        },
+        kelas: {
+          ...rekapKelas,
+          skor: hitungSkor(rekapKelas.hadir, rekapKelas.telat, rekapKelas.alpa),
+        },
+        gabungan: {
+          ...gabungan,
+          skor: hitungSkor(gabungan.hadir, gabungan.telat, gabungan.alpa),
+        },
+      };
+    });
+
+    // Summary keseluruhan
+    const summarySholat = {
+      hadir: semuaSholat.filter((a) => a.status === "HADIR").length,
+      telat: semuaSholat.filter((a) => a.status === "TELAT").length,
+      alpa: semuaSholat.filter((a) => a.status === "ALPA").length,
+      izin: semuaSholat.filter((a) => a.status === "IZIN").length,
+      sakit: semuaSholat.filter((a) => a.status === "SAKIT").length,
+    };
+    const summaryKelas = {
+      hadir: semuaKelas.filter((a) => a.status === "HADIR").length,
+      telat: semuaKelas.filter((a) => a.status === "TELAT").length,
+      alpa: semuaKelas.filter((a) => a.status === "ALPA").length,
+      izin: semuaKelas.filter((a) => a.status === "IZIN").length,
+      sakit: semuaKelas.filter((a) => a.status === "SAKIT").length,
+    };
+    const summaryGabungan = {
+      hadir: summarySholat.hadir + summaryKelas.hadir,
+      telat: summarySholat.telat + summaryKelas.telat,
+      alpa: summarySholat.alpa + summaryKelas.alpa,
+      izin: summarySholat.izin + summaryKelas.izin,
+      sakit: summarySholat.sakit + summaryKelas.sakit,
+    };
+
+    return NextResponse.json({
+      santri: hasil,
+      summary: summaryGabungan,
+    });
   } catch (error) {
     console.error("GET rekap error:", error);
     return NextResponse.json(

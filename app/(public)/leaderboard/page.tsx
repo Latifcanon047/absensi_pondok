@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 type LeaderboardItem = {
   id: number;
@@ -32,6 +32,10 @@ export default function LeaderboardPage() {
     const day = String(date.getDate()).padStart(2, "0");
     return `${year}-${month}-${day}`;
   }
+
+  useEffect(() => {
+    handleLihat();
+  }, []);
 
   async function handleLihat() {
     setLoading(true);

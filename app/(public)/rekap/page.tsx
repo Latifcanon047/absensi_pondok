@@ -28,15 +28,6 @@ const BULAN = [
   "Desember",
 ];
 
-type ChartData = {
-  hari: string;
-  hadir: number;
-  telat: number;
-  sakit: number;
-  izin: number;
-  alpa: number;
-};
-
 type Summary = {
   hadir: number;
   telat: number;
@@ -85,7 +76,6 @@ export default function RekapPage() {
   const [hasil, setHasil] = useState<RekapSantri[]>([]);
   const [loading, setLoading] = useState(false);
   const [sudahCari, setSudahCari] = useState(false);
-  const [chartData, setChartData] = useState<ChartData[]>([]);
   const [summaryChart, setSummaryChart] = useState<Summary | null>(null);
 
   function formatDateLocal(date: Date) {
@@ -109,18 +99,11 @@ export default function RekapPage() {
     });
 
     try {
-      const [res, resChart] = await Promise.all([
-        fetch(`/api/rekap?${params}`),
-        fetch(`/api/chart?${params}`),
-      ]);
-
-      const [data, dataChart] = await Promise.all([
-        res.json(),
-        resChart.json(),
-      ]);
-      setHasil(data);
-      setChartData(dataChart);
-      setSummaryChart(dataChart.summary);
+      const res = await fetch(`/api/rekap?${params}`);
+      const data = await res.json();
+      console.log("data:", data);
+      setHasil(data.santri); // untuk tabel rekap
+      setSummaryChart(data.summary); // untuk chart
       setSudahCari(true);
     } catch {
       console.error("Gagal fetch rekap");
@@ -135,168 +118,122 @@ export default function RekapPage() {
 
     const doc = new jsPDF();
 
-    // Warna tema
     const primaryColor: [number, number, number] = [26, 107, 60];
-    const secondaryColor: [number, number, number] = [240, 250, 244];
-
-    // Margin kiri-kanan yang konsisten
     const marginLeft = 14;
-    const marginRight = 196; // 210 - 14
+    const marginRight = 196;
     const pageWidth = 210;
     const contentWidth = pageWidth - marginLeft * 2;
 
-    // ========== HEADER ==========
-    // Garis atas
-    doc.setFillColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+    // ===== HEADER =====
+    doc.setFillColor(...primaryColor);
     doc.rect(0, 0, pageWidth, 5, "F");
 
-    // Judul utama - RATA TENGAH
-    doc.setFontSize(20);
-    doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+    doc.setFontSize(18);
+    doc.setTextColor(...primaryColor);
     doc.setFont("helvetica", "bold");
-    doc.text("LAPORAN REKAP ABSEN", pageWidth / 2, 25, { align: "center" });
+    doc.text("LAPORAN REKAP ABSEN", pageWidth / 2, 20, { align: "center" });
 
-    // Periode - RATA TENGAH
     doc.setFontSize(10);
-    doc.setTextColor(100, 100, 100);
+    doc.setTextColor(120, 120, 120);
     doc.setFont("helvetica", "normal");
     doc.text(
       `Periode: ${formatTanggalIndonesia(dariTanggal)} s/d ${formatTanggalIndonesia(sampaiTanggal)}`,
       pageWidth / 2,
-      35,
+      28,
       { align: "center" },
     );
 
-    // Garis pemisah
-    doc.setDrawColor(200, 200, 200);
-    doc.line(marginLeft, 42, marginRight, 42);
+    doc.setDrawColor(220, 220, 220);
+    doc.line(marginLeft, 34, marginRight, 34);
 
-    // ========== TABEL REKAP SANTRI ==========
-    autoTable(doc, {
-      startY: 50,
-      head: [
-        [
-          {
-            content: "No",
-            styles: { halign: "center" as const, cellWidth: 12 },
-          },
-          {
-            content: "Nama Santri",
-            styles: { halign: "left" as const, cellWidth: 65 },
-          },
-          {
-            content: "Hadir",
-            styles: { halign: "center" as const, cellWidth: 18 },
-          },
-          {
-            content: "Telat",
-            styles: { halign: "center" as const, cellWidth: 18 },
-          },
-          {
-            content: "Sakit",
-            styles: { halign: "center" as const, cellWidth: 18 },
-          },
-          {
-            content: "Izin",
-            styles: { halign: "center" as const, cellWidth: 18 },
-          },
-          {
-            content: "Alpa",
-            styles: { halign: "center" as const, cellWidth: 18 },
-          },
-          {
-            content: "Skor",
-            styles: { halign: "center" as const, cellWidth: 23 },
-          },
+    // ===== HELPER TABLE =====
+    const renderTable = (title: string, data: any[], startY: number) => {
+      doc.setFontSize(12);
+      doc.setTextColor(...primaryColor);
+      doc.setFont("helvetica", "bold");
+      doc.text(title, marginLeft, startY);
+
+      doc.setDrawColor(230, 230, 230);
+      doc.line(marginLeft, startY + 2, marginRight, startY + 2);
+
+      autoTable(doc, {
+        startY: startY + 6,
+        head: [
+          ["No", "Nama", "Hadir", "Telat", "Sakit", "Izin", "Alpa", "Skor"],
         ],
-      ],
-      body: hasil.map((santri, index) => [
-        { content: index + 1, styles: { halign: "center" as const } },
-        {
-          content: santri.nama + (santri.isArchived ? " (Nonaktif)" : ""),
-          styles: { halign: "left" as const },
+        body: data.map((s, i) => [
+          i + 1,
+          s.nama,
+          s.hadir,
+          s.telat,
+          s.sakit,
+          s.izin,
+          s.alpa,
+          `${s.skor}%`,
+        ]),
+        styles: {
+          fontSize: 8,
+          halign: "center",
         },
-        {
-          content: santri.hadir,
-          styles: { halign: "center" as const, textColor: [22, 163, 74] },
+        headStyles: {
+          fillColor: primaryColor, // HIJAU
+          textColor: 255,
+          fontStyle: "bold",
+          halign: "center",
+          fontSize: 9,
         },
-        {
-          content: santri.telat,
-          styles: { halign: "center" as const, textColor: [234, 88, 12] },
+        columnStyles: {
+          1: { halign: "left" },
         },
-        {
-          content: santri.sakit,
-          styles: { halign: "center" as const, textColor: [217, 119, 6] },
+        alternateRowStyles: {
+          fillColor: [240, 250, 244], // hijau muda soft
         },
-        {
-          content: santri.izin,
-          styles: { halign: "center" as const, textColor: [37, 99, 235] },
-        },
-        {
-          content: santri.alpa,
-          styles: { halign: "center" as const, textColor: [220, 38, 38] },
-        },
-        {
-          content: `${santri.skor}%`,
-          styles: {
-            halign: "center" as const,
-            textColor: primaryColor,
-            fontStyle: "bold",
-          },
-        },
-      ]),
-      headStyles: {
-        fillColor: primaryColor,
-        textColor: 255,
-        fontStyle: "bold",
-        halign: "center" as const,
-        fontSize: 9,
-      },
-      bodyStyles: {
-        fontSize: 8,
-      },
-      alternateRowStyles: {
-        fillColor: secondaryColor,
-      },
-      margin: { left: marginLeft, right: marginLeft },
-      tableWidth: contentWidth,
-    });
+        margin: { left: marginLeft, right: marginLeft },
+        tableWidth: contentWidth,
+      });
 
-    const lastAutoTable = (doc as any).lastAutoTable;
-    let finalY = lastAutoTable ? lastAutoTable.finalY + 20 : 100;
+      return (doc as any).lastAutoTable.finalY + 12;
+    };
 
-    // ========== RINGKASAN STATISTIK ==========
+    // ===== RENDER SECTION =====
+    let currentY = 40;
+
+    currentY = renderTable(
+      "Absen Sholat",
+      hasil.map((s) => ({ ...s, ...s.sholat })),
+      currentY,
+    );
+
+    currentY = renderTable(
+      "Absen Kelas",
+      hasil.map((s) => ({ ...s, ...s.kelas })),
+      currentY,
+    );
+
+    currentY = renderTable(
+      "Rekap Keseluruhan",
+      hasil.map((s) => ({ ...s, ...s.gabungan })),
+      currentY,
+    );
+
+    let finalY = currentY + 5;
+
+    // ===== SUMMARY CARDS =====
     if (summaryChart) {
-      // Cek halaman baru
       if (finalY > 240) {
         doc.addPage();
         finalY = 20;
       }
 
-      // Judul section - RATA TENGAH
       doc.setFontSize(14);
-      doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+      doc.setTextColor(...primaryColor);
       doc.setFont("helvetica", "bold");
       doc.text("RINGKASAN KEDISIPLINAN KESELURUHAN", pageWidth / 2, finalY, {
         align: "center",
       });
 
-      finalY += 8;
+      finalY += 10;
 
-      // Garis bawah judul
-      doc.setDrawColor(primaryColor[0], primaryColor[1], primaryColor[2]);
-      doc.setLineWidth(0.5);
-      const titleWidth = 50;
-      doc.line(
-        pageWidth / 2 - titleWidth / 2,
-        finalY - 2,
-        pageWidth / 2 + titleWidth / 2,
-        finalY - 2,
-      );
-
-      finalY += 8;
-
-      // Data statistik dalam format baris yang rapi
       const statsData = [
         {
           label: "Hadir",
@@ -336,30 +273,27 @@ export default function RekapPage() {
         },
       ];
 
-      // Tampilkan dalam 2 baris, masing-masing 3 kolom
-      const cardW = contentWidth / 6 - 3; // 16 adalah jarak antar card
+      const cardW = contentWidth / 6 - 3;
       const startX = marginLeft;
 
       statsData.forEach((stat, i) => {
         const xPos = startX + i * (cardW + 3.6);
-        const yPos = finalY + 8;
+        const yPos = finalY + 6;
 
-        // Background berwarna
+        // background warna
         doc.setFillColor(stat.bg[0], stat.bg[1], stat.bg[2]);
         doc.roundedRect(xPos, yPos, cardW, 28, 3, 3, "F");
 
-        // Border tipis
+        // border
         doc.setDrawColor(220, 220, 220);
-        doc.setLineWidth(0.2);
         doc.roundedRect(xPos, yPos, cardW, 28, 3, 3, "S");
 
-        // Label
+        // label
         doc.setFontSize(7);
         doc.setTextColor(100, 100, 100);
-        doc.setFont("helvetica", "normal");
         doc.text(stat.label, xPos + cardW / 2, yPos + 9, { align: "center" });
 
-        // Value
+        // value
         doc.setFontSize(13);
         doc.setTextColor(stat.color[0], stat.color[1], stat.color[2]);
         doc.setFont("helvetica", "bold");
@@ -369,30 +303,32 @@ export default function RekapPage() {
       });
     }
 
-    // ========== FOOTER ==========
+    // ===== FOOTER =====
     const pageCount = doc.getNumberOfPages();
+
     for (let i = 1; i <= pageCount; i++) {
       doc.setPage(i);
 
-      // Garis footer
-      doc.setDrawColor(200, 200, 200);
+      doc.setDrawColor(220, 220, 220);
       doc.line(marginLeft, 280, marginRight, 280);
 
-      // Teks footer kiri
       doc.setFontSize(7);
       doc.setTextColor(150, 150, 150);
-      doc.setFont("helvetica", "normal");
-      const now = new Date();
-      const formattedDate = `${now.getDate().toString().padStart(2, "0")}/${(now.getMonth() + 1).toString().padStart(2, "0")}/${now.getFullYear()}`;
-      doc.text(`Dicetak: ${formattedDate}`, marginLeft, 288);
 
-      // Teks footer kanan
-      doc.text(`Hal. ${i} dari ${pageCount}`, marginRight, 288, {
+      const now = new Date();
+      const date = `${now.getDate().toString().padStart(2, "0")}/${(
+        now.getMonth() + 1
+      )
+        .toString()
+        .padStart(2, "0")}/${now.getFullYear()}`;
+
+      doc.text(`Dicetak: ${date}`, marginLeft, 288);
+      doc.text(`Hal. ${i}/${pageCount}`, marginRight, 288, {
         align: "right",
       });
-
-      // Teks footer tengah
-      doc.text("Pondok Pesantren", pageWidth / 2, 288, { align: "center" });
+      doc.text("Pondok Pesantren", pageWidth / 2, 288, {
+        align: "center",
+      });
     }
 
     doc.save(`Rekap_Absen_${dariTanggal}_sd_${sampaiTanggal}.pdf`);
@@ -415,6 +351,7 @@ export default function RekapPage() {
       "Desember",
     ];
     const [year, month, day] = dateString.split("-");
+    ``;
     return `${parseInt(day)} ${bulan[parseInt(month) - 1]} ${year}`;
   }
 
@@ -546,7 +483,7 @@ export default function RekapPage() {
 
           <TabelRekap data={hasil} judul="Absen Sholat" />
           <TabelRekap data={hasil} judul="Absen kelas" />
-          <TabelRekap data={hasil} judul="Rekap Gabungan" />
+          <TabelRekap data={hasil} judul="Rekap Keseluruhan" />
 
           <div className="my-6">
             <h1 className="text-2xl font-bold text-gray-800 mb-6">
