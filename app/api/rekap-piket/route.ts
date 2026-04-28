@@ -127,6 +127,11 @@ export async function GET(request: NextRequest) {
       alpa: summaryMakan.alpa + summaryAsrama.alpa,
       izin: summaryMakan.izin + summaryAsrama.izin,
       sakit: summaryMakan.sakit + summaryAsrama.sakit,
+      skor: hitungSkor(
+        summaryMakan.hadir + summaryAsrama.hadir,
+        summaryMakan.telat + summaryAsrama.telat,
+        summaryMakan.alpa + summaryAsrama.alpa,
+      ),
     };
 
     return NextResponse.json({

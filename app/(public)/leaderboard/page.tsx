@@ -33,10 +33,6 @@ export default function LeaderboardPage() {
     return `${year}-${month}-${day}`;
   }
 
-  useEffect(() => {
-    handleLihat();
-  }, []);
-
   async function handleLihat() {
     setLoading(true);
     setSudahCari(false);

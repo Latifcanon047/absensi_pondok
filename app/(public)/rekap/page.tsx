@@ -85,10 +85,6 @@ export default function RekapPage() {
     return `${year}-${month}-${day}`;
   }
 
-  useEffect(() => {
-    handleLihatRekap();
-  }, []);
-
   async function handleLihatRekap() {
     setLoading(true);
     setSudahCari(false);
@@ -101,7 +97,6 @@ export default function RekapPage() {
     try {
       const res = await fetch(`/api/rekap?${params}`);
       const data = await res.json();
-      console.log("data:", data);
       setHasil(data.santri); // untuk tabel rekap
       setSummaryChart(data.summary); // untuk chart
       setSudahCari(true);

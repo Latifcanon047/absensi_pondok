@@ -69,10 +69,6 @@ export default function RekapPiketPage() {
     return `${year}-${month}-${day}`;
   }
 
-  useEffect(() => {
-    handleLihat();
-  }, []);
-
   async function handleLihat() {
     setLoading(true);
     setSudahCari(false);
@@ -82,7 +78,6 @@ export default function RekapPiketPage() {
     try {
       const res = await fetch(`/api/rekap-piket?${params}`);
       const data = await res.json();
-      console.log("data:", data);
       setSantri(data.santri); // untuk tabel rekap
       setSummaryChart(data.summary); // untuk chart
       setSudahCari(true);
