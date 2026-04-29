@@ -37,10 +37,6 @@ export default function ListAbsensiPage() {
   const [loading, setLoading] = useState(false);
   const [showDialog, setShowDialog] = useState(false);
 
-  useEffect(() => {
-    handleCari();
-  }, []);
-
   async function handleCari() {
     setLoading(true);
     setSudahCari(false);

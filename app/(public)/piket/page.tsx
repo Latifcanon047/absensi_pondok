@@ -79,6 +79,7 @@ export default function RekapPiketPage() {
     try {
       const res = await fetch(`/api/rekap-piket?${params}`);
       const data = await res.json();
+      console.log(data);
       setSantri(data.santri); // untuk tabel rekap
       setSummaryChart(data.summary); // untuk chart
       setSudahCari(true);
@@ -332,9 +333,9 @@ export default function RekapPiketPage() {
 
   function TabelRekap({ data, judul }: { data: RekapSantri[]; judul: string }) {
     const key =
-      judul === "Absen makan"
+      judul === "Piket Makan"
         ? "makan"
-        : judul === "Absen asrama"
+        : judul === "Piket Asrama"
           ? "asrama"
           : "gabungan";
     return (
@@ -376,7 +377,7 @@ export default function RekapPiketPage() {
                 </th>
                 <th className="text-center px-4 py-3 text-xs font-medium text-amber-600 uppercase tracking-wider">
                   <div className="flex items-center justify-center gap-1">
-                    <span>📝</span> Izin
+                    Izin
                   </div>
                 </th>
                 <th className="text-center px-4 py-3 text-xs font-medium text-red-600 uppercase tracking-wider">
@@ -586,7 +587,7 @@ export default function RekapPiketPage() {
             </div>
           </div>
           <TabelRekap data={santri} judul="Piket Makan" />
-          <TabelRekap data={santri} judul="Piket asrama" />
+          <TabelRekap data={santri} judul="Piket Asrama" />
           <TabelRekap data={santri} judul="Rekap Keseluruhan" />
           <div className="my-8">
             <div className="mb-6">
