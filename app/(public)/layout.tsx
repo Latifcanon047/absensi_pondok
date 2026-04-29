@@ -1,46 +1,166 @@
+"use client";
+
 import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { useState } from "react";
 
 export default function PublicLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const pathname = usePathname();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  const navItems = [
+    { name: "Kedisiplinan", href: "/rekap" },
+    { name: "Tanggung Jawab", href: "/piket" },
+    { name: "Leaderboard", href: "/leaderboard" },
+    { name: "Absensi", href: "/dashboard/absensi" },
+  ];
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Navbar */}
-      <nav className="bg-[#1a6b3c] text-white px-6 py-4">
-        <div className="max-w-6xl mx-auto flex justify-between items-center">
-          <Link href="/" className="font-bold text-lg">
-            Absensi Pesantren
-          </Link>
-          <div className="flex gap-6 text-sm">
-            <Link href="/rekap" className="hover:text-green-200 transition">
-              Kedisiplinan
-            </Link>
+      <nav className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-14 sm:h-16">
+            {/* Logo */}
             <Link
-              href="/rekap-piket"
-              className="hover:text-green-200 transition"
+              href="/"
+              className="font-bold text-base sm:text-xl text-emerald-700"
             >
-              Tanggung Jawab
+              Absensi Pesantren
             </Link>
-            <Link
-              href="/leaderboard"
-              className="hover:text-green-200 transition"
+
+            {/* Desktop Navigation */}
+            <div className="hidden md:flex gap-1">
+              {navItems.map((item) => {
+                const isActive =
+                  pathname === item.href ||
+                  (item.href !== "/" && pathname?.startsWith(item.href));
+
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={`
+                      px-3 py-2 rounded-lg text-sm font-medium transition
+                      ${
+                        isActive
+                          ? "bg-emerald-50 text-emerald-700"
+                          : "text-gray-600 hover:text-emerald-700 hover:bg-gray-50"
+                      }
+                    `}
+                  >
+                    {item.name}
+                  </Link>
+                );
+              })}
+            </div>
+
+            {/* Mobile Menu Button */}
+            <button
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              className="md:hidden p-2 rounded-lg text-gray-600 hover:bg-gray-100 focus:outline-none"
             >
-              Leaderboard
-            </Link>
-            <Link
-              href="dashboard/absensi"
-              className="hover:text-green-200 transition"
-            >
-              Absensi
-            </Link>
+              <svg
+                className="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                {isMenuOpen ? (
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                ) : (
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M4 6h16M4 12h16M4 18h16"
+                  />
+                )}
+              </svg>
+            </button>
           </div>
         </div>
       </nav>
 
+      {/* Mobile Sidebar - muncul dari samping kiri */}
+      <div
+        className={`
+          fixed inset-0 z-50 transition-all duration-300 md:hidden
+          ${isMenuOpen ? "visible" : "invisible"}
+        `}
+      >
+        {/* Overlay */}
+        <div
+          className={`
+            absolute inset-0 bg-black/50 backdrop-blur-sm transition-opacity duration-300
+            ${isMenuOpen ? "opacity-100" : "opacity-0"}
+          `}
+          onClick={() => setIsMenuOpen(false)}
+        />
+
+        {/* Sidebar Navigation */}
+        <aside
+          className={`
+            absolute top-0 left-0 h-full w-64 bg-white shadow-xl
+            transition-transform duration-300 ease-out
+            ${isMenuOpen ? "translate-x-0" : "-translate-x-full"}
+          `}
+        >
+          <div className="flex flex-col h-full">
+            {/* Header Sidebar */}
+            <div className="p-4 border-b border-gray-100">
+              <Link
+                href="/"
+                onClick={() => setIsMenuOpen(false)}
+                className="font-bold text-xl text-emerald-700 block"
+              >
+                Absensi Pesantren
+              </Link>
+            </div>
+
+            {/* Navigation Items */}
+            <div className="flex-1 py-4">
+              {navItems.map((item) => {
+                const isActive =
+                  pathname === item.href ||
+                  (item.href !== "/" && pathname?.startsWith(item.href));
+
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    onClick={() => setIsMenuOpen(false)}
+                    className={`
+                      block px-4 py-3 mx-2 rounded-lg text-sm font-medium transition
+                      ${
+                        isActive
+                          ? "bg-emerald-50 text-emerald-700"
+                          : "text-gray-600 hover:text-emerald-700 hover:bg-gray-50"
+                      }
+                    `}
+                  >
+                    {item.name}
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        </aside>
+      </div>
+
       {/* Content */}
-      <main className="max-w-6xl mx-auto p-6">{children}</main>
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+        {children}
+      </main>
     </div>
   );
 }

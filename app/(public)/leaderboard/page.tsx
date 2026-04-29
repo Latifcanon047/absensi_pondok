@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import SkeletonLeaderboard from "@/components/SkeletonLeaderboard";
 
 type LeaderboardItem = {
   id: number;
@@ -73,124 +74,259 @@ export default function LeaderboardPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-gray-800 mb-6">🏆 Leaderboard</h1>
+      <div className="mb-8">
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-2 flex items-center gap-2">
+          <span className="text-3xl">🏆</span>
+          Leaderboard
+        </h1>
+        <p className="text-sm text-gray-500 mt-2">
+          Peringkat kedisiplinan santri
+        </p>
+      </div>
 
       {/* Filter */}
-      <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
-        <p className="text-sm font-medium text-gray-700 mb-4">
-          Pilih Range Tanggal
-        </p>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-          <div>
-            <label className="block text-xs text-gray-600 mb-1">
-              Dari Tanggal
-            </label>
-            <input
-              type="date"
-              value={dariTanggal}
-              onChange={(e) => setDariTanggal(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#1a6b3c]"
-            />
-          </div>
-          <div>
-            <label className="block text-xs text-gray-600 mb-1">
-              Sampai Tanggal
-            </label>
-            <input
-              type="date"
-              value={sampaiTanggal}
-              onChange={(e) => setSampaiTanggal(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#1a6b3c]"
-            />
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden mb-6 hover:shadow-md transition-all duration-300">
+        <div className="px-6 py-4 bg-linear-to-r from-gray-50 to-white border-b border-gray-100">
+          <div className="flex items-center gap-2">
+            <p className="text-sm font-semibold text-gray-700">
+              Filter Periode
+            </p>
           </div>
         </div>
-        <button
-          onClick={handleLihat}
-          disabled={loading}
-          className="bg-[#1a6b3c] text-white px-6 py-2 rounded-lg text-sm hover:bg-[#164d2f] transition disabled:opacity-50"
-        >
-          {loading ? "Memuat..." : "Lihat Leaderboard"}
-        </button>
+
+        <div className="p-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-6">
+            <div>
+              <label className="block text-xs font-medium text-gray-600 mb-1.5">
+                Dari Tanggal
+              </label>
+              <input
+                type="date"
+                value={dariTanggal}
+                onChange={(e) => setDariTanggal(e.target.value)}
+                className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all duration-200 bg-gray-50 hover:bg-white"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-600 mb-1.5">
+                Sampai Tanggal
+              </label>
+              <input
+                type="date"
+                value={sampaiTanggal}
+                onChange={(e) => setSampaiTanggal(e.target.value)}
+                className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all duration-200 bg-gray-50 hover:bg-white"
+              />
+            </div>
+          </div>
+
+          <button
+            onClick={handleLihat}
+            disabled={loading}
+            className="group relative bg-linear-to-r from-emerald-600 to-emerald-700 text-white px-6 py-2.5 rounded-xl text-sm font-medium hover:from-emerald-700 hover:to-emerald-800 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm hover:shadow-md flex items-center gap-2"
+          >
+            {loading ? (
+              <>
+                <svg
+                  className="animate-spin h-4 w-4 text-white"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  ></circle>
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                  ></path>
+                </svg>
+                Memuat...
+              </>
+            ) : (
+              <>Lihat Leaderboard</>
+            )}
+          </button>
+        </div>
       </div>
+
+      {loading && (
+        <>
+          <SkeletonLeaderboard cardCount={6} />
+        </>
+      )}
 
       {/* Hasil */}
       {sudahCari &&
         (hasil.length === 0 ? (
-          <div className="text-center text-gray-500 py-12">
-            Belum ada data untuk periode ini
+          <div className="text-center py-16 bg-white rounded-2xl border border-gray-100">
+            <div className="text-5xl mb-3">📭</div>
+            <p className="text-gray-500 font-medium">
+              Belum ada data untuk periode ini
+            </p>
+            <p className="text-sm text-gray-400 mt-1">
+              Coba pilih rentang tanggal yang lain
+            </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {hasil.map((santri, index) => (
               <div
                 key={santri.id}
-                className={`border-2 rounded-xl p-5 ${getCardStyle(index)}`}
+                className={`
+              group relative bg-white rounded-2xl shadow-sm border-2 p-6 
+              hover:shadow-xl transition-all duration-300 hover:-translate-y-1
+              ${
+                index === 0
+                  ? "border-amber-400 bg-linear-to-br from-amber-50/30 to-white"
+                  : index === 1
+                    ? "border-gray-300 bg-linear-to-br from-gray-50/30 to-white"
+                    : index === 2
+                      ? "border-orange-300 bg-linear-to-br from-orange-50/30 to-white"
+                      : "border-gray-100 hover:border-emerald-200"
+              }
+            `}
               >
-                {/* Header kartu */}
-                <div className="flex justify-between items-start mb-3">
-                  <span className="text-2xl">{getMedal(index)}</span>
-                  <span
-                    className={`text-3xl font-bold ${getSkorColor(santri.skorFinal)}`}
+                {/* Medal and Rank */}
+                <div className="absolute -top-3 -left-3">
+                  <div
+                    className={`
+                w-10 h-10 rounded-full flex items-center justify-center shadow-md
+                ${
+                  index === 0
+                    ? "bg-amber-300"
+                    : index === 1
+                      ? "bg-gray-400"
+                      : index === 2
+                        ? "bg-orange-200"
+                        : "bg-gray-300"
+                }
+              `}
                   >
-                    {santri.skorFinal}%
-                  </span>
+                    <span className="text-white font-bold text-lg">
+                      {index === 0
+                        ? "🥇"
+                        : index === 1
+                          ? "🥈"
+                          : index === 2
+                            ? "🥉"
+                            : index + 1}
+                    </span>
+                  </div>
                 </div>
 
-                {/* Nama */}
-                <p className="font-semibold text-gray-800 text-lg mb-4">
-                  {santri.nama}
-                </p>
+                {/* Nama Santri */}
+                <div className="flex items-center justify-between gap-3 mb-5">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 rounded-full bg-linear-to-br from-emerald-100 to-emerald-200 flex items-center justify-center">
+                      <span className="text-emerald-600 font-bold text-lg">
+                        {santri.nama.charAt(0).toUpperCase()}
+                      </span>
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-gray-800 text-lg">
+                        {santri.nama}
+                      </h3>
+                    </div>
+                  </div>
 
-                {/* Detail skor */}
-                <div className="space-y-2">
-                  <div className="flex justify-between items-center">
-                    <span className="text-xs text-gray-500">
-                      ⭐ Kedisiplinan
-                    </span>
-                    <div className="flex items-center gap-2">
-                      <div className="w-24 bg-gray-200 rounded-full h-1.5">
-                        <div
-                          className="bg-[#1a6b3c] h-1.5 rounded-full"
-                          style={{ width: `${santri.skorKedisiplinan}%` }}
-                        />
-                      </div>
+                  {/* Skor Final */}
+                  <div
+                    className={`
+                          px-3 py-1 rounded-full text-sm font-bold whitespace-nowrap
+                          ${
+                            santri.skorFinal >= 85
+                              ? "bg-emerald-100 text-emerald-700"
+                              : santri.skorFinal >= 75
+                                ? "bg-amber-100 text-amber-700"
+                                : "bg-red-100 text-red-700"
+                          }
+                        `}
+                  >
+                    Skor {santri.skorFinal}%
+                  </div>
+                </div>
+
+                {/* Detail Skor */}
+                <div className="space-y-3">
+                  {/* Kedisiplinan */}
+                  <div>
+                    <div className="flex justify-between items-center mb-1.5">
+                      <span className="text-xs font-medium text-gray-600 flex items-center gap-1">
+                        Kedisiplinan
+                      </span>
                       <span
-                        className={`text-xs font-medium ${getSkorColor(santri.skorKedisiplinan)}`}
+                        className={`text-xs font-semibold ${santri.skorKedisiplinan >= 80 ? "text-emerald-600" : santri.skorKedisiplinan >= 60 ? "text-amber-600" : "text-red-600"}`}
                       >
                         {santri.skorKedisiplinan}%
                       </span>
                     </div>
+                    <div className="w-full bg-gray-100 rounded-full h-2 overflow-hidden">
+                      <div
+                        className="bg-emerald-500 h-2 rounded-full transition-all duration-500"
+                        style={{ width: `${santri.skorKedisiplinan}%` }}
+                      />
+                    </div>
                   </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-xs text-gray-500">
-                      🏠 Tanggung Jawab
-                    </span>
-                    <div className="flex items-center gap-2">
-                      <div className="w-24 bg-gray-200 rounded-full h-1.5">
-                        <div
-                          className="bg-blue-500 h-1.5 rounded-full"
-                          style={{ width: `${santri.skorTanggungJawab}%` }}
-                        />
-                      </div>
+
+                  {/* Tanggung Jawab */}
+                  <div>
+                    <div className="flex justify-between items-center mb-1.5">
+                      <span className="text-xs font-medium text-gray-600 flex items-center gap-1">
+                        Tanggung Jawab
+                      </span>
                       <span
-                        className={`text-xs font-medium ${getSkorColor(santri.skorTanggungJawab)}`}
+                        className={`text-xs font-semibold ${santri.skorTanggungJawab >= 80 ? "text-emerald-600" : santri.skorTanggungJawab >= 60 ? "text-amber-600" : "text-red-600"}`}
                       >
                         {santri.skorTanggungJawab}%
                       </span>
                     </div>
+                    <div className="w-full bg-gray-100 rounded-full h-2 overflow-hidden">
+                      <div
+                        className="bg-blue-500 h-2 rounded-full transition-all duration-500"
+                        style={{ width: `${santri.skorTanggungJawab}%` }}
+                      />
+                    </div>
                   </div>
                 </div>
 
-                {/* Garis pemisah */}
-                <div className="border-t border-gray-200 mt-4 pt-3">
-                  <div className="flex justify-between items-center">
-                    <span className="text-xs text-gray-500 font-medium">
-                      Skor Final
-                    </span>
+                {/* Divider */}
+                <div className="border-t border-gray-100 my-4"></div>
+
+                {/* Skor Final */}
+                <div className="flex justify-between items-center">
+                  <span className="text-xs font-semibold text-gray-600 flex items-center gap-1">
+                    <span>🎯</span> Skor Final
+                  </span>
+                  <div className="flex items-center gap-2">
+                    <div className="w-16 bg-gray-100 rounded-full h-1.5 overflow-hidden">
+                      <div
+                        className={`h-1.5 rounded-full transition-all duration-500 ${
+                          santri.skorFinal >= 80
+                            ? "bg-emerald-500"
+                            : santri.skorFinal >= 60
+                              ? "bg-amber-500"
+                              : "bg-red-500"
+                        }`}
+                        style={{ width: `${santri.skorFinal}%` }}
+                      />
+                    </div>
                     <span
-                      className={`text-sm font-bold ${getSkorColor(santri.skorFinal)}`}
+                      className={`text-base font-bold ${
+                        santri.skorFinal >= 80
+                          ? "text-emerald-700"
+                          : santri.skorFinal >= 60
+                            ? "text-amber-700"
+                            : "text-red-700"
+                      }`}
                     >
-                      = {santri.skorFinal}%
+                      {santri.skorFinal}%
                     </span>
                   </div>
                 </div>
