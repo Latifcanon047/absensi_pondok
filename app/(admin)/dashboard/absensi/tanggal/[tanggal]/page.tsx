@@ -41,13 +41,14 @@ type AbsensiIds = {
 
 const STATUS_PIKET_CONFIG = {
   HADIR: { bg: "bg-green-100", text: "text-green-700", label: "Piket" },
-  ALPA: { bg: "bg-red-100", text: "text-red-700", label: "A Alpa" },
+  ALPA: { bg: "bg-red-100", text: "text-red-700", label: "Alpa" },
   KOSONG: { bg: "bg-gray-100", text: "text-gray-400", label: "-" },
-  SAKIT: { bg: "bg-yellow-100", text: "text-yellow-700", label: "S Sakit" },
-  IZIN: { bg: "bg-blue-100", text: "text-blue-700", label: "I Izin" },
+  SAKIT: { bg: "bg-yellow-100", text: "text-yellow-700", label: "Sakit" },
+  IZIN: { bg: "bg-blue-100", text: "text-blue-700", label: "Izin" },
+  TELAT: { bg: "bg-orange-100", text: "text-orange-700", label: "Telat" },
 };
 
-type StatusPiket = "HADIR" | "ALPA" | "KOSONG" | "SAKIT" | "IZIN";
+type StatusPiket = "HADIR" | "ALPA" | "KOSONG" | "SAKIT" | "IZIN" | "TELAT";
 
 function StatusPickerPiket({
   currentStatus,
@@ -73,23 +74,30 @@ function StatusPickerPiket({
       </button>
       {open && (
         <div className="absolute z-50 top-full left-1/2 -translate-x-1/2 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg p-1 min-w-24">
-          {(["HADIR", "ALPA", "SAKIT", "IZIN", "KOSONG"] as StatusPiket[]).map(
-            (s) => (
-              <button
-                key={s}
-                type="button"
-                onClick={() => {
-                  onChange(s);
-                  setOpen(false);
-                }}
-                className="w-full text-left px-3 py-1.5 text-xs rounded hover:bg-gray-50"
-              >
-                <span className={STATUS_PIKET_CONFIG[s].text}>
-                  {STATUS_PIKET_CONFIG[s].label}
-                </span>
-              </button>
-            ),
-          )}
+          {(
+            [
+              "HADIR",
+              "ALPA",
+              "TELAT",
+              "SAKIT",
+              "IZIN",
+              "KOSONG",
+            ] as StatusPiket[]
+          ).map((s) => (
+            <button
+              key={s}
+              type="button"
+              onClick={() => {
+                onChange(s);
+                setOpen(false);
+              }}
+              className="w-full text-left px-3 py-1.5 text-xs rounded hover:bg-gray-50"
+            >
+              <span className={STATUS_PIKET_CONFIG[s].text}>
+                {STATUS_PIKET_CONFIG[s].label}
+              </span>
+            </button>
+          ))}
         </div>
       )}
     </div>
@@ -240,9 +248,10 @@ export default function AbsenTanggalPage() {
     router.push(`/dashboard/absensi/tanggal/${newTanggal}`);
   }
 
-  async function handleSubmitSholat() {
+  async function handleSubmitSholat(calledFromSemua = false) {
     if (!absensiIds.SHOLAT) return;
-    setSubmitting("SHOLAT");
+    if (!calledFromSemua) setSubmitting("SHOLAT");
+
     try {
       const data = santriList.flatMap((s) =>
         WAKTU_SHOLAT.map((waktu) => ({
@@ -256,16 +265,21 @@ export default function AbsenTanggalPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ absensiId: absensiIds.SHOLAT.id, data }),
       });
-      setSukses((prev) => ({ ...prev, SHOLAT: true }));
-      setTimeout(() => setSukses((prev) => ({ ...prev, SHOLAT: false })), 3000);
+      if (!calledFromSemua) {
+        setSukses((prev) => ({ ...prev, ASRAMA: true }));
+        setTimeout(
+          () => setSukses((prev) => ({ ...prev, ASRAMA: false })),
+          3000,
+        );
+      }
     } finally {
-      setSubmitting(null);
+      if (!calledFromSemua) setSubmitting(null);
     }
   }
 
-  async function handleSubmitKelas() {
+  async function handleSubmitKelas(calledFromSemua = false) {
     if (!absensiIds.KELAS) return;
-    setSubmitting("KELAS");
+    if (!calledFromSemua) setSubmitting("KELAS");
     try {
       const data = santriList.flatMap((s) =>
         SESI_KELAS.map((sesi) => ({
@@ -279,16 +293,21 @@ export default function AbsenTanggalPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ absensiId: absensiIds.KELAS.id, data }),
       });
-      setSukses((prev) => ({ ...prev, KELAS: true }));
-      setTimeout(() => setSukses((prev) => ({ ...prev, KELAS: false })), 3000);
+      if (!calledFromSemua) {
+        setSukses((prev) => ({ ...prev, ASRAMA: true }));
+        setTimeout(
+          () => setSukses((prev) => ({ ...prev, ASRAMA: false })),
+          3000,
+        );
+      }
     } finally {
-      setSubmitting(null);
+      if (!calledFromSemua) setSubmitting(null);
     }
   }
 
-  async function handleSubmitMakan() {
+  async function handleSubmitMakan(calledFromSemua = false) {
     if (!absensiIds.MAKAN) return;
-    setSubmitting("MAKAN");
+    if (!calledFromSemua) setSubmitting("MAKAN");
     try {
       const data = santriList.flatMap((s) =>
         SESI_MAKAN.map((sesi) => ({
@@ -302,16 +321,21 @@ export default function AbsenTanggalPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ absensiId: absensiIds.MAKAN.id, data }),
       });
-      setSukses((prev) => ({ ...prev, MAKAN: true }));
-      setTimeout(() => setSukses((prev) => ({ ...prev, MAKAN: false })), 3000);
+      if (!calledFromSemua) {
+        setSukses((prev) => ({ ...prev, ASRAMA: true }));
+        setTimeout(
+          () => setSukses((prev) => ({ ...prev, ASRAMA: false })),
+          3000,
+        );
+      }
     } finally {
-      setSubmitting(null);
+      if (!calledFromSemua) setSubmitting(null);
     }
   }
 
-  async function handleSubmitAsrama() {
+  async function handleSubmitAsrama(calledFromSemua = false) {
     if (!absensiIds.ASRAMA) return;
-    setSubmitting("ASRAMA");
+    if (!calledFromSemua) setSubmitting("ASRAMA");
     try {
       const data = santriList.map((s) => ({
         santriId: s.id,
@@ -322,26 +346,33 @@ export default function AbsenTanggalPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ absensiId: absensiIds.ASRAMA.id, data }),
       });
-      setSukses((prev) => ({ ...prev, ASRAMA: true }));
-      setTimeout(() => setSukses((prev) => ({ ...prev, ASRAMA: false })), 3000);
+      if (!calledFromSemua) {
+        setSukses((prev) => ({ ...prev, ASRAMA: true }));
+        setTimeout(
+          () => setSukses((prev) => ({ ...prev, ASRAMA: false })),
+          3000,
+        );
+      }
     } finally {
-      setSubmitting(null);
+      if (!calledFromSemua) setSubmitting(null);
     }
   }
 
   async function handleSubmitSemua() {
     setSubmitting("SEMUA");
-    await Promise.all([
-      handleSubmitSholat(),
-      handleSubmitKelas(),
-      handleSubmitMakan(),
-      handleSubmitAsrama(),
-    ]);
-    setSubmitting(null);
-    setSukses({ SHOLAT: true, KELAS: true, MAKAN: true, ASRAMA: true });
-    setTimeout(() => setSukses({}), 3000);
+    try {
+      await Promise.all([
+        handleSubmitSholat(true),
+        handleSubmitKelas(true),
+        handleSubmitMakan(true),
+        handleSubmitAsrama(true),
+      ]);
+      setSukses({ SHOLAT: true, KELAS: true, MAKAN: true, ASRAMA: true });
+      setTimeout(() => setSukses({}), 3000);
+    } finally {
+      setSubmitting(null); // loading hilang SETELAH semua fetch selesai
+    }
   }
-
   function handleTandaiSemua(
     checked: boolean,
     tipe: "SHOLAT" | "KELAS" | "MAKAN" | "ASRAMA",
@@ -471,7 +502,7 @@ export default function AbsenTanggalPage() {
                 <span className="text-green-600 text-sm">✅ Tersimpan!</span>
               )}
               <button
-                onClick={handleSubmitSholat}
+                onClick={() => handleSubmitSholat()}
                 disabled={submitting !== null}
                 className="bg-green-600 text-white px-4 py-1.5 rounded-lg text-sm hover:bg-green-700 disabled:opacity-50"
               >
@@ -560,7 +591,7 @@ export default function AbsenTanggalPage() {
                 <span className="text-green-600 text-sm">✅ Tersimpan!</span>
               )}
               <button
-                onClick={handleSubmitKelas}
+                onClick={() => handleSubmitKelas()}
                 disabled={submitting !== null}
                 className="bg-green-600 text-white px-4 py-1.5 rounded-lg text-sm hover:bg-green-700 disabled:opacity-50"
               >
@@ -644,7 +675,7 @@ export default function AbsenTanggalPage() {
                 <span className="text-green-600 text-sm">✅ Tersimpan!</span>
               )}
               <button
-                onClick={handleSubmitMakan}
+                onClick={() => handleSubmitMakan()}
                 disabled={submitting !== null}
                 className="bg-green-600 text-white px-4 py-1.5 rounded-lg text-sm hover:bg-green-700 disabled:opacity-50"
               >
@@ -730,7 +761,7 @@ export default function AbsenTanggalPage() {
                 <span className="text-green-600 text-sm">✅ Tersimpan!</span>
               )}
               <button
-                onClick={handleSubmitAsrama}
+                onClick={() => handleSubmitAsrama()}
                 disabled={submitting !== null}
                 className="bg-green-600 text-white px-4 py-1.5 rounded-lg text-sm hover:bg-green-700 disabled:opacity-50"
               >
