@@ -23,22 +23,16 @@ export default function LoginPage() {
     return null; // atau spinner
   }
 
-  const handleSubmitPassword = async (e: React.FormEvent) => {
-    e.preventDefault();
-    // ... logic login
-  };
-
   async function handleSubmit(e: React.FormEvent) {
-    //e: react.FormEvent untuk memberi tahu TypeScript bahwa event yang kita tangani adalah event submit dari form. supaya TypeScript bisa memberikan tipe data yang tepat untuk event tersebut
-    e.preventDefault(); //preventDefault() untuk mencegah perilaku default dari form yang akan me-refresh halaman saat disubmit
-    setError(""); //setError("") untuk menghapus pesan error yang mungkin muncul dari percobaan login sebelumnya
-    setLoading(true); //loading(true) untuk menandakan bahwa proses login sedang berlangsung, sehingga kita bisa menampilkan indikator loading di UI dan mencegah pengguna melakukan submit berulang kali sebelum proses selesai
+    e.preventDefault();
+    setError("");
+    setLoading(true);
 
     try {
       const res = await fetch("/api/auth/login", {
         method: "POST",
-        headers: { "Content-Type": "application/json" }, //headers untuk memberi tahu server bahwa kita mengirim data dalam format JSON
-        body: JSON.stringify({ username, password }), //body untuk mengirim data username dan password yang diinputkan oleh pengguna ke server dalam format JSON
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, password }),
       });
 
       const data = await res.json();
@@ -52,6 +46,7 @@ export default function LoginPage() {
         setSuccess("Login berhasil!");
       }
 
+      router.refresh();
       router.push("/dashboard");
     } catch {
       setError("Terjadi kesalahan, coba lagi");
