@@ -74,7 +74,7 @@ export default function SettingsPage() {
                     type={showPasswordLama ? "text" : "password"}
                     value={passwordLama}
                     onChange={(e) => setPasswordLama(e.target.value)}
-                    className="w-full pl-10 pr-10 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all duration-200 bg-gray-50 hover:bg-white"
+                    className="w-full pl-4 pr-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all duration-200 bg-gray-50 hover:bg-white"
                     placeholder="Masukkan password lama"
                     required
                   />
@@ -133,7 +133,7 @@ export default function SettingsPage() {
                     type={showPasswordBaru ? "text" : "password"}
                     value={passwordBaru}
                     onChange={(e) => setPasswordBaru(e.target.value)}
-                    className="w-full pl-10 pr-10 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all duration-200 bg-gray-50 hover:bg-white"
+                    className="w-full pl-4 pr-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all duration-200 bg-gray-50 hover:bg-white"
                     placeholder="Minimal 6 karakter"
                     required
                   />
@@ -198,7 +198,7 @@ export default function SettingsPage() {
                     type={showKonfirmasi ? "text" : "password"}
                     value={konfirmasi}
                     onChange={(e) => setKonfirmasi(e.target.value)}
-                    className="w-full pl-10 pr-10 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all duration-200 bg-gray-50 hover:bg-white"
+                    className="w-full pl-4 pr-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all duration-200 bg-gray-50 hover:bg-white"
                     placeholder="Ulangi password baru"
                     required
                   />

@@ -514,7 +514,7 @@ export default function AbsenTanggalPage() {
             <table className="text-sm border-collapse">
               <thead>
                 <tr className="bg-gray-50">
-                  <th className="sticky left-0 bg-gray-50 px-4 py-3 text-left text-gray-600 font-medium border-b border-r min-w-40">
+                  <th className="sticky left-0 bg-gray-50 px-4 py-3 text-left text-gray-600 font-medium border-b border-r z-10 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)]">
                     Nama
                   </th>
                   {WAKTU_SHOLAT.map((w) => (
@@ -533,7 +533,9 @@ export default function AbsenTanggalPage() {
                     key={santri.id}
                     className={index % 2 === 0 ? "bg-white" : "bg-gray-50/50"}
                   >
-                    <td className="sticky left-0 bg-inherit px-4 py-3 font-medium border-r border-b">
+                    <td
+                      className={`sticky left-0 px-4 py-3 font-medium border-r border-b z-10 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)] ${index % 2 === 0 ? "bg-white" : "bg-gray-50"}`}
+                    >
                       {santri.nama}
                     </td>
                     {WAKTU_SHOLAT.map((waktu) => (
@@ -603,7 +605,7 @@ export default function AbsenTanggalPage() {
             <table className="text-sm border-collapse">
               <thead>
                 <tr className="bg-gray-50">
-                  <th className="sticky left-0 bg-gray-50 px-4 py-3 text-left text-gray-600 font-medium border-b border-r min-w-40">
+                  <th className="sticky left-0 bg-gray-50 px-4 py-3 text-left text-gray-600 font-medium border-b border-r z-10 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)]">
                     Nama
                   </th>
                   {SESI_KELAS.map((s) => (
@@ -622,7 +624,9 @@ export default function AbsenTanggalPage() {
                     key={santri.id}
                     className={index % 2 === 0 ? "bg-white" : "bg-gray-50/50"}
                   >
-                    <td className="sticky left-0 bg-inherit px-4 py-3 font-medium border-r border-b">
+                    <td
+                      className={`sticky left-0 px-4 py-3 font-medium border-r border-b z-10 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)] ${index % 2 === 0 ? "bg-white" : "bg-gray-50"}`}
+                    >
                       {santri.nama}
                     </td>
                     {SESI_KELAS.map((sesi) => (
@@ -687,7 +691,7 @@ export default function AbsenTanggalPage() {
             <table className="text-sm border-collapse">
               <thead>
                 <tr className="bg-gray-50">
-                  <th className="sticky left-0 bg-gray-50 px-4 py-3 text-left text-gray-600 font-medium border-b border-r min-w-40">
+                  <th className="sticky left-0 bg-gray-50 px-4 py-3 text-left text-gray-600 font-medium border-b border-r z-10 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)]">
                     Nama
                   </th>
                   {SESI_MAKAN.map((s) => (
@@ -706,7 +710,9 @@ export default function AbsenTanggalPage() {
                     key={santri.id}
                     className={index % 2 === 0 ? "bg-white" : "bg-gray-50/50"}
                   >
-                    <td className="sticky left-0 bg-inherit px-4 py-3 font-medium border-r border-b">
+                    <td
+                      className={`sticky left-0 px-4 py-3 font-medium border-r border-b z-10 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)] ${index % 2 === 0 ? "bg-white" : "bg-gray-50"}`}
+                    >
                       {santri.nama}
                     </td>
                     {SESI_MAKAN.map((sesi) => (
@@ -773,7 +779,7 @@ export default function AbsenTanggalPage() {
             <table className="text-sm border-collapse w-full">
               <thead>
                 <tr className="bg-gray-50">
-                  <th className="px-4 py-3 text-left text-gray-600 font-medium border-b">
+                  <th className="bg-gray-50 px-4 py-3 text-left text-gray-600 font-medium border-b border-r z-10 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)]">
                     Nama
                   </th>
                   <th className="px-4 py-3 text-center text-gray-600 font-medium border-b">

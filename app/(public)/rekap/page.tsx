@@ -377,7 +377,7 @@ export default function RekapPage() {
                 <th className="text-left px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider w-16">
                   No
                 </th>
-                <th className="text-left px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="sticky left-0 bg-gray-50/80 text-left px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Nama Santri
                 </th>
                 <th className="text-center px-4 py-3 text-xs font-medium text-emerald-600 uppercase tracking-wider">
@@ -426,7 +426,7 @@ export default function RekapPage() {
                     </td>
 
                     {/* Nama santri */}
-                    <td className="px-4 py-3">
+                    <td className="sticky left-0 px-4 py-3 bg-white">
                       <div className="flex items-center gap-2">
                         <span className="font-medium text-gray-700">
                           {santri.nama}
@@ -629,7 +629,7 @@ export default function RekapPage() {
                       </h2>
                     </div>
                   </div>
-                  <div className="p-6">
+                  <div className="p-6 overflow-hidden">
                     <ResponsiveContainer width="100%" height={350}>
                       <BarChart
                         data={[
@@ -659,6 +659,7 @@ export default function RekapPage() {
                             fill: "#dc2626",
                           },
                         ]}
+                        margin={{ top: 0, right: 0, left: -35, bottom: 0 }}
                       >
                         <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
                         <XAxis
