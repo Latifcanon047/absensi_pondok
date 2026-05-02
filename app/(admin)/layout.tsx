@@ -25,6 +25,7 @@ export default function AdminLayout({
 
   async function handleLogout() {
     await fetch("/api/auth/logout", { method: "POST" });
+    router.refresh();
     router.push("/login");
   }
 
