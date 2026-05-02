@@ -357,7 +357,7 @@ export default function RekapPiketPage() {
                 <th className="text-left px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider w-16">
                   No
                 </th>
-                <th className="sticky left-0 bg-gray-50/80 text-left px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="sticky left-0 shadow-[2px_0_4px_rgba(0,0,0,0.08)] bg-gray-50 text-left px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Nama Santri
                 </th>
                 <th className="text-center px-4 py-3 text-xs font-medium text-emerald-600 uppercase tracking-wider">
@@ -406,7 +406,7 @@ export default function RekapPiketPage() {
                     </td>
 
                     {/* Nama santri */}
-                    <td className="sticky left-0 px-4 py-3 bg-white">
+                    <td className="sticky left-0 shadow-[2px_0_4px_rgba(0,0,0,0.08)] px-4 py-3 bg-white">
                       <div className="flex items-center gap-2">
                         <span className="font-medium text-gray-700">
                           {santri.nama}
