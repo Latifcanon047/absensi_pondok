@@ -34,7 +34,7 @@ export default function AdminLayout({
     { name: "List Absensi", href: "/dashboard/absensi", icon: "📋" },
     { name: "Buat Absensi", href: "/dashboard/absensi/buat", icon: "✏️" },
     { name: "Data Santri", href: "/dashboard/santri", icon: "👤" },
-    { name: "Rekap Absensi", href: "/rekap", icon: "📊" },
+    { name: "Rekap Absensi", href: "/rekap-absen", icon: "📊" },
     { name: "Pengaturan", href: "/dashboard/settings", icon: "⚙️" },
   ];
 

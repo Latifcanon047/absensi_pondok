@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import SkeletonLeaderboard from "@/components/SkeletonLeaderboard";
+import SkeletonLeaderboard from "@/components/skeleton/SkeletonLeaderboard";
 
 type LeaderboardItem = {
   id: number;

@@ -13,10 +13,10 @@ export default function PublicLayout({
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const navItems = [
-    { name: "Kedisiplinan", href: "/rekap" },
-    { name: "Tanggung Jawab", href: "/piket" },
+    { name: "Kedisiplinan", href: "/rekap-absen" },
+    { name: "Tanggung Jawab", href: "/rekap-piket" },
     { name: "Leaderboard", href: "/leaderboard" },
-    { name: "Absensi", href: "/dashboard/absensi" },
+    { name: "Absensi", href: "/dashboard" },
   ];
 
   return (

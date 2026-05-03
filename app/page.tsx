@@ -28,7 +28,7 @@ export default function Home() {
         {/* Feature Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-5 md:gap-6">
           <Link
-            href="/rekap"
+            href="/rekap-absen"
             className="group bg-white rounded-xl p-4 sm:p-5 md:p-6 shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 hover:border-emerald-300 hover:-translate-y-1"
           >
             <div className="text-center">
@@ -62,7 +62,7 @@ export default function Home() {
           </Link>
 
           <Link
-            href="/chart"
+            href="/rekap-piket"
             className="group bg-white rounded-xl p-4 sm:p-5 md:p-6 shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 hover:border-emerald-300 hover:-translate-y-1"
           >
             <div className="text-center">
@@ -70,10 +70,10 @@ export default function Home() {
                 <span className="text-xl sm:text-2xl">📈</span>
               </div>
               <h2 className="text-base sm:text-lg font-semibold text-gray-800 mb-1 sm:mb-2">
-                Grafik Absensi
+                Rekap piket
               </h2>
               <p className="text-xs sm:text-sm text-gray-500">
-                Visualisasi data absensi
+                Lihat rekap Tanggung Jawab santri
               </p>
             </div>
           </Link>
