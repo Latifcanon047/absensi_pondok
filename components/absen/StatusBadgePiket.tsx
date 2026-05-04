@@ -16,7 +16,7 @@ export default function StatusBadge({ status }: Props) {
   }
 
   const config = {
-    HADIR: { bg: "bg-green-100", text: "text-green-700", label: "Hadir" },
+    HADIR: { bg: "bg-green-100", text: "text-green-700", label: "Piket" },
     TELAT: { bg: "bg-orange-100", text: "text-orange-700", label: "Telat" },
     SAKIT: { bg: "bg-yellow-100", text: "text-yellow-700", label: "Sakit" },
     IZIN: { bg: "bg-blue-100", text: "text-blue-700", label: "Izin" },

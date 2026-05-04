@@ -58,7 +58,9 @@ export default function ListAbsensiPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-gray-800 mb-6">List Absensi</h1>
+      <h1 className="pt-5 sm:pt-15 md:pt-5 text-2xl font-bold text-gray-800 mb-6">
+        List Absensi
+      </h1>
 
       {/* Filter */}
       <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
@@ -114,7 +116,7 @@ export default function ListAbsensiPage() {
               Belum ada absensi bulan ini
             </div>
           ) : (
-            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-2">
+            <div className="grid grid-cols-4 md:grid-cols-5 lg:grid-cols-7 gap-2">
               {tanggal.map((a) => {
                 const tgl = new Date(a.tanggal).toISOString().split("T")[0];
                 const tanggal = new Date(a.tanggal);

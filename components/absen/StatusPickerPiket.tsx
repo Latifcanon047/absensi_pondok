@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { StatusAbsen } from "@prisma/client";
-import StatusBadge from "./StatusBadge";
+import StatusBadgePiket from "./StatusBadgePiket";
 
 type Props = {
   currentStatus: StatusAbsen | null;
@@ -18,7 +18,7 @@ const OPTIONS: {
 }[] = [
   {
     value: "HADIR",
-    label: "Hadir",
+    label: "Piket",
     bg: "hover:bg-emerald-50",
     text: "text-emerald-700",
   },
@@ -75,7 +75,7 @@ export default function StatusPicker({
         onClick={() => setOpen(!open)}
         className="disabled:opacity-50 disabled:cursor-not-allowed"
       >
-        <StatusBadge status={currentStatus} />
+        <StatusBadgePiket status={currentStatus} />
       </button>
 
       {open && (

@@ -71,7 +71,9 @@ export default function BuatAbsensiPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-gray-800 mb-6">Buat Absensi</h1>
+      <h1 className=" pt-5 sm:pt-15 md:pt-5 text-2xl font-bold text-gray-800 mb-6">
+        Buat Absensi
+      </h1>
 
       <div className="bg-white rounded-xl shadow-sm p-6 max-w-lg">
         <form onSubmit={handleSubmit} className="space-y-5">

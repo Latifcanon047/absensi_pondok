@@ -3,7 +3,10 @@
 import { useState, useEffect, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { StatusAbsen } from "@prisma/client";
-import StatusPicker from "@/components/absen/StatusPicker";
+import TabelSholat from "@/components/absen/TableSholat";
+import TabelKelas from "@/components/absen/TableKelas";
+import TabelMakan from "@/components/absen/TableMakan";
+import TabelAsrama from "@/components/absen/TableAsrama";
 
 const WAKTU_SHOLAT = [
   "Subuh",
@@ -39,71 +42,6 @@ type AbsensiIds = {
   ASRAMA: { id: number } | null;
 };
 
-const STATUS_PIKET_CONFIG = {
-  HADIR: { bg: "bg-green-100", text: "text-green-700", label: "Piket" },
-  ALPA: { bg: "bg-red-100", text: "text-red-700", label: "Alpa" },
-  KOSONG: { bg: "bg-gray-100", text: "text-gray-400", label: "-" },
-  SAKIT: { bg: "bg-yellow-100", text: "text-yellow-700", label: "Sakit" },
-  IZIN: { bg: "bg-blue-100", text: "text-blue-700", label: "Izin" },
-  TELAT: { bg: "bg-orange-100", text: "text-orange-700", label: "Telat" },
-};
-
-type StatusPiket = "HADIR" | "ALPA" | "KOSONG" | "SAKIT" | "IZIN" | "TELAT";
-
-function StatusPickerPiket({
-  currentStatus,
-  onChange,
-  disabled,
-}: {
-  currentStatus: StatusPiket;
-  onChange: (status: StatusPiket) => void;
-  disabled?: boolean;
-}) {
-  const [open, setOpen] = useState(false);
-  const config = STATUS_PIKET_CONFIG[currentStatus];
-
-  return (
-    <div className="relative inline-block">
-      <button
-        type="button"
-        disabled={disabled}
-        onClick={() => setOpen(!open)}
-        className={`px-2 py-1 rounded text-xs font-medium ${config.bg} ${config.text} disabled:opacity-50`}
-      >
-        {config.label}
-      </button>
-      {open && (
-        <div className="absolute z-50 top-full left-1/2 -translate-x-1/2 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg p-1 min-w-24">
-          {(
-            [
-              "HADIR",
-              "ALPA",
-              "TELAT",
-              "SAKIT",
-              "IZIN",
-              "KOSONG",
-            ] as StatusPiket[]
-          ).map((s) => (
-            <button
-              key={s}
-              type="button"
-              onClick={() => {
-                onChange(s);
-                setOpen(false);
-              }}
-              className="w-full text-left px-3 py-1.5 text-xs rounded hover:bg-gray-50"
-            >
-              <span className={STATUS_PIKET_CONFIG[s].text}>
-                {STATUS_PIKET_CONFIG[s].label}
-              </span>
-            </button>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
-
 export default function AbsenTanggalPage() {
   const { tanggal } = useParams();
   const router = useRouter();
@@ -121,10 +59,10 @@ export default function AbsenTanggalPage() {
   const [kelasStates, setKelasStates] = useState<
     Record<string, StatusAbsen | null>
   >({});
-  const [makanStates, setMakanStates] = useState<Record<string, StatusPiket>>(
+  const [makanStates, setMakanStates] = useState<Record<string, StatusAbsen>>(
     {},
   );
-  const [asramaStates, setAsramaStates] = useState<Record<string, StatusPiket>>(
+  const [asramaStates, setAsramaStates] = useState<Record<string, StatusAbsen>>(
     {},
   );
   const [loading, setLoading] = useState(true);
@@ -194,7 +132,7 @@ export default function AbsenTanggalPage() {
           fetch(`/api/absen-makan?absensiId=${absensiData.MAKAN.id}`)
             .then((r) => r.json())
             .then((d) => {
-              const states: Record<string, StatusPiket> = {};
+              const states: Record<string, StatusAbsen> = {};
               santriData.forEach((s: Santri) => {
                 SESI_MAKAN.forEach((sesi) => {
                   states[`${s.id}-${sesi}`] = "KOSONG";
@@ -204,7 +142,7 @@ export default function AbsenTanggalPage() {
                 (item: {
                   santriId: number;
                   sesi: string;
-                  status: StatusPiket;
+                  status: StatusAbsen;
                 }) => {
                   states[`${item.santriId}-${item.sesi}`] = item.status;
                 },
@@ -218,11 +156,11 @@ export default function AbsenTanggalPage() {
           fetch(`/api/absen-asrama?absensiId=${absensiData.ASRAMA.id}`)
             .then((r) => r.json())
             .then((d) => {
-              const states: Record<string, StatusPiket> = {};
+              const states: Record<string, StatusAbsen> = {};
               santriData.forEach((s: Santri) => {
                 states[`${s.id}`] = "KOSONG";
               });
-              d.forEach((item: { santriId: number; status: StatusPiket }) => {
+              d.forEach((item: { santriId: number; status: StatusAbsen }) => {
                 states[`${item.santriId}`] = item.status;
               });
               setAsramaStates(states);
@@ -240,13 +178,6 @@ export default function AbsenTanggalPage() {
   useEffect(() => {
     fetchData();
   }, [fetchData]);
-
-  function pindahTanggal(arah: number) {
-    const tgl = new Date(tanggal as string);
-    tgl.setDate(tgl.getDate() + arah);
-    const newTanggal = tgl.toISOString().split("T")[0];
-    router.push(`/dashboard/absensi/tanggal/${newTanggal}`);
-  }
 
   async function handleSubmitSholat(calledFromSemua = false) {
     if (!absensiIds.SHOLAT) return;
@@ -442,128 +373,91 @@ export default function AbsenTanggalPage() {
     }
   }
 
+  function pindahTanggal(arah: number) {
+    const tgl = new Date(tanggal as string);
+    tgl.setDate(tgl.getDate() + arah);
+    const newTanggal = tgl.toISOString().split("T")[0];
+    router.push(`/dashboard/absensi/tanggal/${newTanggal}`);
+  }
+
   if (loading) return <div className="p-6 text-gray-500">Memuat data...</div>;
 
   return (
     <div>
       {/* Header + Navigasi Tanggal */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="pt-5 sm:pt-15 md:pt-5 flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-bold text-gray-800">Isi Absensi</h1>
           <p className="text-gray-500 text-sm mt-1">{labelTanggal}</p>
         </div>
-        <div className="flex gap-2">
-          <button
-            onClick={() => pindahTanggal(-1)}
-            className="px-3 py-2 border border-gray-300 rounded-lg text-sm hover:bg-gray-50 transition"
-          >
-            ← Kemarin
-          </button>
-          <button
-            onClick={() => pindahTanggal(1)}
-            className="px-3 py-2 border border-gray-300 rounded-lg text-sm hover:bg-gray-50 transition"
-          >
-            Besok →
-          </button>
+        <div className="flex flex-col gap-1 w-fit">
+          <label className="text-xs font-medium text-gray-500 px-1">
+            Pilih Tanggal
+          </label>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => pindahTanggal(-1)}
+              className="hidden sm:flex px-3 py-2 border border-gray-300 rounded-lg text-sm hover:bg-gray-50 transition"
+            >
+              ←
+            </button>
+            <input
+              type="date"
+              defaultValue={tanggal as string}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  router.push(
+                    `/dashboard/absensi/tanggal/${(e.target as HTMLInputElement).value}`,
+                  );
+                }
+              }}
+              onBlur={(e) => {
+                router.push(`/dashboard/absensi/tanggal/${e.target.value}`);
+              }}
+              className="px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent bg-gray-50 hover:bg-white transition-all duration-200 cursor-pointer"
+            />
+            <button
+              onClick={() => pindahTanggal(1)}
+              className="hidden sm:flex px-3 py-2 border border-gray-300 rounded-lg text-sm hover:bg-gray-50 transition"
+            >
+              →
+            </button>
+          </div>
         </div>
       </div>
 
       {/* Submit Semua */}
-      <div className="bg-white rounded-xl shadow-sm p-4 mb-6 flex justify-between items-center">
-        <p className="text-sm text-gray-600">Submit semua absensi sekaligus</p>
+      <div className="bg-white rounded-xl shadow-sm p-4 mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+        <div>
+          <p className="text-sm font-medium text-gray-700">Submit Semua</p>
+          <p className="text-xs text-gray-400 mt-0.5">
+            Submit semua absensi sekaligus
+          </p>
+        </div>
         <button
           onClick={handleSubmitSemua}
           disabled={submitting !== null}
-          className="bg-[#1a6b3c] text-white px-6 py-2 rounded-lg text-sm font-medium hover:bg-[#164d2f] transition disabled:opacity-50"
+          className="w-full sm:w-auto bg-[#1a6b3c] text-white px-6 py-2 rounded-lg text-sm font-medium hover:bg-[#164d2f] transition disabled:opacity-50"
         >
-          {submitting === "SEMUA" ? "Menyimpan..." : "✅ Submit Semua"}
+          {submitting === "SEMUA" ? "Menyimpan..." : "Submit Semua"}
         </button>
       </div>
-
       {/* Section Sholat */}
       {absensiIds.SHOLAT ? (
-        <div className="bg-white rounded-xl shadow-sm mb-6">
-          <div className="px-6 py-4 border-b flex justify-between items-center">
-            <h2 className="font-semibold text-gray-700">📿 Absen Sholat</h2>{" "}
-            <div className="flex items-center gap-3">
-              <label className="flex items-center gap-2 me-5 cursor-pointer">
-                <input
-                  type="checkbox"
-                  onChange={(e) =>
-                    handleTandaiSemua(e.target.checked, "SHOLAT")
-                  }
-                  className="w-4 h-4 accent-[#1a6b3c] cursor-pointer"
-                />
-                <span className="text-xs text-gray-500">
-                  Tandai Semua Hadir
-                </span>
-              </label>
-              {sukses.SHOLAT && (
-                <span className="text-green-600 text-sm">✅ Tersimpan!</span>
-              )}
-              <button
-                onClick={() => handleSubmitSholat()}
-                disabled={submitting !== null}
-                className="bg-green-600 text-white px-4 py-1.5 rounded-lg text-sm hover:bg-green-700 disabled:opacity-50"
-              >
-                {submitting === "SHOLAT" ? "..." : "Submit"}
-              </button>
-            </div>
-          </div>
-          <div className="overflow-x-auto">
-            <table className="text-sm border-collapse">
-              <thead>
-                <tr className="bg-gray-50">
-                  <th className="sticky left-0 bg-gray-50 px-4 py-3 text-left text-gray-600 font-medium border-b border-r z-10 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)]">
-                    Nama
-                  </th>
-                  {WAKTU_SHOLAT.map((w) => (
-                    <th
-                      key={w}
-                      className="px-4 py-3 text-center text-gray-600 font-medium border-b min-w-24"
-                    >
-                      {w}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {santriList.map((santri, index) => (
-                  <tr
-                    key={santri.id}
-                    className={index % 2 === 0 ? "bg-white" : "bg-gray-50/50"}
-                  >
-                    <td
-                      className={`sticky left-0 px-4 py-3 font-medium border-r border-b z-10 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)] ${index % 2 === 0 ? "bg-white" : "bg-gray-50"}`}
-                    >
-                      {santri.nama}
-                    </td>
-                    {WAKTU_SHOLAT.map((waktu) => (
-                      <td
-                        key={waktu}
-                        className="px-4 py-3 text-center border-b"
-                      >
-                        <StatusPicker
-                          currentStatus={
-                            sholatStates[`${santri.id}-${waktu}`] ?? null
-                          }
-                          onChange={(s) =>
-                            setSholatStates((prev) => ({
-                              ...prev,
-                              [`${santri.id}-${waktu}`]: s,
-                            }))
-                          }
-                          disabled={submitting !== null}
-                        />
-                      </td>
-                    ))}
-                  </tr>
-                ))}
-              </tbody>
-              <div className="h-37" />
-            </table>
-          </div>
-        </div>
+        <TabelSholat
+          santriList={santriList}
+          sholatStates={sholatStates}
+          submitting={submitting}
+          sukses={sukses.SHOLAT ?? false}
+          onTandaiSemua={(checked) => handleTandaiSemua(checked, "SHOLAT")}
+          onStatusChange={(santriId, waktu, status) =>
+            setSholatStates((prev) => ({
+              ...prev,
+              [`${santriId}-${waktu}`]: status,
+            }))
+          }
+          onSubmit={() => handleSubmitSholat()}
+        />
       ) : (
         <div className="bg-gray-50 rounded-xl p-6 mb-6 text-center text-gray-400 text-sm">
           📿 Absen Sholat belum dibuat untuk tanggal ini
@@ -572,86 +466,21 @@ export default function AbsenTanggalPage() {
 
       {/* Section Kelas */}
       {absensiIds.KELAS ? (
-        <div className="bg-white rounded-xl shadow-sm mb-6">
-          ``
-          <div className="px-6 py-4 border-b flex justify-between items-center">
-            <h2 className="font-semibold text-gray-700">📚 Absen Kelas</h2>
-
-            <div className="flex items-center gap-3">
-              <label className="flex items-center gap-2 me-5 cursor-pointer">
-                <input
-                  type="checkbox"
-                  onChange={(e) => handleTandaiSemua(e.target.checked, "KELAS")}
-                  className="w-4 h-4 accent-[#1a6b3c] cursor-pointer"
-                />
-                <span className="text-xs text-gray-500">
-                  Tandai Semua Hadir
-                </span>
-              </label>
-
-              {sukses.KELAS && (
-                <span className="text-green-600 text-sm">✅ Tersimpan!</span>
-              )}
-              <button
-                onClick={() => handleSubmitKelas()}
-                disabled={submitting !== null}
-                className="bg-green-600 text-white px-4 py-1.5 rounded-lg text-sm hover:bg-green-700 disabled:opacity-50"
-              >
-                {submitting === "KELAS" ? "..." : "Submit"}
-              </button>
-            </div>
-          </div>
-          <div className="overflow-x-auto">
-            <table className="text-sm border-collapse">
-              <thead>
-                <tr className="bg-gray-50">
-                  <th className="sticky left-0 bg-gray-50 px-4 py-3 text-left text-gray-600 font-medium border-b border-r z-10 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)]">
-                    Nama
-                  </th>
-                  {SESI_KELAS.map((s) => (
-                    <th
-                      key={s}
-                      className="px-4 py-3 text-center text-gray-600 font-medium border-b min-w-24"
-                    >
-                      {s}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {santriList.map((santri, index) => (
-                  <tr
-                    key={santri.id}
-                    className={index % 2 === 0 ? "bg-white" : "bg-gray-50/50"}
-                  >
-                    <td
-                      className={`sticky left-0 px-4 py-3 font-medium border-r border-b z-10 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)] ${index % 2 === 0 ? "bg-white" : "bg-gray-50"}`}
-                    >
-                      {santri.nama}
-                    </td>
-                    {SESI_KELAS.map((sesi) => (
-                      <td key={sesi} className="px-4 py-3 text-center border-b">
-                        <StatusPicker
-                          currentStatus={
-                            kelasStates[`${santri.id}-${sesi}`] ?? null
-                          }
-                          onChange={(s) =>
-                            setKelasStates((prev) => ({
-                              ...prev,
-                              [`${santri.id}-${sesi}`]: s,
-                            }))
-                          }
-                          disabled={submitting !== null}
-                        />
-                      </td>
-                    ))}
-                  </tr>
-                ))}
-              </tbody>
-              <div className="h-37" />
-            </table>
-          </div>
-        </div>
+        <TabelKelas
+          santriList={santriList}
+          sesiKelas={SESI_KELAS}
+          kelasStates={kelasStates}
+          submitting={submitting}
+          sukses={sukses.KELAS ?? false}
+          onTandaiSemua={(checked) => handleTandaiSemua(checked, "KELAS")}
+          onStatusChange={(santriId, sesi, status) =>
+            setKelasStates((prev) => ({
+              ...prev,
+              [`${santriId}-${sesi}`]: status,
+            }))
+          }
+          onSubmit={() => handleSubmitKelas()}
+        />
       ) : (
         <div className="bg-gray-50 rounded-xl p-6 mb-6 text-center text-gray-400 text-sm">
           📚 Absen Kelas belum dibuat untuk tanggal ini
@@ -660,84 +489,21 @@ export default function AbsenTanggalPage() {
 
       {/* Section Makan */}
       {absensiIds.MAKAN ? (
-        <div className="bg-white rounded-xl shadow-sm mb-6">
-          <div className="px-6 py-4 border-b flex justify-between items-center">
-            <h2 className="font-semibold text-gray-700">🍽️ Piket Makan</h2>
-            <div className="flex items-center gap-3">
-              <label className="flex items-center gap-2 me-5 cursor-pointer">
-                <input
-                  type="checkbox"
-                  onChange={(e) => handleTandaiSemua(e.target.checked, "MAKAN")}
-                  className="w-4 h-4 accent-[#1a6b3c] cursor-pointer"
-                />
-                <span className="text-xs text-gray-500">
-                  Tandai Semua Hadir
-                </span>
-              </label>
-
-              {sukses.MAKAN && (
-                <span className="text-green-600 text-sm">✅ Tersimpan!</span>
-              )}
-              <button
-                onClick={() => handleSubmitMakan()}
-                disabled={submitting !== null}
-                className="bg-green-600 text-white px-4 py-1.5 rounded-lg text-sm hover:bg-green-700 disabled:opacity-50"
-              >
-                {submitting === "MAKAN" ? "..." : "Submit"}
-              </button>
-            </div>
-          </div>
-          <div className="overflow-x-auto">
-            <table className="text-sm border-collapse">
-              <thead>
-                <tr className="bg-gray-50">
-                  <th className="sticky left-0 bg-gray-50 px-4 py-3 text-left text-gray-600 font-medium border-b border-r z-10 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)]">
-                    Nama
-                  </th>
-                  {SESI_MAKAN.map((s) => (
-                    <th
-                      key={s}
-                      className="px-4 py-3 text-center text-gray-600 font-medium border-b min-w-24"
-                    >
-                      {s}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {santriList.map((santri, index) => (
-                  <tr
-                    key={santri.id}
-                    className={index % 2 === 0 ? "bg-white" : "bg-gray-50/50"}
-                  >
-                    <td
-                      className={`sticky left-0 px-4 py-3 font-medium border-r border-b z-10 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)] ${index % 2 === 0 ? "bg-white" : "bg-gray-50"}`}
-                    >
-                      {santri.nama}
-                    </td>
-                    {SESI_MAKAN.map((sesi) => (
-                      <td key={sesi} className="px-4 py-3 text-center border-b">
-                        <StatusPickerPiket
-                          currentStatus={
-                            makanStates[`${santri.id}-${sesi}`] || "KOSONG"
-                          }
-                          onChange={(s) =>
-                            setMakanStates((prev) => ({
-                              ...prev,
-                              [`${santri.id}-${sesi}`]: s,
-                            }))
-                          }
-                          disabled={submitting !== null}
-                        />
-                      </td>
-                    ))}
-                  </tr>
-                ))}
-              </tbody>
-              <div className="h-37" />
-            </table>
-          </div>
-        </div>
+        <TabelMakan
+          santriList={santriList}
+          sesiMakan={SESI_MAKAN}
+          makanStates={makanStates}
+          submitting={submitting}
+          sukses={sukses.MAKAN ?? false}
+          onTandaiSemua={(checked) => handleTandaiSemua(checked, "MAKAN")}
+          onStatusChange={(santriId, sesi, status) =>
+            setMakanStates((prev) => ({
+              ...prev,
+              [`${santriId}-${sesi}`]: status,
+            }))
+          }
+          onSubmit={() => handleSubmitMakan()}
+        />
       ) : (
         <div className="bg-gray-50 rounded-xl p-6 mb-6 text-center text-gray-400 text-sm">
           🍽️ Piket Makan belum dibuat untuk tanggal ini
@@ -746,75 +512,20 @@ export default function AbsenTanggalPage() {
 
       {/* Section Asrama */}
       {absensiIds.ASRAMA ? (
-        <div className="bg-white rounded-xl shadow-sm mb-6">
-          <div className="px-6 py-4 border-b flex justify-between items-center">
-            <h2 className="font-semibold text-gray-700">🏠 Piket Asrama</h2>
-            <div className="flex items-center gap-3">
-              <label className="flex items-center gap-2 me-5 cursor-pointer">
-                <input
-                  type="checkbox"
-                  onChange={(e) =>
-                    handleTandaiSemua(e.target.checked, "ASRAMA")
-                  }
-                  className="w-4 h-4 accent-[#1a6b3c] cursor-pointer"
-                />
-                <span className="text-xs text-gray-500">
-                  Tandai Semua Hadir
-                </span>
-              </label>
-
-              {sukses.ASRAMA && (
-                <span className="text-green-600 text-sm">✅ Tersimpan!</span>
-              )}
-              <button
-                onClick={() => handleSubmitAsrama()}
-                disabled={submitting !== null}
-                className="bg-green-600 text-white px-4 py-1.5 rounded-lg text-sm hover:bg-green-700 disabled:opacity-50"
-              >
-                {submitting === "ASRAMA" ? "..." : "Submit"}
-              </button>
-            </div>
-          </div>
-          <div className="overflow-x-auto">
-            <table className="text-sm border-collapse w-full">
-              <thead>
-                <tr className="bg-gray-50">
-                  <th className="bg-gray-50 px-4 py-3 text-left text-gray-600 font-medium border-b border-r z-10 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)]">
-                    Nama
-                  </th>
-                  <th className="px-4 py-3 text-center text-gray-600 font-medium border-b">
-                    Piket
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {santriList.map((santri, index) => (
-                  <tr
-                    key={santri.id}
-                    className={index % 2 === 0 ? "bg-white" : "bg-gray-50/50"}
-                  >
-                    <td className="px-4 py-3 font-medium border-b">
-                      {santri.nama}
-                    </td>
-                    <td className="px-4 py-3 text-center border-b">
-                      <StatusPickerPiket
-                        currentStatus={asramaStates[`${santri.id}`] || "KOSONG"}
-                        onChange={(s) =>
-                          setAsramaStates((prev) => ({
-                            ...prev,
-                            [`${santri.id}`]: s,
-                          }))
-                        }
-                        disabled={submitting !== null}
-                      />
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-              <div className="h-37" />
-            </table>
-          </div>
-        </div>
+        <TabelAsrama
+          santriList={santriList}
+          asramaStates={asramaStates}
+          submitting={submitting}
+          sukses={sukses.ASRAMA ?? false}
+          onTandaiSemua={(checked) => handleTandaiSemua(checked, "ASRAMA")}
+          onStatusChange={(santriId, status) =>
+            setAsramaStates((prev) => ({
+              ...prev,
+              [`${santriId}`]: status,
+            }))
+          }
+          onSubmit={() => handleSubmitAsrama()}
+        />
       ) : (
         <div className="bg-gray-50 rounded-xl p-6 mb-6 text-center text-gray-400 text-sm">
           🏠 Piket Asrama belum dibuat untuk tanggal ini
