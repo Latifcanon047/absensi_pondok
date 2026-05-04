@@ -46,7 +46,6 @@ export default function LoginPage() {
         setSuccess("Login berhasil!");
       }
 
-      router.refresh();
       router.push("/dashboard");
     } catch {
       setError("Terjadi kesalahan, coba lagi");
