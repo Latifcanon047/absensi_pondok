@@ -28,7 +28,9 @@ export default function DashboardPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-gray-800 mb-2">Dashboard</h1>
+      <h1 className="pt-5 sm:pt-15 md:pt-5 text-2xl font-bold text-gray-800 mb-2">
+        Dashboard
+      </h1>
       <p className="text-gray-500 text-sm mb-6">
         Selamat datang di panel admin
       </p>
@@ -45,7 +47,7 @@ export default function DashboardPage() {
 
       {/* Link Cepat */}
       <h2 className="font-semibold text-gray-700 mb-4">Akses Cepat</h2>
-      <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <Link
           href="/dashboard/absensi/buat"
           className="bg-white rounded-xl shadow-sm p-6 hover:shadow-md transition border border-transparent hover:border-[#1a6b3c]"
