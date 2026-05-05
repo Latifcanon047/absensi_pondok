@@ -43,10 +43,20 @@ export default function LoginPage() {
       }
 
       if (data.success) {
-        setSuccess("Login berhasil!");
-      }
+        setSuccess("Login berhasil! Menyiapkan dashboard...");
 
-      router.push("/dashboard/");
+        // 1. Paksa Next.js untuk memvalidasi ulang semua Server Components
+        // Ini akan memicu proxy.ts untuk membaca cookie terbaru di balik layar
+        router.refresh();
+
+        // 2. Berikan jeda kecil (minimal 100-200ms)
+        // Jeda ini memastikan proses 'refresh' internal selesai sebelum navigasi dimulai
+        setTimeout(() => {
+          router.push("/dashboard");
+        }, 200);
+
+        return; // Pastikan eksekusi berhenti di sini
+      }
     } catch {
       setError("Terjadi kesalahan, coba lagi");
     } finally {

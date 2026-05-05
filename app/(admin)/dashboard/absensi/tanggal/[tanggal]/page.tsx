@@ -197,9 +197,9 @@ export default function AbsenTanggalPage() {
         body: JSON.stringify({ absensiId: absensiIds.SHOLAT.id, data }),
       });
       if (!calledFromSemua) {
-        setSukses((prev) => ({ ...prev, ASRAMA: true }));
+        setSukses((prev) => ({ ...prev, SHOLAT: true }));
         setTimeout(
-          () => setSukses((prev) => ({ ...prev, ASRAMA: false })),
+          () => setSukses((prev) => ({ ...prev, SHOLAT: false })),
           3000,
         );
       }
@@ -225,9 +225,9 @@ export default function AbsenTanggalPage() {
         body: JSON.stringify({ absensiId: absensiIds.KELAS.id, data }),
       });
       if (!calledFromSemua) {
-        setSukses((prev) => ({ ...prev, ASRAMA: true }));
+        setSukses((prev) => ({ ...prev, KELAS: true }));
         setTimeout(
-          () => setSukses((prev) => ({ ...prev, ASRAMA: false })),
+          () => setSukses((prev) => ({ ...prev, KELAS: false })),
           3000,
         );
       }
@@ -253,9 +253,9 @@ export default function AbsenTanggalPage() {
         body: JSON.stringify({ absensiId: absensiIds.MAKAN.id, data }),
       });
       if (!calledFromSemua) {
-        setSukses((prev) => ({ ...prev, ASRAMA: true }));
+        setSukses((prev) => ({ ...prev, MAKAN: true }));
         setTimeout(
-          () => setSukses((prev) => ({ ...prev, ASRAMA: false })),
+          () => setSukses((prev) => ({ ...prev, MAKAN: false })),
           3000,
         );
       }

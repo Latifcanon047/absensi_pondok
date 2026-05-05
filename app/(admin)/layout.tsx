@@ -26,16 +26,18 @@ export default function AdminLayout({
   async function handleLogout() {
     await fetch("/api/auth/logout", { method: "POST" });
     router.refresh();
-    router.push("/login");
+    router.push("/");
   }
 
   const navItems = [
-    { name: "Dashboard", href: "/dashboard", icon: "🏠" },
-    { name: "List Absensi", href: "/dashboard/absensi", icon: "📋" },
-    { name: "Buat Absensi", href: "/dashboard/absensi/buat", icon: "✏️" },
-    { name: "Data Santri", href: "/dashboard/santri", icon: "👤" },
-    { name: "Rekap Absensi", href: "/rekap-absen", icon: "📊" },
-    { name: "Pengaturan", href: "/dashboard/settings", icon: "⚙️" },
+    { name: "Dashboard", href: "/dashboard" },
+    { name: "Absensi", href: "/dashboard/absensi" },
+    { name: "Buat Absen", href: "/dashboard/absensi/buat" },
+    { name: "Data Santri", href: "/dashboard/santri" },
+    { name: "Rekap Absensi", href: "/rekap-absen" },
+    { name: "Rekap Piket", href: "/rekap-piket" },
+    { name: "Leaderboard", href: "/leaderboard" },
+    { name: "Pengaturan", href: "/dashboard/settings" },
   ];
 
   const isActive = (href: string) => {
@@ -111,7 +113,6 @@ export default function AdminLayout({
                   }
                 `}
               >
-                <span className="text-lg">{item.icon}</span>
                 {item.name}
                 {active && (
                   <span className="ml-auto w-1.5 h-1.5 rounded-full bg-white"></span>
@@ -221,7 +222,6 @@ export default function AdminLayout({
                     }
                   `}
                 >
-                  <span className="text-lg">{item.icon}</span>
                   {item.name}
                   {active && (
                     <span className="ml-auto w-1.5 h-1.5 rounded-full bg-white"></span>
@@ -237,7 +237,6 @@ export default function AdminLayout({
               onClick={handleLogout}
               className="flex items-center gap-3 w-full px-4 py-2.5 rounded-xl text-sm font-medium text-red-300 hover:text-red-200 hover:bg-white/10 transition-all duration-200"
             >
-              <span className="text-lg">🚪</span>
               Logout
             </button>
           </div>

@@ -67,9 +67,11 @@ export default function LeaderboardPage() {
   }
 
   function getSkorColor(skor: number) {
-    if (skor >= 80) return "text-green-600";
-    if (skor >= 60) return "text-yellow-600";
-    return "text-red-600";
+    if (skor >= 97) return "text-emerald-600";
+    if (skor >= 95) return "text-blue-600";
+    if (skor >= 90) return "text-orange-600";
+    if (skor >= 85) return "text-red-500";
+    return "text-red-800";
   }
 
   return (
@@ -239,15 +241,19 @@ export default function LeaderboardPage() {
                   {/* Skor Final */}
                   <div
                     className={`
-                          px-3 py-1 rounded-full text-sm font-bold whitespace-nowrap
-                          ${
-                            santri.skorFinal >= 85
-                              ? "bg-emerald-100 text-emerald-700"
-                              : santri.skorFinal >= 75
-                                ? "bg-amber-100 text-amber-700"
-                                : "bg-red-100 text-red-700"
-                          }
-                        `}
+  px-3 py-1 rounded-full text-sm font-bold whitespace-nowrap
+  ${
+    santri.skorFinal >= 97
+      ? "bg-green-100 text-green-700"
+      : santri.skorFinal >= 95
+        ? "bg-blue-100 text-blue-600"
+        : santri.skorFinal >= 90
+          ? "bg-orange-100 text-orange-600"
+          : santri.skorFinal >= 85
+            ? "bg-red-100 text-red-700"
+            : "bg-red-200 text-red-950"
+  }
+`}
                   >
                     Skor {santri.skorFinal}%
                   </div>
@@ -262,14 +268,34 @@ export default function LeaderboardPage() {
                         Kedisiplinan
                       </span>
                       <span
-                        className={`text-xs font-semibold ${santri.skorKedisiplinan >= 80 ? "text-emerald-600" : santri.skorKedisiplinan >= 60 ? "text-amber-600" : "text-red-600"}`}
+                        className={`text-xs font-semibold ${
+                          santri.skorKedisiplinan >= 97
+                            ? "text-emerald-600"
+                            : santri.skorKedisiplinan >= 95
+                              ? "text-blue-600"
+                              : santri.skorKedisiplinan >= 90
+                                ? "text-orange-500"
+                                : santri.skorKedisiplinan >= 85
+                                  ? "text-red-500"
+                                  : "text-red-700"
+                        }`}
                       >
                         {santri.skorKedisiplinan}%
                       </span>
                     </div>
                     <div className="w-full bg-gray-100 rounded-full h-2 overflow-hidden">
                       <div
-                        className="bg-emerald-500 h-2 rounded-full transition-all duration-500"
+                        className={`h-2 rounded-full transition-all duration-500 ${
+                          santri.skorKedisiplinan >= 97
+                            ? "bg-emerald-600"
+                            : santri.skorKedisiplinan >= 95
+                              ? "bg-blue-600"
+                              : santri.skorKedisiplinan >= 90
+                                ? "bg-orange-500"
+                                : santri.skorKedisiplinan >= 85
+                                  ? "bg-red-500"
+                                  : "bg-red-700"
+                        }`}
                         style={{ width: `${santri.skorKedisiplinan}%` }}
                       />
                     </div>
@@ -282,14 +308,34 @@ export default function LeaderboardPage() {
                         Tanggung Jawab
                       </span>
                       <span
-                        className={`text-xs font-semibold ${santri.skorTanggungJawab >= 80 ? "text-emerald-600" : santri.skorTanggungJawab >= 60 ? "text-amber-600" : "text-red-600"}`}
+                        className={`text-xs font-semibold ${
+                          santri.skorTanggungJawab >= 97
+                            ? "text-emerald-600"
+                            : santri.skorTanggungJawab >= 95
+                              ? "text-blue-600"
+                              : santri.skorTanggungJawab >= 90
+                                ? "text-orange-500"
+                                : santri.skorTanggungJawab >= 85
+                                  ? "text-red-500"
+                                  : "text-red-700"
+                        }`}
                       >
                         {santri.skorTanggungJawab}%
                       </span>
                     </div>
                     <div className="w-full bg-gray-100 rounded-full h-2 overflow-hidden">
                       <div
-                        className="bg-blue-500 h-2 rounded-full transition-all duration-500"
+                        className={`h-2 rounded-full transition-all duration-500 ${
+                          santri.skorTanggungJawab >= 97
+                            ? "bg-emerald-600"
+                            : santri.skorTanggungJawab >= 95
+                              ? "bg-blue-600"
+                              : santri.skorTanggungJawab >= 90
+                                ? "bg-orange-500"
+                                : santri.skorTanggungJawab >= 85
+                                  ? "bg-red-500"
+                                  : "bg-red-700"
+                        }`}
                         style={{ width: `${santri.skorTanggungJawab}%` }}
                       />
                     </div>
@@ -308,22 +354,30 @@ export default function LeaderboardPage() {
                     <div className="w-16 bg-gray-100 rounded-full h-1.5 overflow-hidden">
                       <div
                         className={`h-1.5 rounded-full transition-all duration-500 ${
-                          santri.skorFinal >= 80
-                            ? "bg-emerald-500"
-                            : santri.skorFinal >= 60
-                              ? "bg-amber-500"
-                              : "bg-red-500"
+                          santri.skorFinal >= 97
+                            ? "bg-emerald-600"
+                            : santri.skorFinal >= 95
+                              ? "bg-blue-600"
+                              : santri.skorFinal >= 90
+                                ? "bg-orange-500"
+                                : santri.skorFinal >= 85
+                                  ? "bg-red-500"
+                                  : "bg-red-700"
                         }`}
                         style={{ width: `${santri.skorFinal}%` }}
                       />
                     </div>
                     <span
                       className={`text-base font-bold ${
-                        santri.skorFinal >= 80
-                          ? "text-emerald-700"
-                          : santri.skorFinal >= 60
-                            ? "text-amber-700"
-                            : "text-red-700"
+                        santri.skorFinal >= 97
+                          ? "text-emerald-600"
+                          : santri.skorFinal >= 95
+                            ? "text-blue-600"
+                            : santri.skorFinal >= 90
+                              ? "text-orange-500"
+                              : santri.skorFinal >= 85
+                                ? "text-red-500"
+                                : "text-red-700"
                       }`}
                     >
                       {santri.skorFinal}%

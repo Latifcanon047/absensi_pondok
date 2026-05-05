@@ -6,7 +6,7 @@ export default function Home() {
       {/* Login Link - Pojok Kanan Atas */}
       <div className="absolute top-4 right-4 sm:top-6 sm:right-6">
         <Link
-          href="/dashboard"
+          href="/dashboard/absensi"
           className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-medium text-emerald-600 bg-white border border-emerald-200 rounded-lg hover:bg-emerald-50 hover:border-emerald-300 transition-all duration-200 shadow-sm hover:shadow-md"
         >
           <span>Absensi</span>

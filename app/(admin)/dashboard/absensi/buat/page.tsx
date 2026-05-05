@@ -115,9 +115,6 @@ export default function BuatAbsensiPage() {
               Akan dibuat <strong>{jumlahHari} hari</strong> ×{" "}
               <strong>4 jenis</strong> absensi untuk {BULAN[bulan - 1]} {tahun}
             </p>
-            <p className="text-xs text-green-600 mt-1">
-              📿 Sholat &nbsp;📚 Kelas &nbsp;🍽️ Makan &nbsp;🏠 Asrama
-            </p>
           </div>
 
           {error && <p className="text-red-500 text-sm">{error}</p>}

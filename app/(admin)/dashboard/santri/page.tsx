@@ -16,6 +16,10 @@ export default function SantriPage() {
   const [nama, setNama] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
+  const [search, setSearch] = useState("");
+  const filteredList = santriList.filter((santri) =>
+    santri.nama.toLowerCase().includes(search.toLowerCase()),
+  );
 
   async function fetchSantri() {
     try {
@@ -92,97 +96,183 @@ export default function SantriPage() {
   return (
     <div>
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-gray-800">Data Santri</h1>
+        <div>
+          <div className="flex items-center gap-2">
+            <h1 className="text-xl font-medium text-gray-900">Data Santri</h1>
+            <span className="text-xs text-gray-400 bg-gray-100 border border-gray-200 rounded-full px-2 py-0.5">
+              {santriList.length} santri
+            </span>
+          </div>
+          <p className="text-xs text-gray-400 mt-0.5">
+            Kelola data santri aktif
+          </p>
+        </div>
         <button
           onClick={openTambah}
-          className="bg-[#1a6b3c] text-white px-4 py-2 rounded-lg text-sm hover:bg-[#164d2f] transition"
+          className="bg-green-800 text-green-50 px-4 py-2 rounded-lg text-sm font-medium hover:bg-green-900 transition flex items-center gap-1.5"
         >
-          + Tambah Santri
+          <span className="text-base leading-none">+</span> Tambah Santri
         </button>
       </div>
 
       {loading ? (
-        <div className="text-gray-500 text-sm">Memuat data...</div>
+        <div className="text-gray-400 text-sm">Memuat data...</div>
       ) : santriList.length === 0 ? (
-        <div className="text-gray-500 text-sm">Belum ada santri</div>
+        <div className="text-gray-400 text-sm text-center py-12">
+          Belum ada santri
+        </div>
       ) : (
-        <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+        <div className="bg-white rounded-xl border border-gray-100 overflow-hidden">
+          <div className="flex items-center gap-2 px-4 py-3 border-b border-gray-100">
+            <svg
+              className="w-3.5 h-3.5 text-gray-300"
+              viewBox="0 0 16 16"
+              fill="none"
+            >
+              <circle
+                cx="6.5"
+                cy="6.5"
+                r="4.5"
+                stroke="currentColor"
+                strokeWidth="1.2"
+              />
+              <path
+                d="M10 10l3 3"
+                stroke="currentColor"
+                strokeWidth="1.2"
+                strokeLinecap="round"
+              />
+            </svg>
+            <input
+              className="text-sm text-gray-700 placeholder:text-gray-300 bg-transparent outline-none w-full"
+              placeholder="Cari nama santri..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </div>
           <table className="w-full text-sm">
-            <thead className="bg-gray-50 border-b">
-              <tr>
-                <th className="text-left px-4 py-3 text-gray-600">No</th>
-                <th className="text-left px-4 py-3 text-gray-600">Nama</th>
-                <th className="text-left px-4 py-3 text-gray-600">
-                  Tanggal Ditambahkan
+            <thead>
+              <tr className="bg-gray-50 border-b border-gray-100">
+                <th className="text-left px-4 py-2.5 text-[11px] font-medium text-gray-400 uppercase tracking-wider w-12">
+                  No
                 </th>
-                <th className="text-left px-4 py-3 text-gray-600">Aksi</th>
+                <th className="text-left px-4 py-2.5 text-[11px] font-medium text-gray-400 uppercase tracking-wider">
+                  Nama
+                </th>
+                <th className="text-left px-4 py-2.5 text-[11px] font-medium text-gray-400 uppercase tracking-wider w-40">
+                  Ditambahkan
+                </th>
+                <th className="text-left px-4 py-2.5 text-[11px] font-medium text-gray-400 uppercase tracking-wider w-28">
+                  Aksi
+                </th>
               </tr>
             </thead>
             <tbody>
-              {santriList.map((santri, index) => (
-                <tr key={santri.id} className="border-b hover:bg-gray-50">
-                  <td className="px-4 py-3 text-gray-500">{index + 1}</td>
-                  <td className="px-4 py-3 font-medium">{santri.nama}</td>
-                  <td className="px-4 py-3 text-gray-500">
-                    {new Date(santri.createdAt).toLocaleDateString("id-ID")}
-                  </td>
-                  <td className="px-4 py-3">
-                    <div className="flex gap-2">
-                      <button
-                        onClick={() => openEdit(santri)}
-                        className="text-blue-600 hover:text-blue-800 text-xs px-2 py-1 border border-blue-200 rounded"
-                      >
-                        Edit
-                      </button>
-                      <button
-                        onClick={() => handleHapus(santri.id)}
-                        className="text-red-600 hover:text-red-800 text-xs px-2 py-1 border border-red-200 rounded"
-                      >
-                        Hapus
-                      </button>
-                    </div>
+              {filteredList.length === 0 ? (
+                <tr>
+                  <td
+                    colSpan={4}
+                    className="px-4 py-10 text-center text-sm text-gray-300"
+                  >
+                    Tidak ada santri dengan nama "{search}"
                   </td>
                 </tr>
-              ))}
+              ) : (
+                filteredList.map((santri, index) => (
+                  <tr
+                    key={santri.id}
+                    className="border-b border-gray-50 hover:bg-gray-50 transition-colors"
+                  >
+                    <td className="px-4 py-3 text-xs text-gray-300">
+                      {index + 1}
+                    </td>
+                    <td className="px-4 py-3">
+                      <div className="flex items-center gap-2.5">
+                        <span className="w-7 h-7 rounded-full bg-green-100 text-green-800 text-[11px] font-medium flex items-center justify-center shrink-0">
+                          {santri.nama
+                            .split(" ")
+                            .slice(0, 2)
+                            .map((n) => n[0])
+                            .join("")
+                            .toUpperCase()}
+                        </span>
+                        <span className="font-medium text-gray-800">
+                          {santri.nama}
+                        </span>
+                      </div>
+                    </td>
+                    <td className="px-4 py-3 text-xs text-gray-400">
+                      {new Date(santri.createdAt).toLocaleDateString("id-ID", {
+                        day: "numeric",
+                        month: "short",
+                        year: "numeric",
+                      })}
+                    </td>
+                    <td className="px-4 py-3">
+                      <div className="flex gap-1.5">
+                        <button
+                          onClick={() => openEdit(santri)}
+                          className="text-xs px-2.5 py-1 rounded-md border border-gray-200 text-gray-500 hover:bg-blue-50 hover:text-blue-700 hover:border-blue-200 transition-colors"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => handleHapus(santri.id)}
+                          className="text-xs px-2.5 py-1 rounded-md border border-gray-200 text-gray-500 hover:bg-red-50 hover:text-red-700 hover:border-red-200 transition-colors"
+                        >
+                          Hapus
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
       )}
 
-      {/* Modal */}
       {modalOpen && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center">
-          <div className="bg-white rounded-xl p-6 w-full max-w-md mx-4">
-            <h2 className="text-lg font-bold mb-4">
-              {editData ? "Edit Santri" : "Tambah Santri"}
-            </h2>
+        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center">
+          <div className="bg-white rounded-xl border border-gray-100 p-6 w-full max-w-sm mx-4">
+            <div className="flex justify-between items-center mb-5">
+              <h2 className="text-base font-medium text-gray-800">
+                {editData ? "Edit Santri" : "Tambah Santri"}
+              </h2>
+              <button
+                onClick={() => setModalOpen(false)}
+                className="text-gray-300 hover:text-gray-500 text-lg leading-none"
+              >
+                ×
+              </button>
+            </div>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Nama Santri
+                <label className="block text-xs font-medium text-gray-500 mb-1.5">
+                  Nama santri
                 </label>
                 <input
                   type="text"
                   value={nama}
                   onChange={(e) => setNama(e.target.value)}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#1a6b3c]"
+                  className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-800/10 focus:border-green-800"
                   placeholder="Masukkan nama santri"
                   required
                 />
               </div>
-              {error && <p className="text-red-500 text-sm">{error}</p>}
-              <div className="flex gap-3 justify-end">
+              {error && <p className="text-red-500 text-xs">{error}</p>}
+              <div className="flex gap-2 justify-end pt-1">
                 <button
                   type="button"
                   onClick={() => setModalOpen(false)}
-                  className="px-4 py-2 text-sm text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50"
+                  className="px-4 py-2 text-sm text-gray-500 border border-gray-200 rounded-lg hover:bg-gray-50 transition"
                 >
                   Batal
                 </button>
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="px-4 py-2 text-sm bg-[#1a6b3c] text-white rounded-lg hover:bg-[#164d2f] disabled:opacity-50"
+                  className="px-4 py-2 text-sm bg-green-800 text-green-50 rounded-lg hover:bg-green-900 disabled:opacity-50 font-medium transition"
                 >
                   {submitting ? "Menyimpan..." : "Simpan"}
                 </button>
