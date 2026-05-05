@@ -158,12 +158,34 @@ export default function RekapTable({
                   {/* Skor dengan progress bar indicator */}
                   <td className="px-4 py-3 text-center">
                     <div className="flex items-center justify-center gap-1">
-                      <span className="font-bold text-emerald-700 text-sm">
+                      <span
+                        className={`font-bold text-sm ${
+                          (statusData?.skor || 0) >= 97
+                            ? "text-emerald-600"
+                            : (statusData?.skor || 0) >= 95
+                              ? "text-blue-600"
+                              : (statusData?.skor || 0) >= 90
+                                ? "text-orange-500"
+                                : (statusData?.skor || 0) >= 85
+                                  ? "text-red-800"
+                                  : "text-red-950"
+                        }`}
+                      >
                         {statusData?.skor || 0}%
                       </span>
                       <div className="w-12 h-1 bg-gray-100 rounded-full overflow-hidden">
                         <div
-                          className="h-full bg-linear-to-r from-emerald-500 to-emerald-600 rounded-full"
+                          className={`h-full rounded-full ${
+                            (statusData?.skor || 0) >= 97
+                              ? "bg-emerald-600"
+                              : (statusData?.skor || 0) >= 95
+                                ? "bg-blue-800"
+                                : (statusData?.skor || 0) >= 90
+                                  ? "bg-orange-500"
+                                  : (statusData?.skor || 0) >= 85
+                                    ? "bg-red-500"
+                                    : "bg-red-700"
+                          }`}
                           style={{ width: `${statusData?.skor || 0}%` }}
                         />
                       </div>

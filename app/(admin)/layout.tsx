@@ -128,7 +128,6 @@ export default function AdminLayout({
             onClick={handleLogout}
             className="flex items-center gap-3 w-full px-4 py-2.5 rounded-xl text-sm font-medium text-red-300 hover:text-red-200 hover:bg-white/10 transition-all duration-200"
           >
-            <span className="text-lg">🚪</span>
             Logout
           </button>
         </div>

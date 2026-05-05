@@ -84,6 +84,9 @@ export default function AbsenTanggalPage() {
       const absensiData = await absensiRes.json();
       const santriData = await santriRes.json();
 
+      console.log(absensiData);
+      console.log(santriData);
+
       setAbsensiIds(absensiData);
       setSantriList(santriData);
 
@@ -442,93 +445,97 @@ export default function AbsenTanggalPage() {
           {submitting === "SEMUA" ? "Menyimpan..." : "Submit Semua"}
         </button>
       </div>
-      {/* Section Sholat */}
-      {absensiIds.SHOLAT ? (
-        <TabelSholat
-          santriList={santriList}
-          sholatStates={sholatStates}
-          submitting={submitting}
-          sukses={sukses.SHOLAT ?? false}
-          onTandaiSemua={(checked) => handleTandaiSemua(checked, "SHOLAT")}
-          onStatusChange={(santriId, waktu, status) =>
-            setSholatStates((prev) => ({
-              ...prev,
-              [`${santriId}-${waktu}`]: status,
-            }))
-          }
-          onSubmit={() => handleSubmitSholat()}
-        />
-      ) : (
-        <div className="bg-gray-50 rounded-xl p-6 mb-6 text-center text-gray-400 text-sm">
-          📿 Absen Sholat belum dibuat untuk tanggal ini
-        </div>
-      )}
 
-      {/* Section Kelas */}
-      {absensiIds.KELAS ? (
-        <TabelKelas
-          santriList={santriList}
-          sesiKelas={SESI_KELAS}
-          kelasStates={kelasStates}
-          submitting={submitting}
-          sukses={sukses.KELAS ?? false}
-          onTandaiSemua={(checked) => handleTandaiSemua(checked, "KELAS")}
-          onStatusChange={(santriId, sesi, status) =>
-            setKelasStates((prev) => ({
-              ...prev,
-              [`${santriId}-${sesi}`]: status,
-            }))
-          }
-          onSubmit={() => handleSubmitKelas()}
-        />
-      ) : (
-        <div className="bg-gray-50 rounded-xl p-6 mb-6 text-center text-gray-400 text-sm">
-          📚 Absen Kelas belum dibuat untuk tanggal ini
-        </div>
-      )}
+      {absensiIds.SHOLAT &&
+      absensiIds.KELAS &&
+      absensiIds.MAKAN &&
+      absensiIds.ASRAMA ? (
+        <>
+          <TabelSholat
+            santriList={santriList}
+            sholatStates={sholatStates}
+            submitting={submitting}
+            sukses={sukses.SHOLAT ?? false}
+            onTandaiSemua={(checked) => handleTandaiSemua(checked, "SHOLAT")}
+            onStatusChange={(santriId, waktu, status) =>
+              setSholatStates((prev) => ({
+                ...prev,
+                [`${santriId}-${waktu}`]: status,
+              }))
+            }
+            onSubmit={() => handleSubmitSholat()}
+          />
 
-      {/* Section Makan */}
-      {absensiIds.MAKAN ? (
-        <TabelMakan
-          santriList={santriList}
-          sesiMakan={SESI_MAKAN}
-          makanStates={makanStates}
-          submitting={submitting}
-          sukses={sukses.MAKAN ?? false}
-          onTandaiSemua={(checked) => handleTandaiSemua(checked, "MAKAN")}
-          onStatusChange={(santriId, sesi, status) =>
-            setMakanStates((prev) => ({
-              ...prev,
-              [`${santriId}-${sesi}`]: status,
-            }))
-          }
-          onSubmit={() => handleSubmitMakan()}
-        />
-      ) : (
-        <div className="bg-gray-50 rounded-xl p-6 mb-6 text-center text-gray-400 text-sm">
-          🍽️ Piket Makan belum dibuat untuk tanggal ini
-        </div>
-      )}
+          <TabelKelas
+            santriList={santriList}
+            sesiKelas={SESI_KELAS}
+            kelasStates={kelasStates}
+            submitting={submitting}
+            sukses={sukses.KELAS ?? false}
+            onTandaiSemua={(checked) => handleTandaiSemua(checked, "KELAS")}
+            onStatusChange={(santriId, sesi, status) =>
+              setKelasStates((prev) => ({
+                ...prev,
+                [`${santriId}-${sesi}`]: status,
+              }))
+            }
+            onSubmit={() => handleSubmitKelas()}
+          />
 
-      {/* Section Asrama */}
-      {absensiIds.ASRAMA ? (
-        <TabelAsrama
-          santriList={santriList}
-          asramaStates={asramaStates}
-          submitting={submitting}
-          sukses={sukses.ASRAMA ?? false}
-          onTandaiSemua={(checked) => handleTandaiSemua(checked, "ASRAMA")}
-          onStatusChange={(santriId, status) =>
-            setAsramaStates((prev) => ({
-              ...prev,
-              [`${santriId}`]: status,
-            }))
-          }
-          onSubmit={() => handleSubmitAsrama()}
-        />
+          <TabelMakan
+            santriList={santriList}
+            sesiMakan={SESI_MAKAN}
+            makanStates={makanStates}
+            submitting={submitting}
+            sukses={sukses.MAKAN ?? false}
+            onTandaiSemua={(checked) => handleTandaiSemua(checked, "MAKAN")}
+            onStatusChange={(santriId, sesi, status) =>
+              setMakanStates((prev) => ({
+                ...prev,
+                [`${santriId}-${sesi}`]: status,
+              }))
+            }
+            onSubmit={() => handleSubmitMakan()}
+          />
+
+          <TabelAsrama
+            santriList={santriList}
+            asramaStates={asramaStates}
+            submitting={submitting}
+            sukses={sukses.ASRAMA ?? false}
+            onTandaiSemua={(checked) => handleTandaiSemua(checked, "ASRAMA")}
+            onStatusChange={(santriId, status) =>
+              setAsramaStates((prev) => ({
+                ...prev,
+                [`${santriId}`]: status,
+              }))
+            }
+            onSubmit={() => handleSubmitAsrama()}
+          />
+        </>
       ) : (
-        <div className="bg-gray-50 rounded-xl p-6 mb-6 text-center text-gray-400 text-sm">
-          🏠 Piket Asrama belum dibuat untuk tanggal ini
+        <div className="flex flex-col items-center justify-center gap-3 bg-white border border-dashed border-gray-200 rounded-xl min-h-[calc(100vh-200px)]">
+          <svg
+            width="40"
+            height="40"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="#d1d5db"
+            strokeWidth="1.2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2" />
+            <rect x="9" y="3" width="6" height="4" rx="1" />
+            <line x1="9" y1="12" x2="15" y2="12" />
+            <line x1="9" y1="16" x2="13" y2="16" />
+          </svg>
+          <p className="text-sm font-medium text-gray-400">
+            Belum ada data absensi
+          </p>
+          <p className="text-xs text-gray-300">
+            Data absensi untuk tanggal ini belum dibuat
+          </p>
         </div>
       )}
     </div>

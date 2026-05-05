@@ -20,6 +20,7 @@ export default function SantriPage() {
   const filteredList = santriList.filter((santri) =>
     santri.nama.toLowerCase().includes(search.toLowerCase()),
   );
+  const [hapusId, setHapusId] = useState<number | null>(null);
 
   async function fetchSantri() {
     try {
@@ -82,14 +83,19 @@ export default function SantriPage() {
     }
   }
 
-  async function handleHapus(id: number) {
-    if (!confirm("Yakin ingin menghapus santri ini?")) return;
+  function handleHapus(id: number) {
+    setHapusId(id);
+  }
 
+  async function konfirmasiHapus() {
+    if (!hapusId) return;
     try {
-      await fetch(`/api/santri/${id}`, { method: "DELETE" });
+      await fetch(`/api/santri/${hapusId}`, { method: "DELETE" });
       fetchSantri();
     } catch {
       console.error("Gagal hapus santri");
+    } finally {
+      setHapusId(null); // tutup modal
     }
   }
 
@@ -232,9 +238,49 @@ export default function SantriPage() {
         </div>
       )}
 
+      {/* Modal konfirmasi */}
+      {hapusId && (
+        <div
+          className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center"
+          onClick={() => setHapusId(null)}
+        >
+          <div
+            className="bg-white rounded-xl border border-gray-100 p-6 w-full max-w-sm mx-4"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h2 className="text-base font-medium text-gray-800 mb-1">
+              Hapus santri ini?
+            </h2>
+            <p className="text-sm text-gray-400 mb-5">
+              Santri akan dihapus dari daftar dan tidak muncul di absensi.
+            </p>
+            <div className="flex gap-2 justify-end">
+              <button
+                onClick={() => setHapusId(null)}
+                className="px-4 py-2 text-sm text-gray-500 border border-gray-200 rounded-lg hover:bg-gray-50"
+              >
+                Batal
+              </button>
+              <button
+                onClick={konfirmasiHapus}
+                className="px-4 py-2 text-sm bg-red-600 text-white rounded-lg hover:bg-red-700 font-medium"
+              >
+                Hapus
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {modalOpen && (
-        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center">
-          <div className="bg-white rounded-xl border border-gray-100 p-6 w-full max-w-sm mx-4">
+        <div
+          className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center"
+          onClick={() => setModalOpen(false)}
+        >
+          <div
+            className="bg-white rounded-xl border border-gray-100 p-6 w-full max-w-sm mx-4"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="flex justify-between items-center mb-5">
               <h2 className="text-base font-medium text-gray-800">
                 {editData ? "Edit Santri" : "Tambah Santri"}
