@@ -179,7 +179,7 @@ export default function RekapTable({
                             (statusData?.skor || 0) >= 97
                               ? "bg-emerald-600"
                               : (statusData?.skor || 0) >= 95
-                                ? "bg-blue-800"
+                                ? "bg-blue-600"
                                 : (statusData?.skor || 0) >= 90
                                   ? "bg-orange-500"
                                   : (statusData?.skor || 0) >= 85
