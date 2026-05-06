@@ -168,7 +168,7 @@ export default function RekapTable({
                                 ? "text-orange-500"
                                 : (statusData?.skor || 0) >= 85
                                   ? "text-red-800"
-                                  : "text-red-950"
+                                  : "text-red-700"
                         }`}
                       >
                         {statusData?.skor || 0}%

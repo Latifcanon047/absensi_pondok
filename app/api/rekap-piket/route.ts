@@ -32,7 +32,10 @@ export async function GET(request: NextRequest) {
       prisma.absensi.findMany({
         where: { tipe: "ASRAMA", tanggal: { gte: dariUTC, lt: sampaiUTC } },
       }),
-      prisma.santri.findMany({ orderBy: { nama: "asc" } }),
+      prisma.santri.findMany({
+        orderBy: { nama: "asc" },
+        where: { isArchived: false },
+      }),
     ]);
 
     const idsMakan = absensiMakan.map((a) => a.id);

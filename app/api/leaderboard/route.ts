@@ -50,6 +50,7 @@ export async function GET(request: NextRequest) {
 
     const santriList = await prisma.santri.findMany({
       orderBy: { nama: "asc" },
+      where: { isArchived: false },
     });
 
     const hasil = await Promise.all(

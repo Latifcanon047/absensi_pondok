@@ -27,7 +27,7 @@ export default function BuatAbsensiPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const jumlahHari = new Date(tahun, bulan, 0).getDate();
+  const jumlahHari = new Date(tahun, bulan, 0).getDate(); //ngambil tanggal terkhir dari bulan tersebut
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
