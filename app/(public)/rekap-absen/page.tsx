@@ -3,7 +3,7 @@ import RekapAbsenContent from "@/components/RekapAbsenContent";
 
 export default function RekapAbsenPage() {
   return (
-    <Suspense fallback={<div></div>}>
+    <Suspense fallback={null}>
       <RekapAbsenContent />
     </Suspense>
   );

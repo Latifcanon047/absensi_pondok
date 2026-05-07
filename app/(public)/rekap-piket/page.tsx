@@ -1,9 +1,9 @@
 import { Suspense } from "react";
 import RekapPiketContent from "@/components/RekapPiketContent";
 
-export default function LeaderboardPage() {
+export default function RekapPiketPage() {
   return (
-    <Suspense fallback={<div></div>}>
+    <Suspense fallback={null}>
       <RekapPiketContent />
     </Suspense>
   );

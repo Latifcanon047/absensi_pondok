@@ -3,7 +3,7 @@ import LeaderboardContent from "@/components/LeaderboardContent";
 
 export default function LeaderboardPage() {
   return (
-    <Suspense fallback={<div></div>}>
+    <Suspense fallback={null}>
       <LeaderboardContent />
     </Suspense>
   );
