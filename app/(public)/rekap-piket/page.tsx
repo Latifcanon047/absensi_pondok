@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import SkeletonRekap from "@/components/skeleton/SkeletonRekap";
 import FilterRekap from "@/components/rekap/FilterRekap";
 import RekapTable from "@/components/rekap/RekapTable";
@@ -44,6 +45,8 @@ type Summary = {
 };
 
 export default function RekapPiketPage() {
+  const searchParams = useSearchParams();
+  const router = useRouter();
   const [dariTanggal, setDariTanggal] = useState(
     formatDateLocal(
       new Date(new Date().getFullYear(), new Date().getMonth(), 1),
@@ -55,6 +58,25 @@ export default function RekapPiketPage() {
       new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0),
     ),
   );
+
+  const [tanggalAwal, setTanggalAwal] = useState(() => {
+    return (
+      searchParams.get("dariTanggal") ||
+      formatDateLocal(
+        new Date(new Date().getFullYear(), new Date().getMonth(), 1),
+      )
+    );
+  });
+
+  const [tanggalAkhir, setTanggalAkhir] = useState(() => {
+    return (
+      searchParams.get("sampaiTanggal") ||
+      formatDateLocal(
+        new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0),
+      )
+    );
+  });
+
   const [hasil, setHasil] = useState<RekapSantri[]>([]);
   const [loading, setLoading] = useState(false);
   const [sudahCari, setSudahCari] = useState(false);
@@ -86,6 +108,46 @@ export default function RekapPiketPage() {
     const [year, month, day] = dateString.split("-");
     return `${parseInt(day)} ${bulan[parseInt(month) - 1]} ${year}`;
   }
+
+  const handleFilterTanggal = async () => {
+    const params = new URLSearchParams();
+    // Validasi input
+    if (!dariTanggal || !sampaiTanggal) {
+      alert("Tanggal awal dan tanggal akhir harus diisi.");
+      setLoading(false);
+      return;
+    }
+
+    const regexTanggal = /^\d{4}-\d{2}-\d{2}$/;
+    if (!regexTanggal.test(dariTanggal) || !regexTanggal.test(sampaiTanggal)) {
+      alert("Format tanggal tidak valid. Gunakan format YYYY-MM-DD.");
+      setLoading(false);
+      return;
+    }
+
+    const dari = new Date(dariTanggal);
+    const sampai = new Date(sampaiTanggal);
+
+    if (isNaN(dari.getTime()) || isNaN(sampai.getTime())) {
+      alert("Tanggal tidak valid.");
+      setLoading(false);
+      return;
+    }
+
+    if (sampai < dari) {
+      alert("Tanggal akhir tidak boleh lebih awal dari tanggal awal.");
+      setLoading(false);
+      return;
+    }
+
+    params.set("dariTanggal", dariTanggal);
+    params.set("sampaiTanggal", sampaiTanggal);
+    setTanggalAwal(dariTanggal);
+    setTanggalAkhir(sampaiTanggal);
+    router.replace(`?${params.toString()}`);
+
+    await handleLihatRekap();
+  };
 
   async function handleLihatRekap() {
     setLoading(true);
@@ -119,6 +181,10 @@ export default function RekapPiketPage() {
     });
   }
 
+  useEffect(() => {
+    handleLihatRekap();
+  }, []);
+
   return (
     <div>
       <h1 className="text-3xl font-bold text-gray-800 mb-2 flex items-center gap-2">
@@ -135,7 +201,7 @@ export default function RekapPiketPage() {
         loading={loading}
         onDariTanggalChange={setDariTanggal}
         onSampaiTanggalChange={setSampaiTanggal}
-        onLihatRekap={handleLihatRekap}
+        onLihatRekap={handleFilterTanggal}
       />
 
       {loading && (
@@ -152,9 +218,9 @@ export default function RekapPiketPage() {
               <div className="flex items-center gap-2">
                 <div className="flex items-center gap-2 flex-wrap">
                   <h2 className="font-semibold text-gray-800">
-                    Rekap {formatTanggalIndonesia(dariTanggal)}
+                    Rekap {formatTanggalIndonesia(tanggalAwal)}
                     <span className="text-gray-400 mx-2">→</span>
-                    {formatTanggalIndonesia(sampaiTanggal)}
+                    {formatTanggalIndonesia(tanggalAkhir)}
                   </h2>
                 </div>
               </div>

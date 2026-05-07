@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import SkeletonLeaderboard from "@/components/skeleton/SkeletonLeaderboard";
 
 type LeaderboardItem = {
@@ -12,17 +13,84 @@ type LeaderboardItem = {
 };
 
 export default function LeaderboardPage() {
-  const [dariTanggal, setDariTanggal] = useState(
-    formatDateLocal(
-      new Date(new Date().getFullYear(), new Date().getMonth(), 1),
-    ),
-  );
+  const router = useRouter();
+  const searchParams = useSearchParams();
 
-  const [sampaiTanggal, setSampaiTanggal] = useState(
-    formatDateLocal(
-      new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0),
-    ),
-  );
+  const [dariTanggal, setDariTanggal] = useState(() => {
+    return (
+      searchParams.get("dariTanggal") ||
+      formatDateLocal(
+        new Date(new Date().getFullYear(), new Date().getMonth(), 1),
+      )
+    );
+  });
+
+  const [sampaiTanggal, setSampaiTanggal] = useState(() => {
+    return (
+      searchParams.get("sampaiTanggal") ||
+      formatDateLocal(
+        new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0),
+      )
+    );
+  });
+
+  const [tanggalAwal, setTanggalAwal] = useState(() => {
+    return (
+      searchParams.get("dariTanggal") ||
+      formatDateLocal(
+        new Date(new Date().getFullYear(), new Date().getMonth(), 1),
+      )
+    );
+  });
+
+  const [tanggalAkhir, setTanggalAkhir] = useState(() => {
+    return (
+      searchParams.get("sampaiTanggal") ||
+      formatDateLocal(
+        new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0),
+      )
+    );
+  });
+
+  const handleFilterTanggal = async () => {
+    const params = new URLSearchParams();
+    // Validasi input
+    if (!dariTanggal || !sampaiTanggal) {
+      alert("Tanggal awal dan tanggal akhir harus diisi.");
+      setLoading(false);
+      return;
+    }
+
+    const regexTanggal = /^\d{4}-\d{2}-\d{2}$/;
+    if (!regexTanggal.test(dariTanggal) || !regexTanggal.test(sampaiTanggal)) {
+      alert("Format tanggal tidak valid. Gunakan format YYYY-MM-DD.");
+      setLoading(false);
+      return;
+    }
+
+    const dari = new Date(dariTanggal);
+    const sampai = new Date(sampaiTanggal);
+
+    if (isNaN(dari.getTime()) || isNaN(sampai.getTime())) {
+      alert("Tanggal tidak valid.");
+      setLoading(false);
+      return;
+    }
+
+    if (sampai < dari) {
+      alert("Tanggal akhir tidak boleh lebih awal dari tanggal awal.");
+      setLoading(false);
+      return;
+    }
+
+    params.set("dariTanggal", dariTanggal);
+    params.set("sampaiTanggal", sampaiTanggal);
+    router.replace(`?${params.toString()}`);
+    setTanggalAwal(dariTanggal);
+    setTanggalAkhir(sampaiTanggal);
+    handleLihat();
+  };
+
   const [hasil, setHasil] = useState<LeaderboardItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [sudahCari, setSudahCari] = useState(false);
@@ -37,6 +105,7 @@ export default function LeaderboardPage() {
   async function handleLihat() {
     setLoading(true);
     setSudahCari(false);
+    console.log(tanggalAwal);
 
     const params = new URLSearchParams({ dariTanggal, sampaiTanggal });
 
@@ -51,6 +120,30 @@ export default function LeaderboardPage() {
       setLoading(false);
     }
   }
+
+  function formatTanggalIndonesia(dateString: string) {
+    const bulan = [
+      "Januari",
+      "Februari",
+      "Maret",
+      "April",
+      "Mei",
+      "Juni",
+      "Juli",
+      "Agustus",
+      "September",
+      "Oktober",
+      "November",
+      "Desember",
+    ];
+    const [year, month, day] = dateString.split("-");
+    ``;
+    return `${parseInt(day)} ${bulan[parseInt(month) - 1]} ${year}`;
+  }
+
+  useEffect(() => {
+    handleLihat();
+  }, []);
 
   return (
     <div>
@@ -101,7 +194,7 @@ export default function LeaderboardPage() {
           </div>
 
           <button
-            onClick={handleLihat}
+            onClick={handleFilterTanggal}
             disabled={loading}
             className="group relative bg-linear-to-r from-emerald-600 to-emerald-700 text-white px-6 py-2.5 rounded-xl text-sm font-medium hover:from-emerald-700 hover:to-emerald-800 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm hover:shadow-md flex items-center gap-2"
           >
@@ -155,11 +248,26 @@ export default function LeaderboardPage() {
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {hasil.map((santri, index) => (
-              <div
-                key={santri.id}
-                className={`
+          <>
+            <div className="bg-linear-to-r from-white via-gray-50 to-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden my-6">
+              <div className="px-6 py-4 border-b border-gray-100 bg-white/50">
+                <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <h2 className="font-semibold text-gray-800">
+                      Rekap {formatTanggalIndonesia(tanggalAwal)}
+                      <span className="text-gray-400 mx-2">→</span>
+                      {formatTanggalIndonesia(tanggalAkhir)}
+                    </h2>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {hasil.map((santri, index) => (
+                <div
+                  key={santri.id}
+                  className={`
               group relative bg-white rounded-2xl shadow-sm border-2 p-6 
               hover:shadow-xl transition-all duration-300 hover:-translate-y-1
               ${
@@ -172,11 +280,11 @@ export default function LeaderboardPage() {
                       : "border-gray-100 hover:border-emerald-200"
               }
             `}
-              >
-                {/* Medal and Rank */}
-                <div className="absolute -top-3 -left-3">
-                  <div
-                    className={`
+                >
+                  {/* Medal and Rank */}
+                  <div className="absolute -top-3 -left-3">
+                    <div
+                      className={`
                 w-10 h-10 rounded-full flex items-center justify-center shadow-md
                 ${
                   index === 0
@@ -188,37 +296,37 @@ export default function LeaderboardPage() {
                         : "bg-gray-300"
                 }
               `}
-                  >
-                    <span className="text-white font-bold text-lg">
-                      {index === 0
-                        ? "🥇"
-                        : index === 1
-                          ? "🥈"
-                          : index === 2
-                            ? "🥉"
-                            : index + 1}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Nama Santri */}
-                <div className="flex items-center justify-between gap-3 mb-5">
-                  <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-full bg-linear-to-br from-emerald-100 to-emerald-200 flex items-center justify-center">
-                      <span className="text-emerald-600 font-bold text-lg">
-                        {santri.nama.charAt(0).toUpperCase()}
+                    >
+                      <span className="text-white font-bold text-lg">
+                        {index === 0
+                          ? "🥇"
+                          : index === 1
+                            ? "🥈"
+                            : index === 2
+                              ? "🥉"
+                              : index + 1}
                       </span>
                     </div>
-                    <div>
-                      <h3 className="font-bold text-gray-800 text-lg">
-                        {santri.nama}
-                      </h3>
-                    </div>
                   </div>
 
-                  {/* Skor Final */}
-                  <div
-                    className={`
+                  {/* Nama Santri */}
+                  <div className="flex items-center justify-between gap-3 mb-5">
+                    <div className="flex items-center gap-3">
+                      <div className="w-12 h-12 rounded-full bg-linear-to-br from-emerald-100 to-emerald-200 flex items-center justify-center">
+                        <span className="text-emerald-600 font-bold text-lg">
+                          {santri.nama.charAt(0).toUpperCase()}
+                        </span>
+                      </div>
+                      <div>
+                        <h3 className="font-bold text-gray-800 text-lg">
+                          {santri.nama}
+                        </h3>
+                      </div>
+                    </div>
+
+                    {/* Skor Final */}
+                    <div
+                      className={`
   px-3 py-1 rounded-full text-sm font-bold whitespace-nowrap
   ${
     santri.skorFinal >= 95
@@ -232,139 +340,140 @@ export default function LeaderboardPage() {
             : "bg-red-200 text-red-800"
   }
 `}
-                  >
-                    Skor {santri.skorFinal}%
-                  </div>
-                </div>
-
-                {/* Detail Skor */}
-                <div className="space-y-3">
-                  {/* Kedisiplinan */}
-                  <div>
-                    <div className="flex justify-between items-center mb-1.5">
-                      <span className="text-xs font-medium text-gray-600 flex items-center gap-1">
-                        Kedisiplinan
-                      </span>
-                      <span
-                        className={`text-xs font-semibold ${
-                          santri.skorKedisiplinan >= 95
-                            ? "text-emerald-600"
-                            : santri.skorKedisiplinan >= 90
-                              ? "text-blue-600"
-                              : santri.skorKedisiplinan >= 85
-                                ? "text-orange-500"
-                                : santri.skorKedisiplinan >= 75
-                                  ? "text-red-500"
-                                  : "text-red-700"
-                        }`}
-                      >
-                        {santri.skorKedisiplinan}%
-                      </span>
-                    </div>
-                    <div className="w-full bg-gray-100 rounded-full h-2 overflow-hidden">
-                      <div
-                        className={`h-2 rounded-full transition-all duration-500 ${
-                          santri.skorKedisiplinan >= 95
-                            ? "bg-emerald-600"
-                            : santri.skorKedisiplinan >= 90
-                              ? "bg-blue-600"
-                              : santri.skorKedisiplinan >= 85
-                                ? "bg-orange-500"
-                                : santri.skorKedisiplinan >= 75
-                                  ? "bg-red-500"
-                                  : "bg-red-700"
-                        }`}
-                        style={{ width: `${santri.skorKedisiplinan}%` }}
-                      />
-                    </div>
-                  </div>
-
-                  {/* Tanggung Jawab */}
-                  <div>
-                    <div className="flex justify-between items-center mb-1.5">
-                      <span className="text-xs font-medium text-gray-600 flex items-center gap-1">
-                        Tanggung Jawab
-                      </span>
-                      <span
-                        className={`text-xs font-semibold ${
-                          santri.skorTanggungJawab >= 95
-                            ? "text-emerald-600"
-                            : santri.skorTanggungJawab >= 90
-                              ? "text-blue-600"
-                              : santri.skorTanggungJawab >= 85
-                                ? "text-orange-500"
-                                : santri.skorTanggungJawab >= 75
-                                  ? "text-red-500"
-                                  : "text-red-700"
-                        }`}
-                      >
-                        {santri.skorTanggungJawab}%
-                      </span>
-                    </div>
-                    <div className="w-full bg-gray-100 rounded-full h-2 overflow-hidden">
-                      <div
-                        className={`h-2 rounded-full transition-all duration-500 ${
-                          santri.skorTanggungJawab >= 95
-                            ? "bg-emerald-600"
-                            : santri.skorTanggungJawab >= 90
-                              ? "bg-blue-600"
-                              : santri.skorTanggungJawab >= 85
-                                ? "bg-orange-500"
-                                : santri.skorTanggungJawab >= 75
-                                  ? "bg-red-500"
-                                  : "bg-red-700"
-                        }`}
-                        style={{ width: `${santri.skorTanggungJawab}%` }}
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Divider */}
-                <div className="border-t border-gray-100 my-4"></div>
-
-                {/* Skor Final */}
-                <div className="flex justify-between items-center">
-                  <span className="text-xs font-semibold text-gray-600 flex items-center gap-1">
-                    <span>🎯</span> Skor Final
-                  </span>
-                  <div className="flex items-center gap-2">
-                    <div className="w-16 bg-gray-100 rounded-full h-1.5 overflow-hidden">
-                      <div
-                        className={`h-1.5 rounded-full transition-all duration-500 ${
-                          santri.skorFinal >= 95
-                            ? "bg-emerald-600"
-                            : santri.skorFinal >= 90
-                              ? "bg-blue-600"
-                              : santri.skorFinal >= 85
-                                ? "bg-orange-500"
-                                : santri.skorFinal >= 75
-                                  ? "bg-red-500"
-                                  : "bg-red-700"
-                        }`}
-                        style={{ width: `${santri.skorFinal}%` }}
-                      />
-                    </div>
-                    <span
-                      className={`text-base font-bold ${
-                        santri.skorFinal >= 95
-                          ? "text-emerald-600"
-                          : santri.skorFinal >= 90
-                            ? "text-blue-600"
-                            : santri.skorFinal >= 85
-                              ? "text-orange-500"
-                              : santri.skorFinal >= 75
-                                ? "text-red-500"
-                                : "text-red-700"
-                      }`}
                     >
-                      {santri.skorFinal}%
+                      Skor {santri.skorFinal}%
+                    </div>
+                  </div>
+
+                  {/* Detail Skor */}
+                  <div className="space-y-3">
+                    {/* Kedisiplinan */}
+                    <div>
+                      <div className="flex justify-between items-center mb-1.5">
+                        <span className="text-xs font-medium text-gray-600 flex items-center gap-1">
+                          Kedisiplinan
+                        </span>
+                        <span
+                          className={`text-xs font-semibold ${
+                            santri.skorKedisiplinan >= 95
+                              ? "text-emerald-600"
+                              : santri.skorKedisiplinan >= 90
+                                ? "text-blue-600"
+                                : santri.skorKedisiplinan >= 85
+                                  ? "text-orange-500"
+                                  : santri.skorKedisiplinan >= 75
+                                    ? "text-red-500"
+                                    : "text-red-700"
+                          }`}
+                        >
+                          {santri.skorKedisiplinan}%
+                        </span>
+                      </div>
+                      <div className="w-full bg-gray-100 rounded-full h-2 overflow-hidden">
+                        <div
+                          className={`h-2 rounded-full transition-all duration-500 ${
+                            santri.skorKedisiplinan >= 95
+                              ? "bg-emerald-600"
+                              : santri.skorKedisiplinan >= 90
+                                ? "bg-blue-600"
+                                : santri.skorKedisiplinan >= 85
+                                  ? "bg-orange-500"
+                                  : santri.skorKedisiplinan >= 75
+                                    ? "bg-red-500"
+                                    : "bg-red-700"
+                          }`}
+                          style={{ width: `${santri.skorKedisiplinan}%` }}
+                        />
+                      </div>
+                    </div>
+
+                    {/* Tanggung Jawab */}
+                    <div>
+                      <div className="flex justify-between items-center mb-1.5">
+                        <span className="text-xs font-medium text-gray-600 flex items-center gap-1">
+                          Tanggung Jawab
+                        </span>
+                        <span
+                          className={`text-xs font-semibold ${
+                            santri.skorTanggungJawab >= 95
+                              ? "text-emerald-600"
+                              : santri.skorTanggungJawab >= 90
+                                ? "text-blue-600"
+                                : santri.skorTanggungJawab >= 85
+                                  ? "text-orange-500"
+                                  : santri.skorTanggungJawab >= 75
+                                    ? "text-red-500"
+                                    : "text-red-700"
+                          }`}
+                        >
+                          {santri.skorTanggungJawab}%
+                        </span>
+                      </div>
+                      <div className="w-full bg-gray-100 rounded-full h-2 overflow-hidden">
+                        <div
+                          className={`h-2 rounded-full transition-all duration-500 ${
+                            santri.skorTanggungJawab >= 95
+                              ? "bg-emerald-600"
+                              : santri.skorTanggungJawab >= 90
+                                ? "bg-blue-600"
+                                : santri.skorTanggungJawab >= 85
+                                  ? "bg-orange-500"
+                                  : santri.skorTanggungJawab >= 75
+                                    ? "bg-red-500"
+                                    : "bg-red-700"
+                          }`}
+                          style={{ width: `${santri.skorTanggungJawab}%` }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Divider */}
+                  <div className="border-t border-gray-100 my-4"></div>
+
+                  {/* Skor Final */}
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs font-semibold text-gray-600 flex items-center gap-1">
+                      <span>🎯</span> Skor Final
                     </span>
+                    <div className="flex items-center gap-2">
+                      <div className="w-16 bg-gray-100 rounded-full h-1.5 overflow-hidden">
+                        <div
+                          className={`h-1.5 rounded-full transition-all duration-500 ${
+                            santri.skorFinal >= 95
+                              ? "bg-emerald-600"
+                              : santri.skorFinal >= 90
+                                ? "bg-blue-600"
+                                : santri.skorFinal >= 85
+                                  ? "bg-orange-500"
+                                  : santri.skorFinal >= 75
+                                    ? "bg-red-500"
+                                    : "bg-red-700"
+                          }`}
+                          style={{ width: `${santri.skorFinal}%` }}
+                        />
+                      </div>
+                      <span
+                        className={`text-base font-bold ${
+                          santri.skorFinal >= 95
+                            ? "text-emerald-600"
+                            : santri.skorFinal >= 90
+                              ? "text-blue-600"
+                              : santri.skorFinal >= 85
+                                ? "text-orange-500"
+                                : santri.skorFinal >= 75
+                                  ? "text-red-500"
+                                  : "text-red-700"
+                        }`}
+                      >
+                        {santri.skorFinal}%
+                      </span>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          </>
         ))}
     </div>
   );

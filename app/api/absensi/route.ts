@@ -15,8 +15,8 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const awalBulan = new Date(Date.UTC(tahun, bulan - 1, 1));
-    const akhirBulan = new Date(Date.UTC(tahun, bulan, 1));
+    const awalBulan = new Date(Date.UTC(tahun, bulan - 1, 1)); //bulan - 1 karena bulan mulai dari nol jadi kao bulan mei yang aslinya itu bulan ke 5 harus di kurangi 1 supaya jadi hasilnya bulan mei
+    const akhirBulan = new Date(Date.UTC(tahun, bulan, 1)); // ini trik untuk mengambil tanggal terakhir di bulan tertentu. menggunakan >=  <
 
     const absensi = await prisma.absensi.findMany({
       where: {

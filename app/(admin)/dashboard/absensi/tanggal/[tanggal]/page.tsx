@@ -46,6 +46,8 @@ export default function AbsenTanggalPage() {
   const { tanggal } = useParams();
   const router = useRouter();
 
+  console.log(tanggal);
+
   const [santriList, setSantriList] = useState<Santri[]>([]);
   const [absensiIds, setAbsensiIds] = useState<AbsensiIds>({
     SHOLAT: null,

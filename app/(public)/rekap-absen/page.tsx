@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import SkeletonRekap from "@/components/skeleton/SkeletonRekap";
 import FilterRekap from "@/components/rekap/FilterRekap";
 import RekapTable from "@/components/rekap/RekapTable";
@@ -44,17 +45,85 @@ type RekapSantri = {
 };
 
 export default function RekapPage() {
-  const [dariTanggal, setDariTanggal] = useState(
-    formatDateLocal(
-      new Date(new Date().getFullYear(), new Date().getMonth(), 1),
-    ),
-  );
+  const router = useRouter();
+  const searchParams = useSearchParams();
 
-  const [sampaiTanggal, setSampaiTanggal] = useState(
-    formatDateLocal(
-      new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0),
-    ),
-  );
+  const [dariTanggal, setDariTanggal] = useState(() => {
+    return (
+      searchParams.get("dariTanggal") ||
+      formatDateLocal(
+        new Date(new Date().getFullYear(), new Date().getMonth(), 1),
+      )
+    );
+  });
+
+  const [sampaiTanggal, setSampaiTanggal] = useState(() => {
+    return (
+      searchParams.get("sampaiTanggal") ||
+      formatDateLocal(
+        new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0),
+      )
+    );
+  });
+
+  const [tanggalAwal, setTanggalAwal] = useState(() => {
+    return (
+      searchParams.get("dariTanggal") ||
+      formatDateLocal(
+        new Date(new Date().getFullYear(), new Date().getMonth(), 1),
+      )
+    );
+  });
+
+  const [tanggalAkhir, setTanggalAkhir] = useState(() => {
+    return (
+      searchParams.get("sampaiTanggal") ||
+      formatDateLocal(
+        new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0),
+      )
+    );
+  });
+
+  const handleFilterTanggal = async () => {
+    const params = new URLSearchParams();
+    // Validasi input
+    if (!dariTanggal || !sampaiTanggal) {
+      alert("Tanggal awal dan tanggal akhir harus diisi.");
+      setLoading(false);
+      return;
+    }
+
+    const regexTanggal = /^\d{4}-\d{2}-\d{2}$/;
+    if (!regexTanggal.test(dariTanggal) || !regexTanggal.test(sampaiTanggal)) {
+      alert("Format tanggal tidak valid. Gunakan format YYYY-MM-DD.");
+      setLoading(false);
+      return;
+    }
+
+    const dari = new Date(dariTanggal);
+    const sampai = new Date(sampaiTanggal);
+
+    if (isNaN(dari.getTime()) || isNaN(sampai.getTime())) {
+      alert("Tanggal tidak valid.");
+      setLoading(false);
+      return;
+    }
+
+    if (sampai < dari) {
+      alert("Tanggal akhir tidak boleh lebih awal dari tanggal awal.");
+      setLoading(false);
+      return;
+    }
+
+    params.set("dariTanggal", dariTanggal);
+    params.set("sampaiTanggal", sampaiTanggal);
+    setTanggalAwal(dariTanggal);
+    setTanggalAkhir(sampaiTanggal);
+    router.replace(`?${params.toString()}`);
+
+    await handleLihatRekap();
+  };
+
   const [hasil, setHasil] = useState<RekapSantri[]>([]);
   const [loading, setLoading] = useState(false);
   const [sudahCari, setSudahCari] = useState(false);
@@ -99,9 +168,8 @@ export default function RekapPage() {
     try {
       const res = await fetch(`/api/rekap-absen?${params}`);
       const data = await res.json();
-      setHasil(data.santri); // untuk tabel rekap
-      console.log(data);
-      setSummaryChart(data.summary); // untuk chart
+      setHasil(data.santri);
+      setSummaryChart(data.summary);
       setSudahCari(true);
     } catch {
       console.error("Gagal fetch rekap");
@@ -122,7 +190,9 @@ export default function RekapPage() {
     });
   }
 
-  // Fungsi helper untuk format tanggal Indonesia
+  useEffect(() => {
+    handleLihatRekap();
+  }, []);
 
   return (
     <div>
@@ -140,7 +210,7 @@ export default function RekapPage() {
         loading={loading}
         onDariTanggalChange={setDariTanggal}
         onSampaiTanggalChange={setSampaiTanggal}
-        onLihatRekap={handleLihatRekap}
+        onLihatRekap={handleFilterTanggal}
       />
 
       {loading && (
@@ -157,9 +227,9 @@ export default function RekapPage() {
               <div className="flex items-center gap-2">
                 <div className="flex items-center gap-2 flex-wrap">
                   <h2 className="font-semibold text-gray-800">
-                    Rekap {formatTanggalIndonesia(dariTanggal)}
+                    Rekap {formatTanggalIndonesia(tanggalAwal)}
                     <span className="text-gray-400 mx-2">→</span>
-                    {formatTanggalIndonesia(sampaiTanggal)}
+                    {formatTanggalIndonesia(tanggalAkhir)}
                   </h2>
                 </div>
               </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 
 const BULAN = [
@@ -25,8 +25,6 @@ type Absensi = {
   tipe: "SHOLAT" | "KELAS" | "MAKAN" | "ASRAMA";
   tanggal: string;
 };
-
-type TabType = "SHOLAT" | "KELAS" | "MAKAN" | "ASRAMA";
 
 export default function ListAbsensiPage() {
   const router = useRouter();
