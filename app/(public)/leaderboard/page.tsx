@@ -52,28 +52,6 @@ export default function LeaderboardPage() {
     }
   }
 
-  function getMedal(index: number) {
-    if (index === 0) return "🥇";
-    if (index === 1) return "🥈";
-    if (index === 2) return "🥉";
-    return `${index + 1}`;
-  }
-
-  function getCardStyle(index: number) {
-    if (index === 0) return "border-yellow-400 bg-yellow-50";
-    if (index === 1) return "border-gray-300 bg-gray-50";
-    if (index === 2) return "border-orange-300 bg-orange-50";
-    return "border-gray-200 bg-white";
-  }
-
-  function getSkorColor(skor: number) {
-    if (skor >= 97) return "text-emerald-600";
-    if (skor >= 95) return "text-blue-600";
-    if (skor >= 90) return "text-orange-600";
-    if (skor >= 85) return "text-red-500";
-    return "text-red-800";
-  }
-
   return (
     <div>
       <div className="mb-8">
@@ -243,15 +221,15 @@ export default function LeaderboardPage() {
                     className={`
   px-3 py-1 rounded-full text-sm font-bold whitespace-nowrap
   ${
-    santri.skorFinal >= 97
+    santri.skorFinal >= 95
       ? "bg-green-100 text-green-700"
-      : santri.skorFinal >= 95
+      : santri.skorFinal >= 90
         ? "bg-blue-100 text-blue-600"
-        : santri.skorFinal >= 90
+        : santri.skorFinal >= 85
           ? "bg-orange-100 text-orange-600"
-          : santri.skorFinal >= 85
+          : santri.skorFinal >= 75
             ? "bg-red-100 text-red-700"
-            : "bg-red-200 text-red-950"
+            : "bg-red-200 text-red-800"
   }
 `}
                   >
@@ -269,13 +247,13 @@ export default function LeaderboardPage() {
                       </span>
                       <span
                         className={`text-xs font-semibold ${
-                          santri.skorKedisiplinan >= 97
+                          santri.skorKedisiplinan >= 95
                             ? "text-emerald-600"
-                            : santri.skorKedisiplinan >= 95
+                            : santri.skorKedisiplinan >= 90
                               ? "text-blue-600"
-                              : santri.skorKedisiplinan >= 90
+                              : santri.skorKedisiplinan >= 85
                                 ? "text-orange-500"
-                                : santri.skorKedisiplinan >= 85
+                                : santri.skorKedisiplinan >= 75
                                   ? "text-red-500"
                                   : "text-red-700"
                         }`}
@@ -286,13 +264,13 @@ export default function LeaderboardPage() {
                     <div className="w-full bg-gray-100 rounded-full h-2 overflow-hidden">
                       <div
                         className={`h-2 rounded-full transition-all duration-500 ${
-                          santri.skorKedisiplinan >= 97
+                          santri.skorKedisiplinan >= 95
                             ? "bg-emerald-600"
-                            : santri.skorKedisiplinan >= 95
+                            : santri.skorKedisiplinan >= 90
                               ? "bg-blue-600"
-                              : santri.skorKedisiplinan >= 90
+                              : santri.skorKedisiplinan >= 85
                                 ? "bg-orange-500"
-                                : santri.skorKedisiplinan >= 85
+                                : santri.skorKedisiplinan >= 75
                                   ? "bg-red-500"
                                   : "bg-red-700"
                         }`}
@@ -309,13 +287,13 @@ export default function LeaderboardPage() {
                       </span>
                       <span
                         className={`text-xs font-semibold ${
-                          santri.skorTanggungJawab >= 97
+                          santri.skorTanggungJawab >= 95
                             ? "text-emerald-600"
-                            : santri.skorTanggungJawab >= 95
+                            : santri.skorTanggungJawab >= 90
                               ? "text-blue-600"
-                              : santri.skorTanggungJawab >= 90
+                              : santri.skorTanggungJawab >= 85
                                 ? "text-orange-500"
-                                : santri.skorTanggungJawab >= 85
+                                : santri.skorTanggungJawab >= 75
                                   ? "text-red-500"
                                   : "text-red-700"
                         }`}
@@ -326,13 +304,13 @@ export default function LeaderboardPage() {
                     <div className="w-full bg-gray-100 rounded-full h-2 overflow-hidden">
                       <div
                         className={`h-2 rounded-full transition-all duration-500 ${
-                          santri.skorTanggungJawab >= 97
+                          santri.skorTanggungJawab >= 95
                             ? "bg-emerald-600"
-                            : santri.skorTanggungJawab >= 95
+                            : santri.skorTanggungJawab >= 90
                               ? "bg-blue-600"
-                              : santri.skorTanggungJawab >= 90
+                              : santri.skorTanggungJawab >= 85
                                 ? "bg-orange-500"
-                                : santri.skorTanggungJawab >= 85
+                                : santri.skorTanggungJawab >= 75
                                   ? "bg-red-500"
                                   : "bg-red-700"
                         }`}
@@ -354,13 +332,13 @@ export default function LeaderboardPage() {
                     <div className="w-16 bg-gray-100 rounded-full h-1.5 overflow-hidden">
                       <div
                         className={`h-1.5 rounded-full transition-all duration-500 ${
-                          santri.skorFinal >= 97
+                          santri.skorFinal >= 95
                             ? "bg-emerald-600"
-                            : santri.skorFinal >= 95
+                            : santri.skorFinal >= 90
                               ? "bg-blue-600"
-                              : santri.skorFinal >= 90
+                              : santri.skorFinal >= 85
                                 ? "bg-orange-500"
-                                : santri.skorFinal >= 85
+                                : santri.skorFinal >= 75
                                   ? "bg-red-500"
                                   : "bg-red-700"
                         }`}
@@ -369,13 +347,13 @@ export default function LeaderboardPage() {
                     </div>
                     <span
                       className={`text-base font-bold ${
-                        santri.skorFinal >= 97
+                        santri.skorFinal >= 95
                           ? "text-emerald-600"
-                          : santri.skorFinal >= 95
+                          : santri.skorFinal >= 90
                             ? "text-blue-600"
-                            : santri.skorFinal >= 90
+                            : santri.skorFinal >= 85
                               ? "text-orange-500"
-                              : santri.skorFinal >= 85
+                              : santri.skorFinal >= 75
                                 ? "text-red-500"
                                 : "text-red-700"
                       }`}

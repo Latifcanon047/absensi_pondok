@@ -62,11 +62,56 @@ export default function SummaryCards({
     {
       label: labels.skor ?? "Skor",
       value: `${summaryChart.skor}%`,
-      bg: "from-emerald-50 to-emerald-100/50",
-      text: "text-emerald-700",
-      labelColor: "text-emerald-600",
+      bg: `${
+        summaryChart.skor >= 95
+          ? "from-emerald-50 to-emerald-100/50"
+          : summaryChart.skor >= 90
+            ? "from-blue-50 to-blue-100/50"
+            : summaryChart.skor >= 85
+              ? "from-orange-50 to-orange-100/50"
+              : summaryChart.skor >= 75
+                ? "from-red-50 to-red-100/50"
+                : "from-red-100 to-red-200/50"
+      }`,
+      text: `${
+        summaryChart.skor >= 95
+          ? "text-emerald-700"
+          : summaryChart.skor >= 90
+            ? "text-blue-700"
+            : summaryChart.skor >= 85
+              ? "text-orange-700"
+              : summaryChart.skor >= 75
+                ? "text-red-700"
+                : "text-red-800"
+      }`,
+      labelColor: `${
+        summaryChart.skor >= 95
+          ? "text-emerald-600"
+          : summaryChart.skor >= 90
+            ? "text-blue-600"
+            : summaryChart.skor >= 85
+              ? "text-orange-600"
+              : summaryChart.skor >= 75
+                ? "text-red-600"
+                : "text-red-700"
+      }`,
     },
   ];
+
+  //                       className={`
+  //   px-3 py-1 rounded-full text-sm font-bold whitespace-nowrap
+  //   ${
+  //     santri.skorFinal >= 95
+  //       ? "bg-green-100 text-green-700"
+  //       : santri.skorFinal >= 90
+  //         ? "bg-blue-100 text-blue-600"
+  //         : santri.skorFinal >= 85
+  //           ? "bg-orange-100 text-orange-600"
+  //           : santri.skorFinal >= 75
+  //             ? "bg-red-100 text-red-700"
+  //             : "bg-red-200 text-red-800"
+  //   }
+  // `}
 
   return (
     <div className="grid grid-cols-3 md:grid-cols-6 gap-4">

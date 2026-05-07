@@ -105,7 +105,9 @@ export default function TabelAsrama({
                 key={santri.id}
                 className="hover:bg-gray-50/50 transition-colors duration-150"
               >
-                <td className={`px-5 py-3 font-medium text-gray-700 bg-white`}>
+                <td
+                  className={`px-5 py-3 font-medium text-gray-700 ${index % 2 === 0 ? "bg-white" : "bg-gray-50/30"}`}
+                >
                   {santri.nama}
                 </td>
                 <td className="px-4 py-3 text-center">

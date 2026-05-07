@@ -160,13 +160,13 @@ export default function RekapTable({
                     <div className="flex items-center justify-center gap-1">
                       <span
                         className={`font-bold text-sm ${
-                          (statusData?.skor || 0) >= 97
+                          (statusData?.skor || 0) >= 95
                             ? "text-emerald-600"
-                            : (statusData?.skor || 0) >= 95
+                            : (statusData?.skor || 0) >= 90
                               ? "text-blue-600"
-                              : (statusData?.skor || 0) >= 90
+                              : (statusData?.skor || 0) >= 85
                                 ? "text-orange-500"
-                                : (statusData?.skor || 0) >= 85
+                                : (statusData?.skor || 0) >= 75
                                   ? "text-red-500"
                                   : "text-red-700"
                         }`}
@@ -176,13 +176,13 @@ export default function RekapTable({
                       <div className="w-12 h-1 bg-gray-100 rounded-full overflow-hidden">
                         <div
                           className={`h-full rounded-full ${
-                            (statusData?.skor || 0) >= 97
+                            (statusData?.skor || 0) >= 95
                               ? "bg-emerald-600"
-                              : (statusData?.skor || 0) >= 95
+                              : (statusData?.skor || 0) >= 90
                                 ? "bg-blue-600"
-                                : (statusData?.skor || 0) >= 90
+                                : (statusData?.skor || 0) >= 85
                                   ? "bg-orange-500"
-                                  : (statusData?.skor || 0) >= 85
+                                  : (statusData?.skor || 0) >= 75
                                     ? "bg-red-500"
                                     : "bg-red-700"
                           }`}
