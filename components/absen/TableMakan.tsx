@@ -11,7 +11,7 @@ type Santri = {
 type TabelMakanProps = {
   santriList: Santri[];
   sesiMakan: string[];
-  makanStates: Record<string, StatusAbsen>;
+  makanStates: Record<string, StatusAbsen | null>;
   submitting: string | null;
   sukses: boolean;
   onTandaiSemua: (checked: boolean) => void;

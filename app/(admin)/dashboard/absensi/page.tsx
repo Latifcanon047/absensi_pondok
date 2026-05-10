@@ -43,6 +43,7 @@ export default function ListAbsensiPage() {
       const res = await fetch(`/api/absensi?bulan=${bulan}&tahun=${tahun}`);
       const data = await res.json();
       setHasil(data);
+      console.log(data);
       setSudahCari(true);
       if (data.length === 0) setShowDialog(true);
     } catch {

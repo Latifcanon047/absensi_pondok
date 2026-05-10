@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
+import { notFound } from "next/navigation";
 import SkeletonRekap from "@/components/skeleton/SkeletonRekap";
 import FilterRekap from "@/components/rekap/FilterRekap";
 import RekapTable from "@/components/rekap/RekapTable";
@@ -182,6 +183,14 @@ export default function RekapPiketContent() {
   }
 
   useEffect(() => {
+    const params = new URLSearchParams();
+    const regexTanggal = /^\d{4}-\d{2}-\d{2}$/;
+    if (!regexTanggal.test(dariTanggal) || !regexTanggal.test(sampaiTanggal)) {
+      notFound();
+    }
+    params.set("dariTanggal", dariTanggal);
+    params.set("sampaiTanggal", sampaiTanggal);
+    router.replace(`?${params.toString()}`);
     handleLihatRekap();
   }, []);
 

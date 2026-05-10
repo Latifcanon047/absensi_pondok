@@ -10,7 +10,7 @@ type Santri = {
 
 type TabelAsramaProps = {
   santriList: Santri[];
-  asramaStates: Record<string, StatusAbsen>;
+  asramaStates: Record<string, StatusAbsen | null>;
   submitting: string | null;
   sukses: boolean;
   onTandaiSemua: (checked: boolean) => void;

@@ -46,8 +46,6 @@ export default function AbsenTanggalPage() {
   const { tanggal } = useParams();
   const router = useRouter();
 
-  console.log(tanggal);
-
   const [santriList, setSantriList] = useState<Santri[]>([]);
   const [absensiIds, setAbsensiIds] = useState<AbsensiIds>({
     SHOLAT: null,
@@ -61,16 +59,17 @@ export default function AbsenTanggalPage() {
   const [kelasStates, setKelasStates] = useState<
     Record<string, StatusAbsen | null>
   >({});
-  const [makanStates, setMakanStates] = useState<Record<string, StatusAbsen>>(
-    {},
-  );
-  const [asramaStates, setAsramaStates] = useState<Record<string, StatusAbsen>>(
-    {},
-  );
+  const [makanStates, setMakanStates] = useState<
+    Record<string, StatusAbsen | null>
+  >({});
+  const [asramaStates, setAsramaStates] = useState<
+    Record<string, StatusAbsen | null>
+  >({});
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState<string | null>(null);
   const [sukses, setSukses] = useState<Record<string, boolean>>({});
 
+  //untuk mengambil label hari dan tanggal
   const tanggalDate = new Date(tanggal as string);
   const namaHari = HARI[tanggalDate.getDay()];
   const labelTanggal = `${namaHari}, ${tanggalDate.getDate()} ${BULAN[tanggalDate.getMonth()]} ${tanggalDate.getFullYear()}`;
@@ -86,10 +85,8 @@ export default function AbsenTanggalPage() {
       const absensiData = await absensiRes.json();
       const santriData = await santriRes.json();
 
-      console.log(absensiData);
-      console.log(santriData);
-
       setAbsensiIds(absensiData);
+      console.log(absensiData);
       setSantriList(santriData);
 
       // Fetch data yang sudah ada
@@ -137,7 +134,7 @@ export default function AbsenTanggalPage() {
           fetch(`/api/absen-makan?absensiId=${absensiData.MAKAN.id}`)
             .then((r) => r.json())
             .then((d) => {
-              const states: Record<string, StatusAbsen> = {};
+              const states: Record<string, StatusAbsen | null> = {};
               santriData.forEach((s: Santri) => {
                 SESI_MAKAN.forEach((sesi) => {
                   states[`${s.id}-${sesi}`] = "KOSONG";
@@ -161,7 +158,7 @@ export default function AbsenTanggalPage() {
           fetch(`/api/absen-asrama?absensiId=${absensiData.ASRAMA.id}`)
             .then((r) => r.json())
             .then((d) => {
-              const states: Record<string, StatusAbsen> = {};
+              const states: Record<string, StatusAbsen | null> = {};
               santriData.forEach((s: Santri) => {
                 states[`${s.id}`] = "KOSONG";
               });
@@ -309,6 +306,7 @@ export default function AbsenTanggalPage() {
       setSubmitting(null); // loading hilang SETELAH semua fetch selesai
     }
   }
+
   function handleTandaiSemua(
     checked: boolean,
     tipe: "SHOLAT" | "KELAS" | "MAKAN" | "ASRAMA",

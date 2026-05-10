@@ -101,7 +101,7 @@ export default function SantriPage() {
 
   return (
     <div>
-      <div className="flex justify-between items-center mb-6">
+      <div className="pt-5 sm:pt-15 md:pt-5 flex justify-between items-center mb-6">
         <div>
           <div className="flex items-center gap-2">
             <h1 className="text-xl font-medium text-gray-900">Data Santri</h1>

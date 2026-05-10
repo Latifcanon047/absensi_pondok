@@ -42,7 +42,7 @@ export default function BuatAbsensiPage() {
             return fetch("/api/absensi", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ tipe, bulan, tahun, tanggal }),
+              body: JSON.stringify({ tipe, tanggal }),
             });
           }),
         ),
@@ -57,7 +57,7 @@ export default function BuatAbsensiPage() {
       }
 
       if (adaDuplikat) {
-        setError("Sebagian absensi bulan ini sudah dibuat sebelumnya!");
+        setError("Absensi bulan ini sudah dibuat sebelumnya!");
         return;
       }
 

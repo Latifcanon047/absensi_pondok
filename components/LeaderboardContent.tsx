@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
+import { notFound } from "next/navigation";
 import SkeletonLeaderboard from "@/components/skeleton/SkeletonLeaderboard";
 
 type LeaderboardItem = {
@@ -52,6 +53,17 @@ export default function LeaderboardContent() {
     );
   });
 
+  function formatDateLocal(date: Date) {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  }
+
+  const [hasil, setHasil] = useState<LeaderboardItem[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [sudahCari, setSudahCari] = useState(false);
+
   const handleFilterTanggal = async () => {
     const params = new URLSearchParams();
     // Validasi input
@@ -91,22 +103,9 @@ export default function LeaderboardContent() {
     handleLihat();
   };
 
-  const [hasil, setHasil] = useState<LeaderboardItem[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [sudahCari, setSudahCari] = useState(false);
-
-  function formatDateLocal(date: Date) {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const day = String(date.getDate()).padStart(2, "0");
-    return `${year}-${month}-${day}`;
-  }
-
   async function handleLihat() {
     setLoading(true);
     setSudahCari(false);
-    console.log(tanggalAwal);
-
     const params = new URLSearchParams({ dariTanggal, sampaiTanggal });
 
     try {
@@ -142,6 +141,14 @@ export default function LeaderboardContent() {
   }
 
   useEffect(() => {
+    const params = new URLSearchParams();
+    const regexTanggal = /^\d{4}-\d{2}-\d{2}$/;
+    if (!regexTanggal.test(dariTanggal) || !regexTanggal.test(sampaiTanggal)) {
+      notFound();
+    }
+    params.set("dariTanggal", dariTanggal);
+    params.set("sampaiTanggal", sampaiTanggal);
+    router.replace(`?${params.toString()}`);
     handleLihat();
   }, []);
 
@@ -337,7 +344,9 @@ export default function LeaderboardContent() {
           ? "bg-orange-100 text-orange-600"
           : santri.skorFinal >= 75
             ? "bg-red-100 text-red-700"
-            : "bg-red-200 text-red-800"
+            : santri.skorFinal == 0
+              ? "bg-gray-100 text-gray-400"
+              : "bg-red-200 text-red-800"
   }
 `}
                     >
@@ -363,7 +372,9 @@ export default function LeaderboardContent() {
                                   ? "text-orange-500"
                                   : santri.skorKedisiplinan >= 75
                                     ? "text-red-500"
-                                    : "text-red-700"
+                                    : santri.skorKedisiplinan == 0
+                                      ? "text-gray-400"
+                                      : "text-red-700"
                           }`}
                         >
                           {santri.skorKedisiplinan}%
@@ -403,7 +414,9 @@ export default function LeaderboardContent() {
                                   ? "text-orange-500"
                                   : santri.skorTanggungJawab >= 75
                                     ? "text-red-500"
-                                    : "text-red-700"
+                                    : santri.skorTanggungJawab == 0
+                                      ? "text-gray-400"
+                                      : "text-red-700"
                           }`}
                         >
                           {santri.skorTanggungJawab}%
@@ -463,7 +476,9 @@ export default function LeaderboardContent() {
                                 ? "text-orange-500"
                                 : santri.skorFinal >= 75
                                   ? "text-red-500"
-                                  : "text-red-700"
+                                  : santri.skorFinal == 0
+                                    ? "text-gray-400"
+                                    : "text-red-700"
                         }`}
                       >
                         {santri.skorFinal}%
