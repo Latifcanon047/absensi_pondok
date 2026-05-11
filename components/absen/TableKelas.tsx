@@ -132,7 +132,7 @@ export default function TabelKelas({
             ))}
           </tbody>
         </table>
-        <div className="h-37" />
+        <div className="h-45" />
       </div>
     </div>
   );

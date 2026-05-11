@@ -121,7 +121,7 @@ export default function TabelAsrama({
             ))}
           </tbody>
         </table>
-        <div className="h-37" />
+        <div className="h-45" />
       </div>
     </div>
   );
