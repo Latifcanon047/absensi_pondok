@@ -40,42 +40,51 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const { tipe, tanggal } = await request.json();
+    const { bulan, tahun } = await request.json();
 
-    if (!tipe || !tanggal) {
+    if (!bulan || !tahun) {
       return NextResponse.json(
-        { error: "Semua field harus diisi" },
+        { error: "Bulan dan tahun harus diisi" },
         { status: 400 },
       );
     }
 
-    const date = new Date(tanggal);
+    const jumlahHari = new Date(tahun, bulan, 0).getDate();
+    const SEMUA_TIPE: TipeAbsensi[] = ["SHOLAT", "KELAS", "MAKAN", "ASRAMA"];
 
-    const tanggalUTC = new Date(
-      Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()),
+    // Buat semua tanggal UTC
+    const tanggalList = Array.from(
+      { length: jumlahHari },
+      (_, i) => new Date(Date.UTC(tahun, bulan - 1, i + 1)),
     );
-    // Cek duplikat
-    const existing = await prisma.absensi.findUnique({
+
+    // Cek duplikat dulu sebelum transaksi
+    const existing = await prisma.absensi.findFirst({
       where: {
-        tipe_tanggal: {
-          tipe: tipe as TipeAbsensi,
-          tanggal: tanggalUTC,
-        },
+        tipe: { in: SEMUA_TIPE },
+        tanggal: { in: tanggalList },
       },
     });
 
     if (existing) {
-      return NextResponse.json({ error: "Absensi sudah ada" }, { status: 409 });
+      return NextResponse.json(
+        { error: "Absensi bulan ini sudah dibuat sebelumnya!" },
+        { status: 409 },
+      );
     }
 
-    const absensi = await prisma.absensi.create({
-      data: {
-        tipe: tipe as TipeAbsensi,
-        tanggal: tanggalUTC,
-      },
-    });
+    // Satu transaksi untuk semua tipe × semua hari
+    await prisma.$transaction(
+      SEMUA_TIPE.flatMap((tipe) =>
+        tanggalList.map((tanggal) =>
+          prisma.absensi.create({
+            data: { tipe, tanggal },
+          }),
+        ),
+      ),
+    );
 
-    return NextResponse.json(absensi, { status: 201 });
+    return NextResponse.json({ success: true }, { status: 201 });
   } catch (error) {
     console.error("POST absensi error:", error);
     return NextResponse.json(

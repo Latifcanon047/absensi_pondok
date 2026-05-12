@@ -18,8 +18,6 @@ const BULAN = [
   "Desember",
 ];
 
-const SEMUA_TIPE = ["SHOLAT", "KELAS", "MAKAN", "ASRAMA"];
-
 export default function BuatAbsensiPage() {
   const router = useRouter();
   const [bulan, setBulan] = useState(new Date().getMonth() + 1);
@@ -35,29 +33,19 @@ export default function BuatAbsensiPage() {
     setError("");
 
     try {
-      const results = await Promise.all(
-        SEMUA_TIPE.flatMap((tipe) =>
-          Array.from({ length: jumlahHari }, (_, i) => {
-            const tanggal = new Date(tahun, bulan - 1, i + 1).toISOString();
-            return fetch("/api/absensi", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ tipe, tanggal }),
-            });
-          }),
-        ),
-      );
+      const res = await fetch("/api/absensi", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ bulan, tahun }),
+      });
 
-      const adaDuplikat = results.some((r) => r.status === 409);
-      const adaGagal = results.some((r) => !r.ok && r.status !== 409);
-
-      if (adaGagal) {
-        setError("Terjadi kesalahan saat membuat absensi");
+      if (res.status === 409) {
+        setError("Absensi bulan ini sudah dibuat sebelumnya!");
         return;
       }
 
-      if (adaDuplikat) {
-        setError("Absensi bulan ini sudah dibuat sebelumnya!");
+      if (!res.ok) {
+        setError("Terjadi kesalahan saat membuat absensi");
         return;
       }
 
