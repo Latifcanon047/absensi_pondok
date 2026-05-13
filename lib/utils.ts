@@ -20,6 +20,6 @@ export function formatTanggal(date: Date): string {
 export function hitungSkor(hadir: number, telat: number, alpa: number): number {
   const total = hadir + telat + alpa;
   if (total === 0) return 0;
-  const skor = ((hadir * 1 + alpa * -2) / total) * 100;
-  return Math.round(skor * 10) / 10; //untuk membulatkan skor ke 1 desimal, misal 85.6666 => 85.7
+  const skor = ((hadir * 1 + alpa * -1) / total) * 100;
+  return Math.round(skor * 10) / 10;
 }
