@@ -37,6 +37,7 @@ export default function AdminLayout({
     { name: "Rekap Absen", href: "/rekap-absen" },
     { name: "Rekap Piket", href: "/rekap-piket" },
     { name: "Leaderboard", href: "/leaderboard" },
+    { name: "Data Absen", href: "/data-absen" },
     { name: "Pengaturan", href: "/dashboard/settings" },
   ];
 

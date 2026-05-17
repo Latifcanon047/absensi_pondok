@@ -16,6 +16,7 @@ export default function PublicLayout({
     { name: "Kedisiplinan", href: "/rekap-absen" },
     { name: "Tanggung Jawab", href: "/rekap-piket" },
     { name: "Leaderboard", href: "/leaderboard" },
+    { name: "Data Absen", href: "/data-absen" },
     { name: "Absensi", href: "/dashboard" },
   ];
 
