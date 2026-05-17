@@ -56,6 +56,7 @@ export default function AbsenTanggalPage() {
   const [sholatStates, setSholatStates] = useState<
     Record<string, StatusAbsen | null>
   >({});
+  console.log(sholatStates);
   const [kelasStates, setKelasStates] = useState<
     Record<string, StatusAbsen | null>
   >({});
@@ -86,7 +87,6 @@ export default function AbsenTanggalPage() {
       const santriData = await santriRes.json();
 
       setAbsensiIds(absensiData);
-      console.log(absensiData);
       setSantriList(santriData);
 
       // Fetch data yang sudah ada
@@ -221,6 +221,7 @@ export default function AbsenTanggalPage() {
           status: kelasStates[`${s.id}-${sesi}`] || "KOSONG",
         })),
       );
+      console.log(data);
       await fetch("/api/absen-kelas", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
