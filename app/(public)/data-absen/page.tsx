@@ -56,8 +56,9 @@ function buildDateString(year: number, month: number, day: number): string {
 
 function generateDateRange(dari: string, sampai: string): string[] {
   const dates: string[] = [];
-  const start = new Date(dari);
-  const end = new Date(sampai);
+  // ✅ Tambah T00:00:00 → diinterpret sebagai LOCAL time, bukan UTC
+  const start = new Date(dari + "T00:00:00");
+  const end = new Date(sampai + "T00:00:00");
   for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
     const year = d.getFullYear();
     const mm = String(d.getMonth() + 1).padStart(2, "0");
@@ -68,7 +69,8 @@ function generateDateRange(dari: string, sampai: string): string[] {
 }
 
 function formatChartLabel(tanggal: string): string {
-  const date = new Date(tanggal);
+  // ✅ Sama — tambah T00:00:00 agar getDay()/getDate() pakai local time
+  const date = new Date(tanggal + "T00:00:00");
   return `${date.getDate()} ${HARI_SINGKAT[date.getDay()]}`;
 }
 

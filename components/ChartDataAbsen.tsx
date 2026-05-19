@@ -51,12 +51,14 @@ const BULAN = [
 
 function getLabel(item: ChartData): string {
   if (item.label) return item.label;
-  const date = new Date(item.tanggal);
+  const [y, m, d] = item.tanggal.split("-").map(Number);
+  const date = new Date(y, m - 1, d); // ✅ local time
   return `${date.getDate()} ${HARI_SINGKAT[date.getDay()]}`;
 }
 
 function getFullDateLabel(item: ChartData): string {
-  const date = new Date(item.tanggal);
+  const [y, m, d] = item.tanggal.split("-").map(Number);
+  const date = new Date(y, m - 1, d); // ✅ local time
   return `${date.getDate()} ${BULAN[date.getMonth()]} ${date.getFullYear()}`;
 }
 
@@ -70,11 +72,6 @@ export default function ChartDataAbsen({ data }: ChartDataAbsenProps) {
       ...item,
       label,
       fullDate: getFullDateLabel(item),
-      hadir: item.hadir > 0 ? item.hadir : prev.hadir,
-      izin: item.izin > 0 ? item.izin : prev.izin,
-      sakit: item.sakit > 0 ? item.sakit : prev.sakit,
-      telat: item.telat > 0 ? item.telat : prev.telat,
-      alpa: item.alpa > 0 ? item.alpa : prev.alpa, // Proses data alpa
     };
   });
 
