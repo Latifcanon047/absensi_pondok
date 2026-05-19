@@ -60,7 +60,6 @@ export default function TabelAsramaReadOnly({
             ))}
           </tbody>
         </table>
-        <div className="h-45" />
       </div>
     </div>
   );

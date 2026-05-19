@@ -3,15 +3,6 @@
 import { StatusAbsen } from "@prisma/client";
 import StatusBadge from "./StatusBadge";
 
-const WAKTU_SHOLAT = [
-  "Tahajjud",
-  "Subuh",
-  "Dzuhur",
-  "Ashar",
-  "Maghrib",
-  "Isya",
-];
-
 type Santri = {
   id: number;
   nama: string;
@@ -19,11 +10,13 @@ type Santri = {
 
 type TabelSholatReadOnlyProps = {
   santriList: Santri[];
+  waktuSholat: string[];
   sholatStates: Record<string, StatusAbsen | null>;
 };
 
 export default function TabelSholatReadOnly({
   santriList,
+  waktuSholat,
   sholatStates,
 }: TabelSholatReadOnlyProps) {
   return (
@@ -46,7 +39,7 @@ export default function TabelSholatReadOnly({
               <th className="sticky left-0 bg-gray-50 z-10 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.06)] px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Nama Santri
               </th>
-              {WAKTU_SHOLAT.map((w) => (
+              {waktuSholat.map((w) => (
                 <th
                   key={w}
                   className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider min-w-24"
@@ -67,7 +60,7 @@ export default function TabelSholatReadOnly({
                 >
                   {santri.nama}
                 </td>
-                {WAKTU_SHOLAT.map((waktu) => (
+                {waktuSholat.map((waktu) => (
                   <td key={waktu} className="px-4 py-3 text-center">
                     <StatusBadge
                       status={sholatStates[`${santri.id}-${waktu}`] ?? null}
@@ -78,7 +71,6 @@ export default function TabelSholatReadOnly({
             ))}
           </tbody>
         </table>
-        <div className="h-45" />
       </div>
     </div>
   );

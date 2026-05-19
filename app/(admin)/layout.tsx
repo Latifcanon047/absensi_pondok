@@ -24,9 +24,13 @@ export default function AdminLayout({
   }, []);
 
   async function handleLogout() {
-    await fetch("/api/auth/logout", { method: "POST" });
+    await fetch("/api/auth/logout", {
+      method: "POST",
+      cache: "no-store",
+    });
+
+    router.replace("/");
     router.refresh();
-    router.push("/");
   }
 
   const navItems = [

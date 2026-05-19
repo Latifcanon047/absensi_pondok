@@ -26,7 +26,7 @@ export default function Home() {
         </div>
 
         {/* Feature Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-5 md:gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 sm:gap-5 md:gap-6">
           <Link
             href="/rekap-absen"
             className="group bg-white rounded-xl p-4 sm:p-5 md:p-6 shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 hover:border-emerald-300 hover:-translate-y-1"
@@ -74,6 +74,24 @@ export default function Home() {
               </h2>
               <p className="text-xs sm:text-sm text-gray-500">
                 Lihat rekap Tanggung Jawab santri
+              </p>
+            </div>
+          </Link>
+
+          {/* Data Absen - Card Baru */}
+          <Link
+            href="/data-absen"
+            className="group bg-white rounded-xl p-4 sm:p-5 md:p-6 shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 hover:border-emerald-300 hover:-translate-y-1"
+          >
+            <div className="text-center">
+              <div className="inline-flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 bg-purple-50 rounded-xl mb-3 sm:mb-4 group-hover:bg-purple-100 transition-colors">
+                <span className="text-xl sm:text-2xl">📋</span>
+              </div>
+              <h2 className="text-base sm:text-lg font-semibold text-gray-800 mb-1 sm:mb-2">
+                Data Absen
+              </h2>
+              <p className="text-xs sm:text-sm text-gray-500">
+                Kelola dan lihat data absensi santri
               </p>
             </div>
           </Link>

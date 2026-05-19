@@ -71,7 +71,6 @@ export default function TabelMakanReadOnly({
             ))}
           </tbody>
         </table>
-        <div className="h-45" />
       </div>
     </div>
   );
