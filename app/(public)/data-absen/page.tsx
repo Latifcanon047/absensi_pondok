@@ -10,12 +10,12 @@ import ChartDataAbsen from "@/components/ChartDataAbsen";
 import TableSkeleton from "@/components/skeleton/TabelSkeleton";
 
 const WAKTU_SHOLAT = [
+  "Tahajjud",
   "Subuh",
   "Dzuhur",
   "Ashar",
   "Maghrib",
   "Isya",
-  "Tahajjud",
 ];
 const SESI_KELAS = ["Sesi 1", "Sesi 2", "Sesi 3", "Sesi 4", "Sesi 5", "Sesi 6"];
 const SESI_MAKAN = ["Pagi", "Siang", "Sore"];
