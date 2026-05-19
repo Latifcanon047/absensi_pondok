@@ -257,9 +257,7 @@ export default function DataAbsenPage() {
     } catch (error) {
       console.error("Gagal fetch chart data:", error);
     } finally {
-      setTimeout(() => {
-        setLoadingChart(false);
-      }, 3000);
+      setLoadingChart(false);
     }
   }, [dariTanggalStr, sampaiTanggalStr, tipeAbsenChart]);
 
@@ -366,9 +364,7 @@ export default function DataAbsenPage() {
     } catch {
       console.error("Gagal fetch data");
     } finally {
-      setTimeout(() => {
-        setLoading(false);
-      }, 3000);
+      setLoading(false);
     }
   }, [tanggal]);
 
