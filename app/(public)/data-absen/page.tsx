@@ -81,6 +81,8 @@ export default function DataAbsenPage() {
   const [tanggal, setTanggal] = useState<string>(
     () => today.toISOString().split("T")[0],
   );
+  const [inputTanggal, setInputTanggal] = useState(tanggal);
+
   const [santriList, setSantriList] = useState<Santri[]>([]);
   const [absensiIds, setAbsensiIds] = useState<AbsensiIds>({
     SHOLAT: null,
@@ -371,6 +373,7 @@ export default function DataAbsenPage() {
   }, [tanggal]);
 
   useEffect(() => {
+    setInputTanggal(tanggal);
     fetchData();
   }, [fetchData]);
 
@@ -669,12 +672,13 @@ export default function DataAbsenPage() {
             </button>
             <input
               type="date"
-              defaultValue={tanggal}
+              value={inputTanggal}
+              onChange={(e) => setInputTanggal(e.target.value)}
+              onBlur={(e) => setTanggal(e.target.value)}
               onKeyDown={(e) => {
                 if (e.key === "Enter")
                   setTanggal((e.target as HTMLInputElement).value);
               }}
-              onBlur={(e) => setTanggal((e.target as HTMLInputElement).value)}
               className="px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent bg-gray-50 hover:bg-white transition-all duration-200 cursor-pointer"
             />
             <button
