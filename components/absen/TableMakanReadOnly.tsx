@@ -1,7 +1,7 @@
 "use client";
 
 import { StatusAbsen } from "@prisma/client";
-import StatusBadge from "./StatusBadge";
+import StatusBadgePiket from "./StatusBadgePiket";
 
 type Santri = {
   id: number;
@@ -62,7 +62,7 @@ export default function TabelMakanReadOnly({
                 </td>
                 {sesiMakan.map((sesi) => (
                   <td key={sesi} className="px-4 py-3 text-center">
-                    <StatusBadge
+                    <StatusBadgePiket
                       status={makanStates[`${santri.id}-${sesi}`] ?? null}
                     />
                   </td>

@@ -1,16 +1,40 @@
+"use client";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export default function Home() {
+  const router = useRouter();
+  async function handleNavigate() {
+    try {
+      // 1. Tembak API internal Next.js yang kita buat tadi
+      const res = await fetch("/api/check-session", { cache: "no-store" });
+      const data = await res.json();
+
+      // 2. Jika API bilang 'false' (cookie tidak ada)
+      if (!data.authenticated) {
+        confirm("Anda belum login. Apakah ingin masuk ke halaman login?") &&
+          router.push("/login");
+        return; // Stop di sini
+      }
+
+      // 3. Jika API bilang 'true' (cookie aman ada di server)
+      router.push("/dashboard/absensi");
+    } catch (error) {
+      console.error("Gagal memeriksa sesi:", error);
+      alert("Terjadi kesalahan sistem. Silakan coba lagi.");
+    } finally {
+    }
+  }
   return (
     <main className="min-h-screen bg-linear-to-br from-gray-50 to-gray-100 flex items-center justify-center p-4 sm:p-6 relative">
       {/* Login Link - Pojok Kanan Atas */}
       <div className="absolute top-4 right-4 sm:top-6 sm:right-6">
-        <Link
-          href="/dashboard/absensi"
+        <button
+          onClick={handleNavigate} // Langsung referensikan fungsinya tanpa arrow function anonim jika tidak ada parameter
           className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-medium text-emerald-600 bg-white border border-emerald-200 rounded-lg hover:bg-emerald-50 hover:border-emerald-300 transition-all duration-200 shadow-sm hover:shadow-md"
         >
-          <span>Absensi</span>
-        </Link>
+          Absensi
+        </button>
       </div>
 
       <div className="w-full max-w-5xl px-2 sm:px-0">

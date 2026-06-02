@@ -1,7 +1,7 @@
 "use client";
 
 import { StatusAbsen } from "@prisma/client";
-import StatusBadge from "./StatusBadge";
+import StatusBadgePiket from "./StatusBadgePiket";
 
 type Santri = {
   id: number;
@@ -54,7 +54,9 @@ export default function TabelAsramaReadOnly({
                   {santri.nama}
                 </td>
                 <td className="px-4 py-3 text-center">
-                  <StatusBadge status={asramaStates[`${santri.id}`] ?? null} />
+                  <StatusBadgePiket
+                    status={asramaStates[`${santri.id}`] ?? null}
+                  />
                 </td>
               </tr>
             ))}

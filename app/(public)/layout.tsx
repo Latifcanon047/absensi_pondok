@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 
 export default function PublicLayout({
@@ -10,6 +10,7 @@ export default function PublicLayout({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
+  const router = useRouter();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const navItems = [
@@ -17,8 +18,29 @@ export default function PublicLayout({
     { name: "Tanggung Jawab", href: "/rekap-piket" },
     { name: "Leaderboard", href: "/leaderboard" },
     { name: "Data Absen", href: "/data-absen" },
-    { name: "Absensi", href: "/dashboard" },
   ];
+
+  async function handleNavigate() {
+    try {
+      // 1. Tembak API internal Next.js yang kita buat tadi
+      const res = await fetch("/api/check-session", { cache: "no-store" });
+      const data = await res.json();
+
+      // 2. Jika API bilang 'false' (cookie tidak ada)
+      if (!data.authenticated) {
+        confirm("Anda belum login. Apakah ingin masuk ke halaman login?") &&
+          router.push("/login");
+        return; // Stop di sini
+      }
+
+      // 3. Jika API bilang 'true' (cookie aman ada di server)
+      router.push("/dashboard/absensi");
+    } catch (error) {
+      console.error("Gagal memeriksa sesi:", error);
+      alert("Terjadi kesalahan sistem. Silakan coba lagi.");
+    } finally {
+    }
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -58,6 +80,15 @@ export default function PublicLayout({
                   </Link>
                 );
               })}
+              <button
+                onClick={handleNavigate}
+                className={`
+                      px-3 py-2 rounded-lg text-sm font-medium transition text-gray-600 hover:text-emerald-700 hover:bg-gray-50
+                
+                    `}
+              >
+                Absensi
+              </button>
             </div>
 
             {/* Mobile Menu Button */}
@@ -153,6 +184,14 @@ export default function PublicLayout({
                   </Link>
                 );
               })}
+              <button
+                onClick={handleNavigate}
+                className={`
+                      block px-4 py-3 mx-2 rounded-lg text-sm font-medium transition text-gray-600 hover:text-emerald-700 hover:bg-gray-50
+                    `}
+              >
+                Absensi
+              </button>
             </div>
           </div>
         </aside>
